@@ -3,7 +3,7 @@
 --
 -- Copyright © 2022 Imagined Menu
 --
-VERSION = '1.0.4'
+VERSION = '1.0.4.1'
 
 system.log('Imagined Menu', string.format('Loading Imagined Menu v%s...', VERSION))
 
@@ -391,66 +391,66 @@ local function HandleCommand(command, player)
 end
 
 -- callbacks
-function on_votekick(ply, target)
-	if target == PLAYER.PLAYER_ID() then
-		if (features.is_friend(ply) and settings.General['Exclude Friends']) then return end
-		if settings.Misc.OnVotekickSendChat then
-			CreateRemoveThread(true, 'vote_kick_'..thread_count, function()
-				online.send_chat("I tried to votekick a Nightfall user!", false, ply)
-				return POP_THREAD
-			end)
-		end
-		if settings.Misc.OnVotekickCrash then
-			CreateRemoveThread(true, 'vote_kick_'..thread_count, function()
-				features.crash_player(ply)
-				return POP_THREAD
-			end)
-		end
-		if settings.Misc.OnVotekickKick then
-			CreateRemoveThread(true, 'vote_kick_'..thread_count, function()
-				features.kick_player(ply)
-				return POP_THREAD
-			end)
-		end
-	end
-end
+-- function on_votekick(ply, target)
+-- 	if target == PLAYER.PLAYER_ID() then
+-- 		if (features.is_friend(ply) and settings.General['Exclude Friends']) then return end
+-- 		if settings.Misc.OnVotekickSendChat then
+-- 			CreateRemoveThread(true, 'vote_kick_'..thread_count, function()
+-- 				online.send_chat("I tried to votekick a Nightfall user!", false, ply)
+-- 				return POP_THREAD
+-- 			end)
+-- 		end
+-- 		if settings.Misc.OnVotekickCrash then
+-- 			CreateRemoveThread(true, 'vote_kick_'..thread_count, function()
+-- 				features.crash_player(ply)
+-- 				return POP_THREAD
+-- 			end)
+-- 		end
+-- 		if settings.Misc.OnVotekickKick then
+-- 			CreateRemoveThread(true, 'vote_kick_'..thread_count, function()
+-- 				features.kick_player(ply)
+-- 				return POP_THREAD
+-- 			end)
+-- 		end
+-- 	end
+-- end
 
-function on_report(ply, reason)
-	if (features.is_friend(ply) and settings.General['Exclude Friends']) then return end
-	if settings.Misc.OnReportSendChat then
-		CreateRemoveThread(true, 'report_'..thread_count, function()
-			online.send_chat("I tried to report a Nightfall user! Reason: "..reason, false, ply)
-			return POP_THREAD
-		end)
-	end
-	if settings.Misc.OnReportCrash then
-		CreateRemoveThread(true, 'report_'..thread_count, function()
-			features.crash_player(ply)
-			return POP_THREAD
-		end)
-	end
-	if settings.Misc.OnReportKick then
-		CreateRemoveThread(true, 'report_'..thread_count, function()
-			features.kick_player(ply)
-			return POP_THREAD
-		end)
-	end
-end
+-- function on_report(ply, reason)
+-- 	if (features.is_friend(ply) and settings.General['Exclude Friends']) then return end
+-- 	if settings.Misc.OnReportSendChat then
+-- 		CreateRemoveThread(true, 'report_'..thread_count, function()
+-- 			online.send_chat("I tried to report a Nightfall user! Reason: "..reason, false, ply)
+-- 			return POP_THREAD
+-- 		end)
+-- 	end
+-- 	if settings.Misc.OnReportCrash then
+-- 		CreateRemoveThread(true, 'report_'..thread_count, function()
+-- 			features.crash_player(ply)
+-- 			return POP_THREAD
+-- 		end)
+-- 	end
+-- 	if settings.Misc.OnReportKick then
+-- 		CreateRemoveThread(true, 'report_'..thread_count, function()
+-- 			features.kick_player(ply)
+-- 			return POP_THREAD
+-- 		end)
+-- 	end
+-- end
 
-function on_chat_message(...)
-	local id, is_team, text, spoofed_as_ply = ... 
-    if spoofed_as_ply == -1 and IsCommand(text) then
-    	local text = text:lower()
-    	if settings["Commands"]["Friends Only"] and not features.is_friend(id) then return true end
-    	local command = features.split(text, ' +')
-    	if not settings["Commands"][command[1]] then return true end
-    	if HandleCommand(command, id) then 
-    		system.log('Imagined Menu', string.format("Player %s requested command %s", online.get_name(id), command[1]) )
-    		system.notify(TRANSLATION['Chat command'], string.format(TRANSLATION["Player %s requested command %s"], online.get_name(id), command[1]), 100, 0, 255, 255)
-    	end
+-- function on_chat_message(...)
+-- 	local id, is_team, text, spoofed_as_ply = ... 
+--     if spoofed_as_ply == -1 and IsCommand(text) then
+--     	local text = text:lower()
+--     	if settings["Commands"]["Friends Only"] and not features.is_friend(id) then return true end
+--     	local command = features.split(text, ' +')
+--     	if not settings["Commands"][command[1]] then return true end
+--     	if HandleCommand(command, id) then 
+--     		system.log('Imagined Menu', string.format("Player %s requested command %s", online.get_name(id), command[1]) )
+--     		system.notify(TRANSLATION['Chat command'], string.format(TRANSLATION["Player %s requested command %s"], online.get_name(id), command[1]), 100, 0, 255, 255)
+--     	end
 
-    end
-end
+--     end
+-- end
 --
 local TRANSLATION_FILES = file.scandir(paths['Translations'])
 
@@ -917,8 +917,11 @@ ui.add_bool_option(TRANSLATION["Child locks"], __submenus["Imagined"], function(
 end)
 
 do
-	local topspeed = 0
-	ui.add_num_option(TRANSLATION["Change max speed"], __submenus["Imagined"], 0, 1000, 1, function(int) topspeed = int end)
+	local topspeed = {}
+	for i = 0, 31 do
+		table.insert(topspeed, 0)
+	end
+	ui.add_num_option(TRANSLATION["Change max speed"], __submenus["Imagined"], 0, 1000, 1, function(int) topspeed[online.get_selected_player()] = int end)
 	ui.add_click_option(TRANSLATION["Set max speed"], __submenus["Imagined"], function()
 		local pid = online.get_selected_player()
 		local veh = vehicles.get_player_vehicle(pid)
@@ -926,8 +929,8 @@ do
 		CreateRemoveThread(true, 'set_max_speed_'..thread_count, function(tick)
 			if tick == 50 then return POP_THREAD end
 			if not features.request_control_once(veh) then return end
-			ENTITY.SET_ENTITY_MAX_SPEED(veh, topspeed)
-			VEHICLE.MODIFY_VEHICLE_TOP_SPEED(veh, topspeed)
+			ENTITY.SET_ENTITY_MAX_SPEED(veh, topspeed[pid])
+			-- VEHICLE.MODIFY_VEHICLE_TOP_SPEED(veh, topspeed[pid])
 			return POP_THREAD
 		end)
 	end)
@@ -1485,96 +1488,96 @@ end)
 ---------------------------------------------------------------------------------------------------------------------------------
 -- Buttons
 ---------------------------------------------------------------------------------------------------------------------------------
-ui.add_separator(TRANSLATION['Buttons'], __submenus["Session"])
+-- ui.add_separator(TRANSLATION['Buttons'], __submenus["Session"])
 
-__options.click["InfiniteInviteAllV1"] = ui.add_click_option(TRANSLATION['Infinite invite v1'], __submenus["Session"], function() 
-	InfiniteInvite(0)
-end)
+-- __options.click["InfiniteInviteAllV1"] = ui.add_click_option(TRANSLATION['Infinite invite v1'], __submenus["Session"], function() 
+-- 	InfiniteInvite(0)
+-- end)
 
-__options.click["InfiniteInviteAllV2"] = ui.add_click_option(TRANSLATION['Infinite invite v2'], __submenus["Session"], function() 
-	InfiniteInvite(1)
-end)
+-- __options.click["InfiniteInviteAllV2"] = ui.add_click_option(TRANSLATION['Infinite invite v2'], __submenus["Session"], function() 
+-- 	InfiniteInvite(1)
+-- end)
 
 ---------------------------------------------------------------------------------------------------------------------------------
 -- Toggles
 ---------------------------------------------------------------------------------------------------------------------------------
-ui.add_separator(TRANSLATION['Toggles'], __submenus["Session"])
+-- ui.add_separator(TRANSLATION['Toggles'], __submenus["Session"])
 
-__options.bool["DisableChat"] = ui.add_bool_option(TRANSLATION['Disable Chat'], __submenus["Session"], function(bool)
-	local spam_mes = string.rep('\n', 200)
-	CreateRemoveThread(bool, 'session_disable_chat', 
-	function(tick)
-		if tick%6~=NULL then return end
-		online.send_chat(spam_mes, false) -- doesn't work for local
-	end)
-end)
+-- __options.bool["DisableChat"] = ui.add_bool_option(TRANSLATION['Disable Chat'], __submenus["Session"], function(bool)
+-- 	local spam_mes = string.rep('\n', 200)
+-- 	CreateRemoveThread(bool, 'session_disable_chat', 
+-- 	function(tick)
+-- 		if tick%6~=NULL then return end
+-- 		online.send_chat(spam_mes, false) -- doesn't work for local
+-- 	end)
+-- end)
 
-__options.bool["SoundSpam"] = ui.add_bool_option(TRANSLATION['Sound spam'], __submenus["Session"], function(bool)
-	CreateRemoveThread(bool, 'session_sound_spam',
-	function()
-	    for i = 0, 31 do
-	    		if i ~= PLAYER.PLAYER_ID() and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) then
-	        	online.send_script_event(i, 1132878564, i, math.random(1, 6))
-	        end
-	    end
-	end)
-end)
+-- __options.bool["SoundSpam"] = ui.add_bool_option(TRANSLATION['Sound spam'], __submenus["Session"], function(bool)
+-- 	CreateRemoveThread(bool, 'session_sound_spam',
+-- 	function()
+-- 	    for i = 0, 31 do
+-- 	    		if i ~= PLAYER.PLAYER_ID() and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) then
+-- 	        	online.send_script_event(i, 1132878564, i, math.random(1, 6))
+-- 	        end
+-- 	    end
+-- 	end)
+-- end)
 
-__options.bool["OffRadarAll"] = ui.add_bool_option(TRANSLATION['Off radar'], __submenus["Session"], function(bool)	
-	CreateRemoveThread(bool, 'session_off_radar',
-	function(tick)
-		if tick%5~=NULL then return end
-		for i = 0, 31 do
-			if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) then
-				online.send_script_event(i, -391633760, i, NETWORK.GET_NETWORK_TIME() - 60, NETWORK.GET_NETWORK_TIME(), 1, 1, globals.get_int((1893551 + (1 + (i * 599) + 510))))
-			end
-		end
-	end)
-end)
+-- __options.bool["OffRadarAll"] = ui.add_bool_option(TRANSLATION['Off radar'], __submenus["Session"], function(bool)	
+-- 	CreateRemoveThread(bool, 'session_off_radar',
+-- 	function(tick)
+-- 		if tick%5~=NULL then return end
+-- 		for i = 0, 31 do
+-- 			if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) then
+-- 				online.send_script_event(i, -391633760, i, NETWORK.GET_NETWORK_TIME() - 60, NETWORK.GET_NETWORK_TIME(), 1, 1, globals.get_int((1893551 + (1 + (i * 599) + 510))))
+-- 			end
+-- 		end
+-- 	end)
+-- end)
 
-__options.bool["RemoveWantedAll"] = ui.add_bool_option(TRANSLATION['Remove wanted'], __submenus["Session"], function(bool)
-	CreateRemoveThread(bool, 'session_remove_wanted',
-	function()
-		for i = 0, 31 do
-			if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) then
-				online.send_script_event(i, -91354030, i, globals.get_int(1893551 + (1 + (i * 599) + 510)))
-			end
-		end
-	end)
-end)
+-- __options.bool["RemoveWantedAll"] = ui.add_bool_option(TRANSLATION['Remove wanted'], __submenus["Session"], function(bool)
+-- 	CreateRemoveThread(bool, 'session_remove_wanted',
+-- 	function()
+-- 		for i = 0, 31 do
+-- 			if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) then
+-- 				online.send_script_event(i, -91354030, i, globals.get_int(1893551 + (1 + (i * 599) + 510)))
+-- 			end
+-- 		end
+-- 	end)
+-- end)
 
-__options.bool["BribeAuthoritiesAll"] = ui.add_bool_option(TRANSLATION['Bribe authorities'], __submenus["Session"], function(bool)
-	CreateRemoveThread(bool, 'session_bribe_authorities',
-	function(tick)
-		if tick%5~=NULL then return end
-		for i = 0, 31 do
-			if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) then
-				online.send_script_event(i, 1722873242, i, 0, 0, NETWORK.GET_NETWORK_TIME(), 0, globals.get_int(1893551 + (1 + (i * 599) + 510)))
-			end
-		end
-	end)
-end)
+-- __options.bool["BribeAuthoritiesAll"] = ui.add_bool_option(TRANSLATION['Bribe authorities'], __submenus["Session"], function(bool)
+-- 	CreateRemoveThread(bool, 'session_bribe_authorities',
+-- 	function(tick)
+-- 		if tick%5~=NULL then return end
+-- 		for i = 0, 31 do
+-- 			if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) then
+-- 				online.send_script_event(i, 1722873242, i, 0, 0, NETWORK.GET_NETWORK_TIME(), 0, globals.get_int(1893551 + (1 + (i * 599) + 510)))
+-- 			end
+-- 		end
+-- 	end)
+-- end)
 
-__options.bool["BlockPassive"] = ui.add_bool_option(TRANSLATION['Block passive'], __submenus["Session"], function(bool)
-	CreateRemoveThread(bool, 'session_block_passive',
-	function(tick)
-		if tick%5~=NULL then return end
-		BlockPassive(1)
-	end)
-	if not bool then BlockPassive(0) end
-end)
+-- __options.bool["BlockPassive"] = ui.add_bool_option(TRANSLATION['Block passive'], __submenus["Session"], function(bool)
+-- 	CreateRemoveThread(bool, 'session_block_passive',
+-- 	function(tick)
+-- 		if tick%5~=NULL then return end
+-- 		BlockPassive(1)
+-- 	end)
+-- 	if not bool then BlockPassive(0) end
+-- end)
 
-__options.bool["TransactionError"] = ui.add_bool_option(TRANSLATION['Transaction error'], __submenus["Session"], function(bool)
-	CreateRemoveThread(bool, 'session_transaction_error',
-	function(tick)
-		if tick%2~=NULL then return end
-		for i = 0, 31 do
-			if i ~= PLAYER.PLAYER_ID() and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) then
-				online.send_script_event(i, -1704141512, i, 50000, 0, 1, globals.get_int(1893551 + (1 + (i * 599) + 510)), globals.get_int(1921039 + 9), globals.get_int(1921039 + 10), 1)
-			end
-		end
-	end)
-end)
+-- __options.bool["TransactionError"] = ui.add_bool_option(TRANSLATION['Transaction error'], __submenus["Session"], function(bool)
+-- 	CreateRemoveThread(bool, 'session_transaction_error',
+-- 	function(tick)
+-- 		if tick%2~=NULL then return end
+-- 		for i = 0, 31 do
+-- 			if i ~= PLAYER.PLAYER_ID() and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) then
+-- 				online.send_script_event(i, -1704141512, i, 50000, 0, 1, globals.get_int(1893551 + (1 + (i * 599) + 510)), globals.get_int(1921039 + 9), globals.get_int(1921039 + 10), 1)
+-- 			end
+-- 		end
+-- 	end)
+-- end)
 
 ---------------------------------------------------------------------------------------------------------------------------------
 -- Vehicle
@@ -1629,13 +1632,12 @@ __options.bool["InstaEnter/ExitVehicle"] = ui.add_bool_option(TRANSLATION["Insta
 			if not seat or dist > 20 or PAD.IS_CONTROL_JUST_PRESSED(0, enum.input.VEH_EXIT) == NULL then return end
 			CreateRemoveThread(true, 'seat_change_'..thread_count, function(tick)
 				if tick == 100 then return POP_THREAD end
-				entities.request_control(veh, function()
-					local ped = VEHICLE.GET_PED_IN_VEHICLE_SEAT(veh, seat, true)
-					if ped and ped ~= PLAYER.PLAYER_PED_ID() then
-						TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
-					end
-					PED.SET_PED_INTO_VEHICLE(PLAYER.PLAYER_PED_ID(), veh, seat)
-				end)
+				features.request_control_once(veh)
+				local ped = VEHICLE.GET_PED_IN_VEHICLE_SEAT(veh, seat, true)
+				if ped and ped ~= PLAYER.PLAYER_PED_ID() then
+					TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
+				end
+				PED.SET_PED_INTO_VEHICLE(PLAYER.PLAYER_PED_ID(), veh, seat)
 				if VEHICLE.GET_PED_IN_VEHICLE_SEAT(veh, seat, true) ~= PLAYER.PLAYER_PED_ID() then return end
 				return POP_THREAD
 			end)
@@ -1686,9 +1688,9 @@ __options.bool["AutoFlip"] = ui.add_bool_option(TRANSLATION["Auto flip"], __subm
 		local rot = ENTITY.GET_ENTITY_ROTATION(veh, 2)
 		if ENTITY.IS_ENTITY_IN_AIR(veh) == NULL and (rot.y < -110 or rot.y > 110) then
 			if VEHICLE.IS_VEHICLE_ON_ALL_WHEELS(veh) == NULL then
-				entities.request_control(veh, function()
+				features.request_control_once(veh)
 				ENTITY.SET_ENTITY_ROTATION(veh, 0, 0, rot.z, 5, true)
-				VEHICLE.SET_VEHICLE_ON_GROUND_PROPERLY(veh, 0) end)
+				VEHICLE.SET_VEHICLE_ON_GROUND_PROPERLY(veh, 0)
 			end
 		end
 	end)
@@ -1871,9 +1873,8 @@ do
 						if ped and ped ~= PLAYER.PLAYER_PED_ID() then
 							TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
 						end
-						entities.request_control(veh, function()
-							PED.SET_PED_INTO_VEHICLE(PLAYER.PLAYER_PED_ID(), veh, seat)
-						end)
+						features.request_control_once(veh)
+						PED.SET_PED_INTO_VEHICLE(PLAYER.PLAYER_PED_ID(), veh, seat)
 						if VEHICLE.GET_PED_IN_VEHICLE_SEAT(veh, seat, true) ~= PLAYER.PLAYER_PED_ID() then return end
 						return POP_THREAD
 					end)
@@ -2103,25 +2104,24 @@ do
 					local distance = pos:sqrlen(blackhole_pos)
 					if distance <= math.pow(blackhole_dist, 2) then
 						if not ((v == veh1 or v == veh2) and ENTITY.IS_ENTITY_A_VEHICLE(v) == 1) then
-							entities.request_control(v, function()
-								if ENTITY.IS_ENTITY_A_PED(v) == 1 and PED.IS_PED_A_PLAYER(v) == NULL then
-									PED.SET_PED_TO_RAGDOLL(v, 5000, 5000, 0, true, true, false)
+							features.request_control_once(v)
+							if ENTITY.IS_ENTITY_A_PED(v) == 1 and PED.IS_PED_A_PLAYER(v) == NULL then
+								PED.SET_PED_TO_RAGDOLL(v, 5000, 5000, 0, true, true, false)
+							end
+							if distance > 36 then
+								pos = vector3(ENTITY.GET_ENTITY_COORDS(v, false))
+								local dir = pos:direction_to(blackhole_pos) * blackhole_force
+								ENTITY.FREEZE_ENTITY_POSITION(v, false)
+								ENTITY.SET_ENTITY_VELOCITY(v, dir.x, dir.y, dir.z)
+								if ENTITY.GET_ENTITY_HEALTH(v) == 0 then
+									ENTITY.SET_ENTITY_COLLISION(v, false, true)
 								end
-								if distance > 36 then
-									pos = vector3(ENTITY.GET_ENTITY_COORDS(v, false))
-									local dir = pos:direction_to(blackhole_pos) * blackhole_force
-									ENTITY.FREEZE_ENTITY_POSITION(v, false)
-									ENTITY.SET_ENTITY_VELOCITY(v, dir.x, dir.y, dir.z)
-									if ENTITY.GET_ENTITY_HEALTH(v) == 0 then
-										ENTITY.SET_ENTITY_COLLISION(v, false, true)
-									end
-								else
-									ENTITY.FREEZE_ENTITY_POSITION(v, true)
-									if settings.World["BlackHoleSuckIn"] then
-										features.delete_entity(v)
-									end
+							else
+								ENTITY.FREEZE_ENTITY_POSITION(v, true)
+								if settings.World["BlackHoleSuckIn"] then
+									features.delete_entity(v)
 								end
-							end)
+							end
 						end
 					end
 				end
@@ -2135,17 +2135,16 @@ do
 				local distance = pos:sqrlen(blackhole_pos)
 				if distance <= math.pow(blackhole_dist, 2) then
 					if ENTITY.IS_ENTITY_A_VEHICLE(v) == 1 and v ~= veh1 and v ~= veh2 and v ~= PLAYER.PLAYER_PED_ID() then
-						entities.request_control(v, function()
-							if ENTITY.GET_ENTITY_HEALTH(v) == 0 then
-								ENTITY.SET_ENTITY_COLLISION(v, true, true)
-							end
-							if distance <= 100 then
-								ENTITY.FREEZE_ENTITY_POSITION(v, false)
-								local pos = vector3(ENTITY.GET_ENTITY_COORDS(v, false))
-								local dir = blackhole_pos:direction_to(pos) * 100
-								ENTITY.SET_ENTITY_VELOCITY(v, dir.x, dir.y, dir.z)
-							end
-						end)
+						features.request_control_once(v)
+						if ENTITY.GET_ENTITY_HEALTH(v) == 0 then
+							ENTITY.SET_ENTITY_COLLISION(v, true, true)
+						end
+						if distance <= 100 then
+							ENTITY.FREEZE_ENTITY_POSITION(v, false)
+							local pos = vector3(ENTITY.GET_ENTITY_COORDS(v, false))
+							local dir = blackhole_pos:direction_to(pos) * 100
+							ENTITY.SET_ENTITY_VELOCITY(v, dir.x, dir.y, dir.z)
+						end
 					end
 				end
 			end
@@ -2158,6 +2157,7 @@ __suboptions["Vehicles"] = ui.add_sub_option(TRANSLATION["Vehicles"], __submenus
 
 ui.add_click_option(TRANSLATION["Repair vehicles"], __submenus["Vehicles"], function()
 	local veh1, veh2 = vehicles.get_player_vehicle(), vehicles.get_personal_vehicle()
+	features.request_control_of_entities(entities.get_vehs())
 	for _, v in ipairs(entities.get_vehs())
 	do
 		if v ~= veh1 and v ~= veh2 then
@@ -2170,6 +2170,7 @@ end)
 
 ui.add_click_option(TRANSLATION["Boost vehicles"], __submenus["Vehicles"], function()
 	local veh1, veh2 = vehicles.get_player_vehicle(), vehicles.get_personal_vehicle()
+	features.request_control_of_entities(entities.get_vehs())
 	for _, v in ipairs(entities.get_vehs())
 	do
 		if v ~= veh1 and v ~= veh2 then
@@ -2198,18 +2199,18 @@ end)
 __options.bool['Beyblades'] = ui.add_bool_option(TRANSLATION["Beyblades"], __submenus["Vehicles"], function(bool)
 	CreateRemoveThread(bool, 'beyblades', function()
 		local veh1, veh2 = vehicles.get_player_vehicle(), vehicles.get_personal_vehicle()
+		features.request_control_of_entities(entities.get_vehs())
 		for _, v in ipairs(entities.get_vehs())
 		do
 			if v ~= veh1 and v ~= veh2 then
-				entities.request_control(v, function()
-					VEHICLE.SET_VEHICLE_REDUCE_GRIP(v, true)
-					ENTITY.APPLY_FORCE_TO_ENTITY(v, 1, 1, 0, 0, 100, 100, 0, 0, true, true, true, false, true)
-				end)
+				VEHICLE.SET_VEHICLE_REDUCE_GRIP(v, true)
+				ENTITY.APPLY_FORCE_TO_ENTITY(v, 1, 1, 0, 0, 100, 100, 0, 0, true, true, true, false, true)
 			end
 		end
 	end)
 	if not bool then
 		local veh1, veh2 = vehicles.get_player_vehicle(), vehicles.get_personal_vehicle()
+		features.request_control_of_entities(entities.get_vehs())
 		for _, v in ipairs(entities.get_vehs())
 		do
 			if v ~= veh1 and v ~= veh2 then
@@ -2224,25 +2225,24 @@ end)
 __options.bool['JumpyVehicles'] = ui.add_bool_option(TRANSLATION["Jumpy vehicles"], __submenus["Vehicles"], function(bool)
 	CreateRemoveThread(bool, 'jumpy_vehicles', function(tick)
 		local veh1, veh2 = vehicles.get_player_vehicle(), vehicles.get_personal_vehicle()
+		features.request_control_of_entities(entities.get_vehs())
 		for _, v in ipairs(entities.get_vehs())
 		do
 			if v ~= veh1 and v ~= veh2 then
-				entities.request_control(v, function()
-					if tick%100 == NULL then
-						local force_type = math.random(1, 5)
-						if force_type == 1 then
-							ENTITY.APPLY_FORCE_TO_ENTITY(v, 1, 0, 0, 1, 3, 0, 0, 0, true, true, true, false, true)
-						elseif force_type == 2 then
-							ENTITY.APPLY_FORCE_TO_ENTITY(v, 1, 0, 0, 1, -3, 0, 0, 0, true, true, true, false, true)
-						elseif force_type == 3 then
-							ENTITY.APPLY_FORCE_TO_ENTITY(v, 1, 0, 0, 1, 0, -7, 0, 0, true, true, true, false, true)
-						elseif force_type == 4 then
-							ENTITY.APPLY_FORCE_TO_ENTITY(v, 1, 0, 0, 1, 0, 7, 0, 0, true, true, true, false, true)
-						elseif force_type == 5 then
-							ENTITY.APPLY_FORCE_TO_ENTITY(v, 1, 0, 0, 5, 0, 0, 0, 0, true, true, true, false, true)
-						end
+				if tick%100 == NULL then
+					local force_type = math.random(1, 5)
+					if force_type == 1 then
+						ENTITY.APPLY_FORCE_TO_ENTITY(v, 1, 0, 0, 1, 3, 0, 0, 0, true, true, true, false, true)
+					elseif force_type == 2 then
+						ENTITY.APPLY_FORCE_TO_ENTITY(v, 1, 0, 0, 1, -3, 0, 0, 0, true, true, true, false, true)
+					elseif force_type == 3 then
+						ENTITY.APPLY_FORCE_TO_ENTITY(v, 1, 0, 0, 1, 0, -7, 0, 0, true, true, true, false, true)
+					elseif force_type == 4 then
+						ENTITY.APPLY_FORCE_TO_ENTITY(v, 1, 0, 0, 1, 0, 7, 0, 0, true, true, true, false, true)
+					elseif force_type == 5 then
+						ENTITY.APPLY_FORCE_TO_ENTITY(v, 1, 0, 0, 5, 0, 0, 0, 0, true, true, true, false, true)
 					end
-				end)
+				end
 			end
 		end
 	end)
@@ -2251,13 +2251,12 @@ end)
 __options.bool['LaunchVehicles'] = ui.add_bool_option(TRANSLATION["Launch vehicles"], __submenus["Vehicles"], function(bool)
 	CreateRemoveThread(bool, 'launch_vehicles', function(tick)
 		local veh1, veh2 = vehicles.get_player_vehicle(), vehicles.get_personal_vehicle()
+		features.request_control_of_entities(entities.get_vehs())
 		for _, v in ipairs(entities.get_vehs())
 		do
 			if v ~= veh1 and v ~= veh2 then
-				entities.request_control(v, function()
-					ENTITY.FREEZE_ENTITY_POSITION(v, false)
-					ENTITY.SET_ENTITY_VELOCITY(v, 0, 0, 100)
-				end)
+				ENTITY.FREEZE_ENTITY_POSITION(v, false)
+				ENTITY.SET_ENTITY_VELOCITY(v, 0, 0, 100)
 			end
 		end
 	end)
@@ -2266,12 +2265,11 @@ end)
 __options.bool['HornHavoc'] = ui.add_bool_option(TRANSLATION["Horn havoc"], __submenus["Vehicles"], function(bool)
 	CreateRemoveThread(bool, 'horn_havoc', function(tick)
 		local veh1, veh2 = vehicles.get_player_vehicle(), vehicles.get_personal_vehicle()
+		features.request_control_of_entities(entities.get_vehs())
 		for _, v in ipairs(entities.get_vehs())
 		do
 			if v ~= veh1 and v ~= veh2 then
-				entities.request_control(v, function()
-					VEHICLE.START_VEHICLE_HORN(v, 3000, 0, false)
-				end)
+				VEHICLE.START_VEHICLE_HORN(v, 3000, 0, false)
 			end
 		end
 	end)
@@ -2280,15 +2278,14 @@ end)
 __options.bool['HornBoosting'] = ui.add_bool_option(TRANSLATION["Horn boosting"], __submenus["Vehicles"], function(bool)
 	CreateRemoveThread(bool, 'horn_boosting', function(tick)
 		local veh1, veh2 = vehicles.get_player_vehicle(), vehicles.get_personal_vehicle()
+		features.request_control_of_entities(entities.get_vehs())
 		for _, v in ipairs(entities.get_vehs())
 		do
 			if v ~= veh1 and v ~= veh2 then
-				entities.request_control(v, function()
-					if AUDIO.IS_HORN_ACTIVE(v) == 1 then
-						local speed = ENTITY.GET_ENTITY_SPEED(v)
-						VEHICLE.SET_VEHICLE_FORWARD_SPEED(v, speed + speed * .05 + 1)
-					end
-				end)
+				if AUDIO.IS_HORN_ACTIVE(v) == 1 then
+					local speed = ENTITY.GET_ENTITY_SPEED(v)
+					VEHICLE.SET_VEHICLE_FORWARD_SPEED(v, speed + speed * .05 + 1)
+				end
 			end
 		end
 	end)
@@ -2306,13 +2303,12 @@ do
 		if not bool and ufo then
 			local out_pos = vector3(ufo_position.x + 1000, ufo_position.y, ufo_position.z + 1000)
 			CreateRemoveThread(true, 'ufo_delete', function()
+				features.request_control_of_entities(features.get_entities())
 				for _, v in ipairs(features.get_entities())
 				do
-					entities.request_control(v, function()
-						if ENTITY.GET_ENTITY_HEALTH(v) == 0 then
-							ENTITY.SET_ENTITY_COLLISION(v, true, true)
-						end
-					end)
+					if ENTITY.GET_ENTITY_HEALTH(v) == 0 then
+						ENTITY.SET_ENTITY_COLLISION(v, true, true)
+					end
 				end
 				if ENTITY.DOES_ENTITY_EXIST(ufo) == NULL then ufo = nil spawned = nil return POP_THREAD end
 				local pos = vector3(ENTITY.GET_ENTITY_COORDS(ufo, false))
@@ -2361,10 +2357,10 @@ do
 			end
 			
 			local me, veh1, veh2 = PLAYER.PLAYER_PED_ID(), vehicles.get_player_vehicle(), vehicles.get_personal_vehicle()
+			features.request_control_of_entities(features.get_entities())
 			for _, v in ipairs(features.get_entities())
 			do
 				if v ~= me and v ~= veh1 and v ~= veh2 and v ~= ufo then
-					entities.request_control(v, function()
 						local ent_pos = vector3(ENTITY.GET_ENTITY_COORDS(v, false))
 						local diff = ufo_position - ent_pos
 						local dist_no_z = diff.x ^ 2 + diff.y ^ 2
@@ -2388,7 +2384,6 @@ do
 								ENTITY.SET_ENTITY_COLLISION(v, false, true)
 							end
 						end
-					end)
 				end
 			end
 			
@@ -2426,21 +2421,20 @@ do
 		CreateRemoveThread(bool, 'tornado', function()
 			local veh1, veh2 = vehicles.get_player_vehicle(), vehicles.get_personal_vehicle()
 			local sqrdistance = math.pow(distance, 2)
+			features.request_control_of_entities(features.get_entities())
 			for _, v in ipairs(features.get_entities())
 			do
 				if v ~= veh1 and v ~= veh2 and PED.IS_PED_A_PLAYER(v) == NULL then
 					local pos = vector3(ENTITY.GET_ENTITY_COORDS(v, false))
 					if pos:sqrlen(tornado_pos) <= sqrdistance then
-						entities.request_control(v, function()
-							if ENTITY.IS_ENTITY_A_PED(v) == 1 then
-								PED.SET_PED_TO_RAGDOLL(v, 5000, 5000, 0, true, true, false)
-							end
-							pos = vector3(ENTITY.GET_ENTITY_COORDS(v, false))
-							local offset = vector3.point_on_circle(pos:direction_to(tornado_pos):angle() + math.rad(angle), 100)
-							local final_pos = pos:direction_to(tornado_pos+offset) * force
-							ENTITY.FREEZE_ENTITY_POSITION(v, false)
-							ENTITY.SET_ENTITY_VELOCITY(v, final_pos.x, final_pos.y, .3)
-						end)
+						if ENTITY.IS_ENTITY_A_PED(v) == 1 then
+							PED.SET_PED_TO_RAGDOLL(v, 5000, 5000, 0, true, true, false)
+						end
+						pos = vector3(ENTITY.GET_ENTITY_COORDS(v, false))
+						local offset = vector3.point_on_circle(pos:direction_to(tornado_pos):angle() + math.rad(angle), 100)
+						local final_pos = pos:direction_to(tornado_pos+offset) * force
+						ENTITY.FREEZE_ENTITY_POSITION(v, false)
+						ENTITY.SET_ENTITY_VELOCITY(v, final_pos.x, final_pos.y, .3)
 					end
 				end
 			end
@@ -2649,9 +2643,8 @@ __options.bool["DriveGun"] = ui.add_bool_option(TRANSLATION['Drive gun'], __subm
 					if ped and ped ~= PLAYER.PLAYER_PED_ID() and veh ~= NULL then
 						TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
 					end
-					entities.request_control(veh, function() 
-						PED.SET_PED_INTO_VEHICLE(PLAYER.PLAYER_PED_ID(), veh, -1)
-					end)
+					features.request_control_once(veh) 
+					PED.SET_PED_INTO_VEHICLE(PLAYER.PLAYER_PED_ID(), veh, -1)
 					if VEHICLE.GET_PED_IN_VEHICLE_SEAT(veh, -1, true) ~= PLAYER.PLAYER_PED_ID() then return end
 					return POP_THREAD
 				end)
@@ -2678,6 +2671,7 @@ do
 					local pos = vector3(CAM.GET_GAMEPLAY_CAM_COORD())
 					distance = pos:len(vector3(ENTITY.GET_ENTITY_COORDS(entity, false)))
 				end
+				system.log('Imagined Menu', tostring(gunactive))
 				if gunactive then return end
 				PAD.DISABLE_CONTROL_ACTION(0, enum.input.WEAPON_WHEEL_NEXT, true)
         PAD.DISABLE_CONTROL_ACTION(0, enum.input.WEAPON_WHEEL_PREV, true)
@@ -2685,50 +2679,51 @@ do
         PAD.DISABLE_CONTROL_ACTION(0, enum.input.SPRINT, true)
         PAD.DISABLE_CONTROL_ACTION(0, enum.input.JUMP, true)
         PAD.DISABLE_CONTROL_ACTION(0, enum.input.FRONTEND_RS, true)
-        entities.request_control(entity, function()
-        	local radmult = 10
-          if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.SPRINT) == 1 then
-              radmult = 1
+        features.request_control_once(entity)
+      	local radmult = 10
+        if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.SPRINT) == 1 then
+            radmult = 1
+        end
+        local rot = ENTITY.GET_ENTITY_ROTATION(entity, 2)
+        if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.WEAPON_WHEEL_NEXT) == 1 then
+          if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.FRONTEND_RS) == 1 then
+              ENTITY.SET_ENTITY_ROTATION(entity, rot.x-1*radmult, rot.y, rot.z, 2, true)
+          elseif PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.JUMP) == 1 then
+              ENTITY.SET_ENTITY_ROTATION(entity, rot.x, rot.y-1*radmult, rot.z, 2, true)
+          elseif PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.MULTIPLAYER_INFO) == 1 then
+              ENTITY.SET_ENTITY_ROTATION(entity, rot.x, rot.y, rot.z-1*radmult, 2, true)
+          else
+              distance = distance - radmult
+              if distance < 5 then distance = 5 end
           end
-          local rot = ENTITY.GET_ENTITY_ROTATION(entity, 2)
-          if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.WEAPON_WHEEL_NEXT) == 1 then
-            if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.FRONTEND_RS) == 1 then
-                ENTITY.SET_ENTITY_ROTATION(entity, rot.x-1*radmult, rot.y, rot.z, 2, true)
-            elseif PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.JUMP) == 1 then
-                ENTITY.SET_ENTITY_ROTATION(entity, rot.x, rot.y-1*radmult, rot.z, 2, true)
-            elseif PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.MULTIPLAYER_INFO) == 1 then
-                ENTITY.SET_ENTITY_ROTATION(entity, rot.x, rot.y, rot.z-1*radmult, 2, true)
-            else
-                distance = distance - radmult
-                if distance < 5 then distance = 5 end
-            end
-          elseif PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.WEAPON_WHEEL_PREV) == 1 then
-            if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.FRONTEND_RS) == 1 then
-                ENTITY.SET_ENTITY_ROTATION(entity, rot.x+1*radmult, rot.y, rot.z, 2, true)
-            elseif PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.JUMP) == 1 then
-                ENTITY.SET_ENTITY_ROTATION(entity, rot.x, rot.y+1*radmult, rot.z, 2, true)
-            elseif PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.MULTIPLAYER_INFO) == 1 then
-                ENTITY.SET_ENTITY_ROTATION(entity, rot.x, rot.y, rot.z+1*radmult, 2, true)
-            else
-                distance = distance + radmult
-            end
+        elseif PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.WEAPON_WHEEL_PREV) == 1 then
+          if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.FRONTEND_RS) == 1 then
+              ENTITY.SET_ENTITY_ROTATION(entity, rot.x+1*radmult, rot.y, rot.z, 2, true)
+          elseif PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.JUMP) == 1 then
+              ENTITY.SET_ENTITY_ROTATION(entity, rot.x, rot.y+1*radmult, rot.z, 2, true)
+          elseif PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.MULTIPLAYER_INFO) == 1 then
+              ENTITY.SET_ENTITY_ROTATION(entity, rot.x, rot.y, rot.z+1*radmult, 2, true)
+          else
+              distance = distance + radmult
           end
-          local dir = vector3(CAM.GET_GAMEPLAY_CAM_ROT(2)):rot_to_direction()
-					local camcoord = vector3(CAM.GET_GAMEPLAY_CAM_COORD())
-					local target_pos = camcoord + dir * distance
-					ENTITY.SET_ENTITY_COORDS_NO_OFFSET(entity, target_pos.x, target_pos.y, target_pos.z, false, false, false)
-					if PAD.IS_CONTROL_JUST_PRESSED(0, enum.input.ATTACK2) == 1 then
-						if ENTITY.IS_ENTITY_A_PED(entity) == 1 then
-							PED.SET_PED_TO_RAGDOLL(entity, 5000, 5000, 0, true, true, false)
-						end
-						local force = dir * 500
-						ENTITY.FREEZE_ENTITY_POSITION(entity, false)
-            ENTITY.SET_ENTITY_VELOCITY(entity, force.x, force.y, force.z)
-            gunactive = true
-	        end
-        end)
+        end
+        local dir = vector3(CAM.GET_GAMEPLAY_CAM_ROT(2)):rot_to_direction()
+				local camcoord = vector3(CAM.GET_GAMEPLAY_CAM_COORD())
+				local target_pos = camcoord + dir * distance
+				ENTITY.SET_ENTITY_COORDS_NO_OFFSET(entity, target_pos.x, target_pos.y, target_pos.z, false, false, false)
+				if PAD.IS_CONTROL_JUST_PRESSED(0, enum.input.ATTACK2) == 1 then
+					if ENTITY.IS_ENTITY_A_PED(entity) == 1 then
+						PED.SET_PED_TO_RAGDOLL(entity, 5000, 5000, 0, true, true, false)
+					end
+					local force = dir * 500
+					ENTITY.FREEZE_ENTITY_POSITION(entity, false)
+          ENTITY.SET_ENTITY_VELOCITY(entity, force.x, force.y, force.z)
+          gunactive = true
+        end
+        return
 			elseif entity then
 				entity = nil
+				return
 			end
 			gunactive = false
 		end)
@@ -2756,36 +2751,39 @@ do
 				PAD.DISABLE_CONTROL_ACTION(0, enum.input.WEAPON_WHEEL_NEXT, true)
         PAD.DISABLE_CONTROL_ACTION(0, enum.input.WEAPON_WHEEL_PREV, true)
         PAD.DISABLE_CONTROL_ACTION(0, enum.input.SPRINT, true)
-        entities.request_control(entity, function()
-        	local radmult = 10
-          if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.SPRINT) == 1 then
-              radmult = 1
-          end
-          if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.WEAPON_WHEEL_NEXT) == 1 then
-            distance = distance - radmult
-            if distance < 5 then distance = 5 end
-          elseif PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.WEAPON_WHEEL_PREV) == 1 then
-            distance = distance + radmult
-          end
-          local dir = vector3(CAM.GET_GAMEPLAY_CAM_ROT(2)):rot_to_direction()
-					local camcoord = vector3(CAM.GET_GAMEPLAY_CAM_COORD())
-					local target_pos = camcoord + dir * distance
-					local pos = vector3(ENTITY.GET_ENTITY_COORDS(entity, false))
-					local force_to = (target_pos - pos) * 20
-					ENTITY.FREEZE_ENTITY_POSITION(entity, false)
-					ENTITY.SET_ENTITY_VELOCITY(entity, force_to.x, force_to.y, force_to.z)
-					if PAD.IS_CONTROL_JUST_PRESSED(0, enum.input.ATTACK2) == 1 then
-						if ENTITY.IS_ENTITY_A_PED(entity) == 1 then
-							PED.SET_PED_TO_RAGDOLL(entity, 5000, 5000, 0, true, true, false)
-						end
-						local force = dir * 500
+        features.request_control_once(entity)
+      	local radmult = 10
+        if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.SPRINT) == 1 then
+            radmult = 1
+        end
+        if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.WEAPON_WHEEL_NEXT) == 1 then
+          distance = distance - radmult
+          if distance < 5 then distance = 5 end
+        elseif PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.WEAPON_WHEEL_PREV) == 1 then
+          distance = distance + radmult
+        end
+        local dir = vector3(CAM.GET_GAMEPLAY_CAM_ROT(2)):rot_to_direction()
+				local camcoord = vector3(CAM.GET_GAMEPLAY_CAM_COORD())
+				local target_pos = camcoord + dir * distance
+				local pos = vector3(ENTITY.GET_ENTITY_COORDS(entity, false))
+				local force_to = (target_pos - pos) * 3
+				ENTITY.FREEZE_ENTITY_POSITION(entity, false)
+				ENTITY.SET_ENTITY_VELOCITY(entity, force_to.x, force_to.y, force_to.z)
+				if PAD.IS_CONTROL_JUST_PRESSED(0, enum.input.ATTACK2) == 1 then
+					if ENTITY.IS_ENTITY_A_PED(entity) == 1 then
+						PED.SET_PED_TO_RAGDOLL(entity, 5000, 5000, 0, true, true, false)
+					end
+					local force = dir * 500
+					entities.request_control(entity, function()
 						ENTITY.FREEZE_ENTITY_POSITION(entity, false)
-            ENTITY.SET_ENTITY_VELOCITY(entity, force.x, force.y, force.z)
-            gunactive = true
-	        end
-        end)
+	          ENTITY.SET_ENTITY_VELOCITY(entity, force.x, force.y, force.z)
+	         end)
+          gunactive = true
+        end
+        return
 			elseif entity then
 				entity = nil
+				return
 			end
 			gunactive = false
 		end)

@@ -81,8 +81,8 @@ function features.player_from_name(name)
 end
 
 function features.request_control_once(ent)
-	if NETWORK.NETWORK_HAS_CONTROL_OF_ENTITY(ent) == 1 then return true end
 	NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(ent)
+	if NETWORK.NETWORK_HAS_CONTROL_OF_ENTITY(ent) == 1 then return true end
 	if NETWORK.NETWORK_IS_SESSION_STARTED() == 1 then
 		local netId = NETWORK.NETWORK_GET_NETWORK_ID_FROM_ENTITY(ent)
 		NETWORK.NETWORK_REQUEST_CONTROL_OF_NETWORK_ID(netId)
