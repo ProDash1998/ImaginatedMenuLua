@@ -3,7 +3,7 @@
 --
 -- Copyright © 2022 Imagined Menu
 --
-VERSION = '1.0.4.1'
+VERSION = '1.0.4.2'
 
 system.log('Imagined Menu', string.format('Loading Imagined Menu v%s...', VERSION))
 
@@ -2671,7 +2671,6 @@ do
 					local pos = vector3(CAM.GET_GAMEPLAY_CAM_COORD())
 					distance = pos:len(vector3(ENTITY.GET_ENTITY_COORDS(entity, false)))
 				end
-				system.log('Imagined Menu', tostring(gunactive))
 				if gunactive then return end
 				PAD.DISABLE_CONTROL_ACTION(0, enum.input.WEAPON_WHEEL_NEXT, true)
         PAD.DISABLE_CONTROL_ACTION(0, enum.input.WEAPON_WHEEL_PREV, true)
