@@ -97,11 +97,11 @@ end
 end
 
 --[[float]] function vector3:__lt(--[[vector3]] vec)
-     return (self.x < vec.x) or (self.y < vec.y) or (self.z < vec.z)
+     return (self.x < vec.x) and (self.y < vec.y) and (self.z < vec.z)
 end
 
 --[[float]] function vector3:__le(--[[vector3]] vec)
-     return (self.x <= vec.x) or (self.y <= vec.y) or (self.z <= vec.z)
+     return (self.x <= vec.x) and (self.y <= vec.y) and (self.z <= vec.z)
 end
 
 --[[vector3]] function vector3:inverse()

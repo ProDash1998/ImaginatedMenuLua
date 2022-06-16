@@ -50,7 +50,7 @@ function file.readAll(file)
 end
 
 function file.write(content, path)
-    local f = assert(io.open(path, 'w+'))
+    local f = assert(io.open(path, 'w'))
     f:write(content)
     f:close()
 end

@@ -4,11 +4,12 @@
 -- Copyright © 2022 Imagined Menu
 --
 
-local vect = require 'vectors'
+local vector3 = require 'vector3'
 local enum = require 'enums'
 local NULL = 0
 local vehicles = {}
-
+vehicles.class = {}
+vehicles.class_hash = {}
 vehicles.models = {
     {"adder",3078201489},
     {"airbus",1283517198},
@@ -812,6 +813,7 @@ function vehicles.spawn_vehicle(hashname, pos, heading)
 end
 
 function vehicles.get_label_name(hashname)
+    if not hashname then return 'NULL' end
     local hash = 0
     if tonumber(hashname) then 
         hash = tonumber(hashname) 
@@ -819,12 +821,7 @@ function vehicles.get_label_name(hashname)
         hash = utils.joaat(hashname)
     end 
     if STREAMING.IS_MODEL_VALID(hash) == NULL then return 'NULL' end
-    if tonumber(hashname) then 
-        hashname = hash_to_string(tonumber(hashname))
-    end 
-    if not hashname then return 'NULL' end
-    local label = HUD._GET_LABEL_TEXT(hashname)
-    if label == 'NULL' then return hashname:upper() end
+    local label = HUD._GET_LABEL_TEXT(VEHICLE.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL(hash))
     return label
 end
 
@@ -880,9 +877,9 @@ function vehicles.upgrade(veh)
 end
 
 function vehicles.get_closest_vehicle(pos)
-    local vehicle, distance = 0, 1000000
+    local vehicle, distance = 0, 100000000
     for _, v in ipairs(entities.get_vehs()) do
-        local dist = vect.dist(pos, ENTITY.GET_ENTITY_COORDS(v, false))
+        local dist = vector3(pos):sqrlen(vector3(ENTITY.GET_ENTITY_COORDS(v, false)))
         if dist < distance then
             vehicle = v
             distance = dist 
@@ -927,12 +924,32 @@ function vehicles.get_player_vehicle(player)
 	return PED.GET_VEHICLE_PED_IS_IN(PLAYER.GET_PLAYER_PED(player), false)
 end
 
+function vehicles.get_veh_index(pos, cl)
+    local index = 1
+    local tabl = vehicles.class_hash[enum.vehicle_class[cl]]
+    for i = 1, #vehicles.models
+    do
+        if vehicles.models[i][2] == vehicles.class_hash[enum.vehicle_class[cl]][pos] then
+            index = i
+            break
+        end
+    end
+    return index
+end
+
 for _, v in ipairs(vehicles.models) do
     table.insert(v, vehicles.get_label_name(v[1]))
 end
 
 for _, v in ipairs(vehicles.models) do
-    table.insert(v, enum.vehicle_class[VEHICLE.GET_VEHICLE_CLASS_FROM_NAME(v[2])])
+    local c = enum.vehicle_class[VEHICLE.GET_VEHICLE_CLASS_FROM_NAME(v[2])]
+    table.insert(v, VEHICLE.GET_VEHICLE_CLASS_FROM_NAME(v[2]))
+    if not vehicles.class[c] then
+        vehicles.class[c] = {}
+        vehicles.class_hash[c] = {}
+    end
+    table.insert(vehicles.class[c], v[3])
+    table.insert(vehicles.class_hash[c], v[2])
 end
 
 return vehicles

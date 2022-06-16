@@ -45,6 +45,36 @@ function features.to_bool(any)
 	end
 end
 
+function features.lshift(x, by)
+  return math.floor(x * 2 ^ by)
+end
+
+function features.rshift(x, by)
+  return math.floor(x / 2 ^ by)
+end
+
+local OR, XOR, AND = 1, 3, 4
+local function bitoper(a, b, oper)
+   local r, m, s = 0, math.pow(31, 2)
+   repeat
+      s, a, b = a + b + m, a % m, b % m
+      r, m = r + m * oper % (s - a - b), m / 2
+   until m < 1
+   return math.floor(r)
+end
+
+function features.OR(a,b)
+	return bitoper(a, b, OR)
+end
+
+function features.XOR(a,b)
+	return bitoper(a, b, XOR)
+end
+
+function features.AND(a,b)
+	return bitoper(a, b, AND)
+end
+
 function features.get_screen_resolution()
 	local px, py = alloc(2)
 	GRAPHICS._GET_ACTIVE_SCREEN_RESOLUTION(px, py)
@@ -106,6 +136,61 @@ function features.get_random_player()
 	end
 	if #players ~= NULL then return players[math.random(1, #players)] end
 	return PLAYER.PLAYER_ID()
+end
+
+function features.get_offset_coords_from_entity_rot(entity, dist, offheading, ignore_z)
+    local pos = ENTITY.GET_ENTITY_COORDS(entity, false)
+    local rot = ENTITY.GET_ENTITY_ROTATION(entity, 2)
+    local dist = dist or 5
+    local offheading = offheading or 0
+    local offz = 0
+    local vector = {
+        x = -math.sin(math.rad(rot.z + offheading)) * dist, 
+        y = math.cos(math.rad(rot.z + offheading)) * dist,
+        z = math.sin(math.rad(rot.x)) * dist
+    }
+    if not ignore_z then
+        offz = vector.z
+    end
+
+    return {
+        x = pos.x + vector.x,
+        y = pos.y + vector.y,
+        z = pos.z + offz
+    }
+end
+
+function features.set_entity_face_entity(ent1, ent2, usePitch)
+    local a = vector3(ENTITY.GET_ENTITY_COORDS(ent1, false))
+    local b = vector3(ENTITY.GET_ENTITY_COORDS(ent2, false))
+    local rot = (b - a):to_rotation()
+    if not usePitch then
+        ENTITY.SET_ENTITY_HEADING(ent1, rot.z)
+    else
+        ENTITY.SET_ENTITY_ROTATION(ent1, rot.x, rot.y, rot.z, 2, true)
+    end
+end
+
+function features.oscillate_to_coord(ent, pos, force)
+	local force = force or 1
+	local pos = vector3(pos)
+	local pos2 = vector3(ENTITY.GET_ENTITY_COORDS(ent, false))
+	local to = (pos - pos2) * force
+	ENTITY.APPLY_FORCE_TO_ENTITY(ent, 1, to.x, to.y, to.z, 0, 0, 0, 0, false, false, true, false, true)
+end
+
+function features.oscillate_to_entity(ent, ent2, force)
+	features.oscillate_to_coord(ent, ENTITY.GET_ENTITY_COORDS(ent2, false), force)
+end
+
+function features.get_player_from_ped(ped)
+	if PED.IS_PED_A_PLAYER(ped) == NULL then return -1 end
+	for i = 0, 31 do
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 then
+			if PLAYER.GET_PLAYER_PED(i) == ped then return i end
+		end
+	end
+	return -1
 end
 
 function features.get_entities()
@@ -206,12 +291,14 @@ function features.get_player_coords(player)
 end
 
 function features.is_friend(pid)
-	local ptr = memory.malloc(104)
-	NETWORK.NETWORK_HANDLE_FROM_PLAYER(pid, ptr, 13)
-	if NETWORK.NETWORK_IS_HANDLE_VALID(ptr, 13) == NULL then memory.free(ptr) return end
-	local isfriend = (NETWORK.NETWORK_IS_FRIEND(ptr) == 1)
-	memory.free(ptr)
-	return isfriend
+	return false
+
+	-- local ptr = memory.malloc(104)
+	-- NETWORK.NETWORK_HANDLE_FROM_PLAYER(pid, ptr, 13)
+	-- if NETWORK.NETWORK_IS_HANDLE_VALID(ptr, 13) == NULL then memory.free(ptr) return end
+	-- local isfriend = (NETWORK.NETWORK_IS_FRIEND(ptr) == 1)
+	-- memory.free(ptr)
+	-- return isfriend
 end
 
 function features.get_entity_proofs(entity)
@@ -239,8 +326,9 @@ function features.get_entity_proofs(entity)
 end
 
 function features.delete_entity(entity)
+	if not entity then return end
 	if ENTITY.DOES_ENTITY_EXIST(entity) == NULL then return end
-	ENTITY.SET_ENTITY_COLLISION(entity, false, true) -- crash fix?
+	ENTITY.SET_ENTITY_COLLISION(entity, false, true)
 	if ENTITY.IS_ENTITY_A_PED(entity) == 1 then
 	  TASK.CLEAR_PED_TASKS_IMMEDIATELY(entity)
 	end
@@ -288,8 +376,23 @@ function features.sum_table(array)
 	return sum
 end
 
+local players = {
+	kick = {},
+	crash = {}
+}
+
+function features.set_bounty(player, amount)
+	local amount = amount or 10000
+	for i = 0, 31
+	do	
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) ~= NULL then
+			online.send_script_event(i, 1294995624, i, player, 1, amount, 0, 1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, globals.get_int(1921039 + 9), globals.get_int(1921039 + 10))
+		end
+	end
+end
+
 function features.crash_player(player)
-	if (NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) == NULL) or (player == PLAYER.PLAYER_ID()) then return end
+	if (NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) == NULL) or (player == PLAYER.PLAYER_ID()) or (players.crash[i] and players.crash[i] > os.time()) then return end
 
 	system.log('Imagined Menu', string.format("Sending crash to %s", online.get_name(player)))
 	system.notify('Imagined Menu', string.format(TRANSLATION["Sending crash to %s"], online.get_name(player)), 255, 50, 0, 255)
@@ -300,10 +403,12 @@ function features.crash_player(player)
 	online.send_script_event(player, -1970125962, get_random_args(15))
 	online.send_script_event(player, -1767058336, get_random_args(15))
 	online.send_script_event(player, 1757755807, get_random_args(15))
+
+	players.crash[player] = os.time() + 10
 end
 
 function features.kick_player(player)
-	if (NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) == NULL) or (player == PLAYER.PLAYER_ID()) then return end
+	if (NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) == NULL) or (player == PLAYER.PLAYER_ID()) or (players.kick[i] and players.kick[i] > os.time()) then return end
 
 	system.log('Imagined Menu', string.format("Kicking %s", online.get_name(player)))
 	system.notify('Imagined Menu', string.format(TRANSLATION["Kicking %s"], online.get_name(player)), 255, 50, 0, 255)
@@ -326,6 +431,7 @@ function features.kick_player(player)
 		online.send_script_event(player, 603406648, math.random(32, 2147483647), math.random(-2147483647, 2147483647), 1, 115, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647))
 		online.send_script_event(player, 603406648, math.random(-2147483647, -1), math.random(-2147483647, 2147483647), 1, 115, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647))
 	end
+	players.kick[player] = os.time() + 10
 end
 
 return features

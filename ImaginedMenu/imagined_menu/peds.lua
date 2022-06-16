@@ -4,7 +4,7 @@
 -- Copyright © 2022 Imagined Menu
 --
 
-local vect = require 'vectors'
+local features = require 'features'
 
 local ped = {}
 
@@ -970,6 +970,108 @@ ped.models = {
     {"a_c_chop_02",utils.joaat("a_c_chop_02")},
 }
 
+ped.anims = {
+    {"Pole Dance", "mini@strip_club@pole_dance@pole_dance3", "pd_dance_03"},
+    {"Hood Dance", "missfbi3_sniping", "dance_m_default"},
+    {"Burning", "ragdoll@human", "on_fire"},
+    {"Getting Stunned", "ragdoll@human", "electrocute"},
+    {"Private Dance", "mini@strip_club@private_dance@part1", "priv_dance_p1"},
+    {"The Rear Abundance", "rcmpaparazzo_2", "shag_loop_poppy"},
+    {"The Invisible Man", "rcmpaparazzo_2", "shag_loop_a"},
+    {"Push ups", "amb@world_human_push_ups@male@base", "base"},
+    {"Sit ups", "amb@world_human_sit_ups@male@base", "base"},
+    {"Wave Yo' Arms", "random@car_thief@victimpoints_ig_3", "arms_waving"},
+    {"Give BJ to Driver", "mini@prostitutes@sexnorm_veh", "bj_loop_prostitute"},
+    {"Pleasure Driver", "mini@prostitutes@sexnorm_veh", "sex_loop_prostitute"},
+    {"Mime", "special_ped@mime@monologue_8@monologue_8a", "08_ig_1_wall_ba_0"},
+    {"Mime 2", "special_ped@mime@monologue_7@monologue_7a", "11_ig_1_run_aw_0"},
+    {"Throw", "switch@franklin@throw_cup", "throw_cup_loop"},
+    {"Smoke Coughing", "timetable@gardener@smoking_joint", "idle_cough"},
+    {"Chilling with Friends", "friends@laf@ig_1@base", "base"},
+    {"They Think We Dumb", "timetable@ron@they_think_were_stupid", "they_think_were_stupid"},
+    {"Come Here", "gestures@m@standing@fat", "gesture_come_here_hard"},
+    {"No Way", "gestures@m@standing@fat", "gesture_no_way"},
+    {"They're Gonna Kill Me", "random@bicycle_thief@ask_help", "my_dads_going_to_kill_me"},
+    {"You Gotta Help Me", "random@bicycle_thief@ask_help", "please_man_you_gotta_help_me"},
+    {"Sleep", "savecouch@", "t_sleep_loop_couch"},
+    {"Sleep 2", "savem_default@", "m_sleep_r_loop"},
+    {"Sleep 3", "timetable@tracy@sleep@", "idle_c"},
+    {"Meditate", "rcmcollect_paperleadinout@", "meditiate_idle"},
+    {"Fap", "switch@trevor@jerking_off", "trev_jerking_off_loop"},
+    {"Yeah Yeah Yeah", "special_ped@jessie@michael_1@michael_1b", "jessie_ig_2_yeahyeahyeah_1"},
+    {"Idle On Laptop", "switch@franklin@on_laptop", "001927_01_fras_v2_4_on_laptop_idle"},
+    {"Hands Up", "random@arrests", "idle_2_hands_up"},
+    {"Stand Still, Arms Spread", "mp_sleep", "bind_pose_180"},
+    {"Dog Sitting", "creatures@pug@amb@world_dog_sitting@base", "base"},
+    {"Amanda Pleasure", "timetable@amanda@ig_6", "ig_6_base"},
+    {"Toilet", "switch@trevor@on_toilet", "trev_on_toilet_loop"},
+    {"???", "anim@veh@armordillo@turret@base", "fire"},
+    {"T-pose", "mp_intro_concat-3", "mp_m_freemode_01_dual-3"},
+    {"Cow Grazing", "creatures@cow@amb@world_cow_grazing@base", "base"},
+    {"Deer Walk", "creatures@deer@move", "walk"},
+    {"Dolphin Dying", "creatures@dolphin@move", "dying"},
+    {"Retriever Attack" , "creatures@retriever@melee@streamed_core@", "attack"},
+}
+
+ped.scenario = {
+    { "Drilling", "WORLD_HUMAN_CONST_DRILL" },
+    { "Hammering", "WORLD_HUMAN_HAMMERING" },
+    { "Mechanic", "WORLD_HUMAN_VEHICLE_MECHANIC" },
+    { "Janitor", "WORLD_HUMAN_JANITOR" },
+    { "Hang Out", "WORLD_HUMAN_HANG_OUT_STREET" },
+    { "Play Guitar", "WORLD_HUMAN_MUSICIAN_MALE_BONGOS" },
+    { "Play Bongos", "WORLD_HUMAN_MUSICIAN_MALE_GUITAR" },
+    { "Clipboard", "WORLD_HUMAN_CLIPBOARD" },
+    { "Smoking", "WORLD_HUMAN_SMOKING" },
+    { "Smoking 2", "WORLD_HUMAN_AA_SMOKE" },
+    { "Smoking Weed", "WORLD_HUMAN_SMOKING_POT" },
+    { "Standing With Phone", "WORLD_HUMAN_STAND_MOBILE" },
+    { "Standing With Phone 2", "WORLD_HUMAN_STAND_MOBILE_UPRIGHT" },
+    { "Standing Guard", "WORLD_HUMAN_GUARD_STAND" },
+    { "Standing Impatiently", "WORLD_HUMAN_STAND_IMPATIENT" },
+    { "Standing Impatiently 2", "WORLD_HUMAN_STAND_IMPATIENT_UPRIGHT" },
+    { "Soldier Stand", "WORLD_HUMAN_GUARD_STAND_ARMY" },
+    { "Hobo Stand", "WORLD_HUMAN_BUM_STANDING" },
+    { "Doing Pushups", "WORLD_HUMAN_PUSH_UPS" },
+    { "Lifting Weights", "WORLD_HUMAN_MUSCLE_FREE_WEIGHTS" },
+    { "Flexing", "WORLD_HUMAN_MUSCLE_FLEX" },
+    { "Drug Dealer", "WORLD_HUMAN_DRUG_DEALER_HARD" },
+    { "Hooker", "WORLD_HUMAN_PROSTITUTE_LOW_CLASS" },
+    { "Hooker 2", "WORLD_HUMAN_PROSTITUTE_HIGH_CLASS" },
+    { "Drunk", "WORLD_HUMAN_STUPOR" },
+    { "Drinking", "WORLD_HUMAN_DRINKING" },
+    { "Drinking Coffee", "WORLD_HUMAN_AA_COFFEE" },
+    { "Binoculars", "WORLD_HUMAN_BINOCULARS" },
+    { "Welding", "WORLD_HUMAN_WELDING" },
+    { "Shocked", "WORLD_HUMAN_MOBILE_FILM_SHOCKING" },
+    { "Taking Pictures", "WORLD_HUMAN_PAPARAZZI" },
+    { "Medic", "CODE_HUMAN_MEDIC_KNEEL" },
+    { "Window Shopping", "WORLD_HUMAN_WINDOW_SHOP_BROWSE" },
+    { "Cleaning", "WORLD_HUMAN_MAID_CLEAN" },
+    { "Doing Yoga", "WORLD_HUMAN_YOGA" },
+    { "Tourist Map", "WORLD_HUMAN_TOURIST_MAP" },
+    { "Tennis Player", "WORLD_HUMAN_TENNIS_PLAYER" },
+    { "Sunbathing", "WORLD_HUMAN_SUNBATHE" },
+    { "Sunbathing 2", "WORLD_HUMAN_SUNBATHE_BACK" },
+    { "Fishing", "WORLD_HUMAN_STAND_FISHING" },
+    { "Shining Torch", "WORLD_HUMAN_SECURITY_SHINE_TORCH" },
+    { "Picnic", "WORLD_HUMAN_PICNIC" },
+    { "Partying", "WORLD_HUMAN_PARTYING" },
+    { "Leaning", "WORLD_HUMAN_LEANING" },
+    { "Jog Standing", "WORLD_HUMAN_JOG_STANDING" },
+    { "Human Statue", "WORLD_HUMAN_HUMAN_STATUE" },
+    { "Hanging Out (Street)", "WORLD_HUMAN_HANG_OUT_STREET" },
+    { "Golf Player", "WORLD_HUMAN_GOLF_PLAYER" },
+    { "Gardening", "WORLD_HUMAN_GARDENER_PLANT" },
+    { "Drug Dealing", "WORLD_HUMAN_DRUG_DEALER_HARD" },
+    { "Cheering", "WORLD_HUMAN_CHEERING" },
+    { "Parking Attendant", "WORLD_HUMAN_CAR_PARK_ATTENDANT" },
+    { "Wash", "WORLD_HUMAN_BUM_WASH" },
+    { "Holding Sign", "WORLD_HUMAN_BUM_FREEWAY" },
+    { "Laying Down (Hobo)", "WORLD_HUMAN_BUM_SLUMPED" },
+    { "BBQ", "PROP_HUMAN_BBQ" },
+}
+
 function ped.is_ped_an_enemy(cped)
     local relationship = PED.GET_RELATIONSHIP_BETWEEN_PEDS(PLAYER.PLAYER_PED_ID(), cped)
     if ENTITY.IS_ENTITY_DEAD(cped, false) == 0 and ((relationship == 4 or relationship == 5) or PED.IS_PED_IN_COMBAT(cped, PLAYER.PLAYER_PED_ID()) == 1) then
@@ -999,6 +1101,18 @@ function ped.set_ped_god(cped)
     end
 end
 
+function ped.play_scenario(ped, scenario)
+    TASK.TASK_START_SCENARIO_IN_PLACE(ped, scenario, -1, false)
+end
+
+function ped.play_anim(ped, anim_dict, anim_name, blend_in_speed, blend_out_speed, duration, flags, playback_rate, lock)
+    if TASK.IS_PED_ACTIVE_IN_SCENARIO(ped) == 1 then
+        TASK.PLAY_ANIM_ON_RUNNING_SCENARIO(ped, anim_dict, anim_name)
+    else
+        TASK.TASK_PLAY_ANIM(ped, anim_dict, anim_name, blend_in_speed, blend_out_speed, duration, flags, playback_rate, lock, lock, lock)
+    end
+end
+
 function ped.create_ped(hash, pos, god, invisible, face_entity, ...)
     local flags = {...}
 
@@ -1009,7 +1123,7 @@ function ped.create_ped(hash, pos, god, invisible, face_entity, ...)
     NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(cped)
     
     if face_entity then
-        vect.set_entity_face_entity(cped, face_entity)
+        features.set_entity_face_entity(cped, face_entity)
     end
 
     if god then
