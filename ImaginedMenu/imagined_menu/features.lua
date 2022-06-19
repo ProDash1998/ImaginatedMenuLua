@@ -8,6 +8,7 @@ local vector3 = require 'vector3'
 local enum = require 'enums'
 local NULL = 0
 local features = {}
+features.player_excludes = {}
 
 math.randomseed(os.time())
 
@@ -86,7 +87,19 @@ end
 
 function features.get_screen_center()
 	local size = features.get_screen_resolution()
-	return {x = size.x/2, y = size.y/2}
+	return vector3({x = size.x/2, y = size.y/2})
+end
+
+function features.world_to_screen(pos)
+	local screenX, screenY = memory.malloc(48), memory.malloc(48)
+	GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(pos.x, pos.y, pos.z, screenX, screenY)
+	local result = {
+		x = memory.read_float(screenX),
+		y = memory.read_float(screenY)
+	}
+	memory.free(screenX)
+	memory.free(screenY)
+	return vector3(result)
 end
 
 function features.split(str, sep)
@@ -235,9 +248,7 @@ function features.get_blip_objective()
 		if HUD.DOES_BLIP_EXIST(b) == 1 then
 			local color = HUD.GET_BLIP_COLOUR(b)
 			local icon = HUD.GET_BLIP_SPRITE(b)
-			if (color == enum.blip_color.YellowMission and icon == enum.blip_sprite.level) or
-				(color == enum.blip_color.YellowMission2 and icon == enum.blip_sprite.level) or
-				(color == enum.blip_color.Yellow and icon == enum.blip_sprite.level) or
+			if ((color == enum.blip_color.YellowMission or color == enum.blip_color.YellowMission2 or color == enum.blip_color.Yellow) and (icon == enum.blip_sprite.level or icon == enum.blip_sprite.higher or icon == enum.blip_sprite.lower)) or
 				(color == enum.blip_color.Green and icon == enum.blip_sprite.contraband) or
 				(color == enum.blip_color.Blue and icon == enum.blip_sprite.supplies) or
 				(color == enum.blip_color.Green and icon == enum.blip_sprite.nhp_bag) or
@@ -259,24 +270,41 @@ function features.get_blip_objective()
 	return vector3.zero()
 end
 
-function features.get_aimed_ped()
-	for _, ent in ipairs(entities.get_peds())
-	do
-		if PLAYER.IS_PLAYER_FREE_AIMING_AT_ENTITY(PLAYER.PLAYER_ID(), ent) == 1 then
-			return ent
-		end
+function features.get_aimed_ped(player)
+	local player = player or PLAYER.PLAYER_ID()
+	local ptr = memory.malloc(4)
+	local success = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(player, ptr)
+	if success == NULL then return NULL end
+	local result = memory.read_int(ptr)
+	memory.free(ptr)
+	if ENTITY.IS_ENTITY_A_PED(result) == 1 then
+		return result
 	end
 	return NULL
+	-- for _, ent in ipairs(entities.get_peds())
+	-- do
+	-- 	if PLAYER.IS_PLAYER_FREE_AIMING_AT_ENTITY(PLAYER.PLAYER_ID(), ent) == 1 then
+	-- 		return ent
+	-- 	end
+	-- end
+	-- return NULL
 end
 
-function features.get_aimed_entity()
-	for _, ent in ipairs(features.get_entities())
-	do
-		if PLAYER.IS_PLAYER_FREE_AIMING_AT_ENTITY(PLAYER.PLAYER_ID(), ent) == 1 then
-			return ent
-		end
-	end
-	return NULL
+function features.get_aimed_entity(player)
+	local player = player or PLAYER.PLAYER_ID()
+	local ptr = memory.malloc(4)
+	local success = PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(player, ptr)
+	if success == NULL then return NULL end
+	local result = memory.read_int(ptr)
+	memory.free(ptr)
+	return result
+	-- for _, ent in ipairs(features.get_entities())
+	-- do
+	-- 	if PLAYER.IS_PLAYER_FREE_AIMING_AT_ENTITY(PLAYER.PLAYER_ID(), ent) == 1 then
+	-- 		return ent
+	-- 	end
+	-- end
+	-- return NULL
 end
 
 function features.get_offset_from_player_coords(offvector, player)
@@ -289,16 +317,61 @@ function features.get_player_coords(player)
 	local player = player or PLAYER.PLAYER_ID()
 	return ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(player), false)
 end
+	
+function features.is_excluded(pid)
+	local rid = tostring(online.get_rockstar_id(pid))
+	return features.player_excludes[rid] ~= nil
+end
 
 function features.is_friend(pid)
-	return false
+	local ptr = memory.malloc(104)
+	NETWORK.NETWORK_HANDLE_FROM_PLAYER(pid, ptr, 13)
+	if NETWORK.NETWORK_IS_HANDLE_VALID(ptr, 13) == NULL then memory.free(ptr) return end
+	local isfriend = (NETWORK.NETWORK_IS_FRIEND(ptr) == 1)
+	memory.free(ptr)
+	return isfriend
+end
 
-	-- local ptr = memory.malloc(104)
-	-- NETWORK.NETWORK_HANDLE_FROM_PLAYER(pid, ptr, 13)
-	-- if NETWORK.NETWORK_IS_HANDLE_VALID(ptr, 13) == NULL then memory.free(ptr) return end
-	-- local isfriend = (NETWORK.NETWORK_IS_FRIEND(ptr) == 1)
-	-- memory.free(ptr)
-	-- return isfriend
+function features.get_raycast_result(dist, flag)
+	local flag = flag or -1
+	local camcoord = vector3(CAM.GET_GAMEPLAY_CAM_COORD())
+	local target = camcoord + (vector3(CAM.GET_GAMEPLAY_CAM_ROT(2)):rot_to_direction() * dist)
+	local hit, endCoords, surfaceNormal, entityHit = memory.malloc(8), alloc(3)
+	SHAPETEST.GET_SHAPE_TEST_RESULT(
+		SHAPETEST.START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(camcoord.x, camcoord.y, camcoord.z, target.x, target.y, target.z, flag, PLAYER.PLAYER_ID(), 1),
+		hit, endCoords, surfaceNormal, entityHit
+	)
+	local result = {
+		didHit = features.to_bool(memory.read_byte(hit)),
+		hitEntity = memory.read_int(entityHit)
+	}
+	memory.free(hit)
+	memory.free(endCoords)
+	memory.free(surfaceNormal)
+	memory.free(entityHit)
+	return result
+end
+
+function features.get_all_attachments(entity, entities)
+	local entities = entities or {}
+	for _, v in ipairs(features.get_entities())
+	do
+		if ENTITY.GET_ENTITY_ATTACHED_TO(v) == entity then
+			table.insert(entities, v)
+			features.get_all_attachments(v, entities)
+		end
+	end
+	return entities
+end
+
+function features.get_parent_attachment(...)
+	local entity = ...
+	if ENTITY.IS_ENTITY_ATTACHED(entity) == 1 then
+		return features.get_parent_attachment(ENTITY.GET_ENTITY_ATTACHED_TO(entity))
+	else
+		return ENTITY.GET_ENTITY_ATTACHED_TO(entity)
+	end
+
 end
 
 function features.get_entity_proofs(entity)
@@ -325,12 +398,21 @@ function features.get_entity_proofs(entity)
 	return proofs
 end
 
+function features.get_godmode(enitity)
+	local proofs = features.get_entity_proofs(entity)
+	return (proofs.bulletProof and proofs.fireProof and proofs.explosionProof)
+end
+
 function features.delete_entity(entity)
 	if not entity then return end
 	if ENTITY.DOES_ENTITY_EXIST(entity) == NULL then return end
 	ENTITY.SET_ENTITY_COLLISION(entity, false, true)
 	if ENTITY.IS_ENTITY_A_PED(entity) == 1 then
 	  TASK.CLEAR_PED_TASKS_IMMEDIATELY(entity)
+	end
+	for _, v in ipairs(features.get_all_attachments(entity))
+	do
+		features.delete_entity(v)
 	end
 	entities.request_control(entity, function()
 		ENTITY.DETACH_ENTITY(entity, false, false)
@@ -347,7 +429,7 @@ function features.unload_models(...)
 	end
 end
 
-function features.request_model(hashname, loop)
+function features.request_model(hashname)
 	local hash = 0
 	if tonumber(hashname) then 
 		hash = tonumber(hashname) 
@@ -356,15 +438,6 @@ function features.request_model(hashname, loop)
 	end 
 	if STREAMING.IS_MODEL_VALID(hash) == NULL then return hash end
 	STREAMING.REQUEST_MODEL(hash)
-
-	local tick = 0
-
-	while loop and (STREAMING.HAS_MODEL_LOADED(hash) == NULL and tick <= 300) do
-		tick = tick + 1
-		STREAMING.REQUEST_MODEL(hash)
-		system.yield(0)
-	end
-
 	return STREAMING.HAS_MODEL_LOADED(hash), hash
 end
 
@@ -385,14 +458,14 @@ function features.set_bounty(player, amount)
 	local amount = amount or 10000
 	for i = 0, 31
 	do	
-		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) ~= NULL then
-			online.send_script_event(i, 1294995624, i, player, 1, amount, 0, 1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, globals.get_int(1921039 + 9), globals.get_int(1921039 + 10))
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) ~= NULL then
+			online.send_script_event(i, 1294995624, PLAYER.PLAYER_ID(), player, 1, amount, 0, 1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, globals.get_int(1921039 + 9), globals.get_int(1921039 + 10))
 		end
 	end
 end
 
 function features.crash_player(player)
-	if (NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) == NULL) or (player == PLAYER.PLAYER_ID()) or (players.crash[i] and players.crash[i] > os.time()) then return end
+	if (NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) == NULL) or (player == PLAYER.PLAYER_ID()) or (players.crash[player] and players.crash[player] > os.time()) then return end
 
 	system.log('Imagined Menu', string.format("Sending crash to %s", online.get_name(player)))
 	system.notify('Imagined Menu', string.format(TRANSLATION["Sending crash to %s"], online.get_name(player)), 255, 50, 0, 255)
@@ -408,7 +481,7 @@ function features.crash_player(player)
 end
 
 function features.kick_player(player)
-	if (NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) == NULL) or (player == PLAYER.PLAYER_ID()) or (players.kick[i] and players.kick[i] > os.time()) then return end
+	if (NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) == NULL) or (player == PLAYER.PLAYER_ID()) or (players.kick[player] and players.kick[player] > os.time()) then return end
 
 	system.log('Imagined Menu', string.format("Kicking %s", online.get_name(player)))
 	system.notify('Imagined Menu', string.format(TRANSLATION["Kicking %s"], online.get_name(player)), 255, 50, 0, 255)
@@ -416,7 +489,7 @@ function features.kick_player(player)
 	if NETWORK.NETWORK_IS_HOST() == 1 then
 		NETWORK.NETWORK_SESSION_KICK_PLAYER(player)
 	else
-		online.send_script_event(player, 1228916411, player, globals.get_int(1893551 + (1 + (player * 599) + 510)))
+		online.send_script_event(player, 1228916411, PLAYER.PLAYER_ID(), globals.get_int(1893551 + (1 + (player * 599) + 510)))
 
 		online.send_script_event(player, 927169576, get_random_args(15))
 		online.send_script_event(player, -1308840134, get_random_args(15))
@@ -425,8 +498,8 @@ function features.kick_player(player)
 		online.send_script_event(player, -368423380, get_random_args(15))
 		online.send_script_event(player, -614457627, get_random_args(15))
 		online.send_script_event(player, -1991317864, get_random_args(15))
-		online.send_script_event(player, 163598572, player, 0, 30583, 0, 0, 0, -328966, 2098891836, 0)
-		online.send_script_event(player, 998716537, player, 1, -1)
+		online.send_script_event(player, 163598572, PLAYER.PLAYER_ID(), 0, 30583, 0, 0, 0, -328966, 2098891836, 0)
+		online.send_script_event(player, 998716537, PLAYER.PLAYER_ID(), 1, -1)
 
 		online.send_script_event(player, 603406648, math.random(32, 2147483647), math.random(-2147483647, 2147483647), 1, 115, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647))
 		online.send_script_event(player, 603406648, math.random(-2147483647, -1), math.random(-2147483647, 2147483647), 1, 115, math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647), math.random(-2147483647, 2147483647))

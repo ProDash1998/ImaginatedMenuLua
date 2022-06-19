@@ -48,7 +48,7 @@ end
 end
 
 --[[vector3]] function vector3:new(...)
-    if #{...} == 1 then
+    if #{...} == 1 and type(...) == 'table' then
         local input = ...
         self.x = input.x or 0
         self.y = input.y or 0

@@ -23055,6 +23055,18 @@ local enums =  {
         'moneyplease', 'plsdropme', 'plsgiveme', 'plesagive', 'pleasemoney', 'cashdrop', 'pleasedropme', 'canyoudrop', 'givemecash', 'moneydrops', 'modmoney', 'modmemoney', 'somemoney', 'droppls', 'plsmon3y', 'someonemoney', 'meneedmoney',
         'someonedrop', 'pleasdrop', 'pleasmoney', 'dr0pme', 'dr0pmoney', 'dr0pcash', 'moneydr0p', 'money?', 'plzmon3y', 'mymoney', 'plsdrp', 'drppls', 'anydrop', 'anymoney', 'plscash', 'cashpls', 'givecash', 'gibcash', 'givcash', 'giveacash',
         'givebanknotes', 'plsbanknotes'
+    },
+    weapon_group = {
+        Melee = 2685387236,
+        Handguns = 416676503,
+        Submachine_Gun = 3337201093,
+        Shotgun = 860033945,
+        Assault_Rifle = 970310034,
+        Light_Machine_Gun = 1159398588,
+        Sniper = 3082541095,
+        Heavy_Weapon = 2725924767,
+        Throwables = 1548507267,
+        Misc = 4257178988,
     }
 }
 

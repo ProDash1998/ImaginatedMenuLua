@@ -889,9 +889,7 @@ function vehicles.get_closest_vehicle(pos)
 end
 
 function vehicles.get_first_free_seat(vehicle)
-    local hash = ENTITY.GET_ENTITY_MODEL(vehicle)
-    local max = VEHICLE.GET_VEHICLE_MODEL_NUMBER_OF_SEATS(hash) - 2
-    if VEHICLE.ARE_ANY_VEHICLE_SEATS_FREE(vehicle) == NULL then return end
+    local max = VEHICLE.GET_VEHICLE_MAX_NUMBER_OF_PASSENGERS(vehicle)
     for i = -1, max do
         if VEHICLE.IS_VEHICLE_SEAT_FREE(vehicle, i, true) == 1 then
             return i
@@ -901,11 +899,10 @@ function vehicles.get_first_free_seat(vehicle)
 end
 
 function vehicles.get_ped_seat(ped)
-    local veh = PED.GET_VEHICLE_PED_IS_IN(ped, false)
-    local hash = ENTITY.GET_ENTITY_MODEL(veh)
-    local max = VEHICLE.GET_VEHICLE_MODEL_NUMBER_OF_SEATS(hash) - 2
+    local vehicle = PED.GET_VEHICLE_PED_IS_IN(ped, false)
+    local max = VEHICLE.GET_VEHICLE_MAX_NUMBER_OF_PASSENGERS(vehicle)
     for i = -1, max do
-        if VEHICLE.GET_PED_IN_VEHICLE_SEAT(veh, i, true) == ped then return i end
+        if VEHICLE.GET_PED_IN_VEHICLE_SEAT(vehicle, i, true) == ped then return i end
     end
     return
 end
