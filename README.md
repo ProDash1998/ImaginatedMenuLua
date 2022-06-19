@@ -1,4 +1,4 @@
-#Welcome to Imagined Menu v1.1.0
+#Welcome to Imagined Menu v1.1.1
 
 made by FoxxDash/aka Ðr ÐºήgΣr & SATTY
 
@@ -13,7 +13,6 @@ Installation guide:
 
 Known bugs:
 +  Spawning peds not working
-+  Friend check not working due to some memory issues
 +  Options like tornado, ufo, forcefield, etc. might crash the game
 
 ==============================================================
@@ -21,58 +20,33 @@ Known bugs:
 Changelog:
 
 Online->Players->Imagined Menu:
-+  Added Exclude player
++ Added Add waypoint
 
-Self:
-+  Added Play animation (with all settings and flags)
-+  Added No ragdoll (slightly different than the one in Nightfall)
-+  Added Fly-mode
-+  Added Force outfit
-+  Added Forcefield
-+  Added Walk on water
-
-Session:
-+  Added Freeze all
-+  Added Kick barcodes
-+  Added Bounty all
-+  Added Vehicle blacklist
-+  Added Punish beggers [Explode, Freeze, Kick, Crash]
+Vehicle->Spawn vehicle:
++ Added Custom vehicles tab (with 11 custom vehicles)
 
 Vehicle:
-+  Added Add blip to vehicle
-+  Added Spawn vehicle with display preview and some other settings
++ Added Delete current vehicle
++ Added Stop vehicle when exiting
++ Added Change sound
 
-World:
-+  Added Peds options [Explode, Ressurect, Freeze]
+World->Vehicles
++ Added Vehicles explode on impact
 
 Weapons:
-+  Added Revive gun
-+  Aim assist -> Aimbot, Auto shoot
++ Added Flamethrower
++ Added Rapid fire
 
 Misc:
-+  Added Train driver
++ Added Set cam distance
++ Added Excluded players tab
++ Added Log chat
++ Added Unload
 
-Recovery:
-+  Added Player kills
-+  Added Player Deaths
-+  Added Set k/d
-+  Added Unlock Fast-run
-+  Added Fill snacks
-+  Added Fill armour
+Settings:
++ Added Auto save
 
-Improved:
-+  Stat editor
-+  Selecting vehicles
-+  Vehicle Horn boost (added screen effect)
-+  Added Vehicle jump modes [Press, Hold]
-+  Vehicle gun (need to click to confirm change)
-+  No clip (need to click to confirm change)
-+  Vehicle fly (need to click to confirm change)
-
-Fixed:
-+  Some vehicles names
-+  Block objects not showing to network
-+  And some other bug fixes
+- Some bug fixes after menu update
 
 ==============================================================
 
@@ -99,6 +73,7 @@ Features:
 	+ Lock vehicle
 	+ Child locks
 	+ Set max speed
+	+ Add waypoint
 	+ Teleport vehicle to waypoint
 - Self
 	+ Ghost rider
@@ -156,15 +131,18 @@ Features:
 	 - Spawn in air
 	 - Delete old vehicle
 	 - Spawn with effect
+	 - Custom vehicles
 	 - Display preview
 	 - Select class
 	 - Select vehicle
+	+ Change sound
 	+ Add blip to vehicle
 	+ Vehicle rapid fire
 	+ Invisible
 	+ Auto flip
 	+ Horn boost
 	+ Instant enter/exit vehicle
+	+ Stop vehicle when exiting
 	+ Licence plate speedo
 	+ Max speed bypass
 	+ Vehicle jump (Controls: space)
@@ -173,6 +151,7 @@ Features:
 	+ Vehicle fly [Keyboard, Cam fly, Glide fly] (Controls: (W & mouse, L Shift - fly faster)<-only Cam fly, W - forward, S - backwards, A - left, D - right,  L Shift - up, L Control - down)
 	+ Change seat
 	+ Engine always on
+	+ Delete current vehicle
 	+ Scorched vehicle
 - World
 	+ UFO invasion
@@ -197,6 +176,7 @@ Features:
 	 - Ressurect peds
 	 - Freeze peds
 	+ Vehicles:
+	 - Vehicles explode on impact
 	 - Jumpy vehicles
 	 - Launch vehicles
 	 - Repair vehicles
@@ -216,19 +196,25 @@ Features:
 	+ Vehicle gun
 	+ Gravity gun
 	+ Pick up gun
+	+ Flamethrower
+	+ Rapid fire
 	+ Delete gun [On aim, On shoot]
 	+ Paint gun [On aim, On shoot]
 	+ Push gun [On aim, On shoot]
 	+ Revive Gun [On aim, On shoot]
 	+ Explode gun [On aim, On shoot]
 - Misc
+	+ Excluded players
 	+ Reactions -> On report, On votekick
 	+ Disable cam centering
 	+ Lock gameplay cam
 	+ Disable recording
+	+ Set cam distance
+	+ Log chat
 	+ Train Driver:
 	 - Trains alot
 	 - Train control
+	+ Unload
 - Recovery
 	+ Stat editor
 	+ Player kills
@@ -241,6 +227,7 @@ Features:
 	+ Translations
 	+ Exclude self
 	+ Exclude friends
+	+ Auto save
 	+ Save config
 	+ Load config
 	+ Reset to default
