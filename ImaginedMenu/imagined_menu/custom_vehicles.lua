@@ -10,2542 +10,216 @@ local vector3 = require 'vector3'
 local f = require 'default'
 local settings = f.settings
 local custom_vehicles = {}
-custom_vehicles.models = {
-    {
-        name = "Undercover Hellfire",
-        {   
-            parent = true,
-            type = 2,
-            model = 1934384720,
-            handle_id = 710670,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 0,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {0, false},
-                [1] = {4, false},
-                [2] = {-1, false},
-                [3] = {1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {0, false},
-                [7] = {0, false},
-                [8] = {2, false},
-                [9] = {8, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {1, false},
-                [15] = {3, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {15, true},
-                [24] = {-1, false},
-            },
-            bullet_proof_tyres = true,
-            godmode = true,
-            window_tint = 1,
-            engine_on = true,
-            freeze = false,
-            collision = true,
-            invisible = false,
-            siren = false,
-            door_lock_status = 0,
-            lights = 2,
-            engine_sound = "BTYPE2",
-            torque = 50.0,
-            horse_power = 100.0,
-            dirt_level = 0.0,
-            attched = false
-        }, {
-            parent = false,
-            type = 2,
-            model = 1127131465,
-            handle_id = 22799,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 0,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = true,
-                [1] = true,
-                [2] = true,
-                [3] = true,
-                [4] = true,
-                [5] = true,
-                [6] = true
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {-1, false},
-                [15] = {3, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {15, true},
-                [24] = {-1, false}
-            },
-            on_rim = true,
-            bullet_proof_tyres = false,
-            godmode = true,
-            window_tint = 1,
-            engine_on = false,
-            freeze = true,
-            collision = false,
-            invisible = false,
-            siren = true,
-            door_lock_status = 4,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attached = true,
-            attachment = {
-                attached_to = 710670,
-                bone = 0,
-                pos = {
-                    x = 0,
-                    y = -0.0999999866,
-                    z = 0.25000003
-                },
-                pitch = 0,
-                roll = 0,
-                yaw = 0,
-            }
-        }
-    },
-    {
-        name = "Police Dubsta",
-        {   
-            parent = true,
-            type = 2,
-            model = 0xe882e5f6,
-            handle_id = 193551,
-            colors = {
-                primary = 18,
-                secondary = 18,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 156,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {0, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {0, false},
-                [15] = {3, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {15, true},
-                [24] = {-1, false},
-            },
-            bullet_proof_tyres = true,
-            godmode = true,
-            window_tint = 1,
-            engine_on = true,
-            freeze = false,
-            collision = true,
-            invisible = false,
-            siren = false,
-            door_lock_status = 0,
-            lights = 2,
-            engine_sound = "DUKES2",
-            torque = 50.0,
-            horse_power = 100.0,
-            dirt_level = 0.0,
-            attched = false
-        }, {
-            parent = false,
-            type = 2,
-            model = 0xfdefaec3,
-            handle_id = 178959,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 156,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {-1, false},
-                [12] = {-1, false},
-                [13] = {-1, false},
-                [14] = {-1, false},
-                [15] = {-1, false},
-                [16] = {-1, false},
-                [17] = false,
-                [18] = false,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = false,
-                [23] = {-1, false},
-                [24] = {-1, false}
-            },
-            on_rim = true,
-            bullet_proof_tyres = false,
-            godmode = true,
-            window_tint = 1,
-            engine_on = false,
-            freeze = true,
-            collision = false,
-            invisible = false,
-            siren = true,
-            door_lock_status = 4,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attached = true,
-            attachment = {
-                attached_to = 193551,
-                bone = 0,
-                pos = {
-                    x = 0,
-                    y = 0.859999895,
-                    z = 0.0799999759
-                },
-                pitch = 0,
-                roll = 0,
-                yaw = -179.999985,
-            }
-        }, {
-            parent = false,
-            type = 2,
-            model = 0xfdefaec3,
-            handle_id = 15756,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 156,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {-1, false},
-                [12] = {-1, false},
-                [13] = {-1, false},
-                [14] = {-1, false},
-                [15] = {-1, false},
-                [16] = {-1, false},
-                [17] = false,
-                [18] = false,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = false,
-                [23] = {-1, false},
-                [24] = {-1, false}
-            },
-            on_rim = true,
-            bullet_proof_tyres = false,
-            godmode = true,
-            window_tint = 1,
-            engine_on = false,
-            freeze = true,
-            collision = false,
-            invisible = false,
-            siren = true,
-            door_lock_status = 4,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attached = true,
-            attachment = {
-                attached_to = 193551,
-                bone = 0,
-                pos = {
-                    x = 0,
-                    y = -0.949976921,
-                    z = 0.749999583
-                },
-                pitch = -7.00000095,
-                roll = -179.999985,
-                yaw = 1.71661377e-05,
-            }
-        }
-    },
-
-    { name = "Police Tyrant",
-        {   
-            parent = true,
-            type = 2,
-            model = 0xe99011c2,
-            handle_id = 716825,
-            colors = {
-                primary = 0,
-                secondary = 0,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 1,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 255,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {0, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {1, false},
-                [15] = {2, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {15, true},
-                [24] = {-1, false},
-            },
-            bullet_proof_tyres = true,
-            godmode = true,
-            window_tint = 1,
-            engine_on = true,
-            freeze = false,
-            collision = true,
-            invisible = false,
-            siren = false,
-            door_lock_status = 0,
-            lights = 2,
-            engine_sound = "XA21",
-            torque = 50.0,
-            horse_power = 100.0,
-            dirt_level = 0.0,
-            attched = false
-        }, {
-            parent = false,
-            type = 2,
-            model = 0x71fa16ea,
-            handle_id = 706329,
-            colors = {
-                primary = 0,
-                secondary = 0,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 156,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = true,
-                [1] = true,
-                [2] = true,
-                [3] = true,
-                [4] = true,
-                [5] = true,
-                [6] = true
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {-1, false},
-                [12] = {-1, false},
-                [13] = {-1, false},
-                [14] = {-1, false},
-                [15] = {-1, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = false,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = false,
-                [23] = {-1, false},
-                [24] = {-1, false}
-            },
-            on_rim = true,
-            bullet_proof_tyres = false,
-            godmode = true,
-            window_tint = 1,
-            engine_on = false,
-            freeze = true,
-            collision = false,
-            invisible = false,
-            siren = true,
-            door_lock_status = 4,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attached = true,
-            attachment = {
-                attached_to = 716825,
-                bone = 0,
-                pos = {
-                    x = 0,
-                    y = 0.230000108,
-                    z = 0.220000163
-                },
-                pitch = 1.59000254,
-                roll = 0,
-                yaw = 0,
-            }
-        }
-    },
-    {
-        name = "Undercover Baller LWB",
-        {   
-            parent = true,
-            type = 2,
-            model = 0x25cbe2e2,
-            handle_id = 166415,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 7,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {1, false},
-                [15] = {3, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {15, true},
-                [24] = {-1, false},
-            },
-            bullet_proof_tyres = true,
-            godmode = true,
-            window_tint = 1,
-            engine_on = true,
-            freeze = false,
-            collision = true,
-            invisible = false,
-            siren = false,
-            door_lock_status = 0,
-            lights = 2,
-            engine_sound = "CLIQUE",
-            torque = 50.0,
-            horse_power = 100.0,
-            dirt_level = 0.0,
-            attched = false
-        },{
-            parent = false,
-            type = 2,
-            model = 0x432ea949,
-            handle_id = 704269,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 156,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = true,
-                [1] = true,
-                [2] = true,
-                [3] = true,
-                [4] = false,
-                [5] = true,
-                [6] = true
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {44, false},
-                [15] = {3, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = true,
-                [21] = false,
-                [22] = true,
-                [23] = {49, false},
-                [24] = {-1, false}
-            },
-            on_rim = true,
-            bullet_proof_tyres = false,
-            godmode = true,
-            window_tint = 1,
-            engine_on = false,
-            freeze = true,
-            collision = false,
-            invisible = false,
-            siren = true,
-            door_lock_status = 4,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attached = true,
-            attachment = {
-                attached_to = 166415,
-                bone = 0,
-                pos = {
-                    x = 0,
-                    y = -0.190000087,
-                    z = 0.0399999134
-                },
-                pitch = 2.38418579e-07,
-                roll = 0,
-                yaw = 0,
-            }
-        }
-    },
-    {
-        name = "Undercover Buffalo S",
-        {   
-            parent = true,
-            type = 2,
-            model = 0x2bec3cbe,
-            handle_id = 119055,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 30,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 30,
-                pearl = 0,
-                wheel = 7,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {0, false},
-                [1] = {3, false},
-                [2] = {1, false},
-                [3] = {0, false},
-                [4] = {4, false},
-                [5] = {-1, false},
-                [6] = {3, false},
-                [7] = {1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {1, false},
-                [15] = {3, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {15, true},
-                [24] = {-1, false},
-            },
-            bullet_proof_tyres = true,
-            godmode = true,
-            window_tint = 1,
-            engine_on = true,
-            freeze = false,
-            collision = true,
-            invisible = false,
-            siren = false,
-            door_lock_status = 0,
-            lights = 2,
-            engine_sound = "HOTKNIFE",
-            torque = 50.0,
-            horse_power = 100.0,
-            dirt_level = 0.0,
-            attched = false
-        },{
-            parent = false,
-            type = 2,
-            model = 0x432ea949,
-            handle_id = 122127,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 156,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = true,
-                [1] = true,
-                [2] = true,
-                [3] = true,
-                [4] = false,
-                [5] = true,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {-1, false},
-                [12] = {-1, false},
-                [13] = {-1, false},
-                [14] = {-1, false},
-                [15] = {-1, false},
-                [16] = {-1, false},
-                [17] = false,
-                [18] = false,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {-1, false},
-                [24] = {-1, false}
-            },
-            on_rim = true,
-            bullet_proof_tyres = false,
-            godmode = true,
-            window_tint = 1,
-            engine_on = false,
-            freeze = true,
-            collision = false,
-            invisible = false,
-            siren = true,
-            door_lock_status = 4,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attached = true,
-            attachment = {
-                attached_to = 119055,
-                bone = 0,
-                pos = {
-                    x = 0,
-                    y = 0.049999997,
-                    z = 0
-                },
-                pitch = 0,
-                roll = 0,
-                yaw = 0,
-            }
-        }
-    },
-    {
-        name = "Undercover Buffalo STX",
-        {   
-            parent = true,
-            type = 2,
-            model = 0xdb0c9b04,
-            handle_id = 41777,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 30,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 30,
-                pearl = 0,
-                wheel = 7,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {0, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {4, false},
-                [5] = {-1, false},
-                [6] = {4, false},
-                [7] = {1, false},
-                [8] = {0, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {1, false},
-                [15] = {3, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {15, true},
-                [24] = {-1, false},
-            },
-            bullet_proof_tyres = true,
-            godmode = true,
-            window_tint = 1,
-            engine_on = true,
-            freeze = false,
-            collision = true,
-            invisible = false,
-            siren = false,
-            door_lock_status = 0,
-            lights = 2,
-            engine_sound = "HOTKNIFE",
-            torque = 50.0,
-            horse_power = 100.0,
-            dirt_level = 0.0,
-            attched = false
-        },{
-            parent = false,
-            type = 2,
-            model = 0x432ea949,
-            handle_id = 144696,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 156,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = true,
-                [1] = true,
-                [2] = true,
-                [3] = true,
-                [4] = true,
-                [5] = true,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {-1, false},
-                [12] = {-1, false},
-                [13] = {-1, false},
-                [14] = {-1, false},
-                [15] = {-1, false},
-                [16] = {-1, false},
-                [17] = false,
-                [18] = false,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {-1, false},
-                [24] = {-1, false}
-            },
-            on_rim = true,
-            bullet_proof_tyres = false,
-            godmode = true,
-            window_tint = 1,
-            engine_on = false,
-            freeze = true,
-            collision = false,
-            invisible = false,
-            siren = true,
-            door_lock_status = 4,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attached = true,
-            attachment = {
-                attached_to = 41777,
-                bone = 0,
-                pos = {
-                    x = 0,
-                    y = -0.0799999908,
-                    z = 0.0899999887
-                },
-                pitch = 0,
-                roll = 0,
-                yaw = 0,
-            }
-        }
-    },
-    {
-        name = "Police Congoscenti",
-        {   
-            parent = true,
-            type = 2,
-            model = 0x360a438e,
-            handle_id = 74255,
-            colors = {
-                primary = 0,
-                secondary = 0,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 30,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 30,
-                pearl = 0,
-                wheel = 7,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {1, false},
-                [15] = {3, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {15, true},
-                [24] = {-1, false},
-            },
-            bullet_proof_tyres = true,
-            godmode = true,
-            window_tint = 1,
-            engine_on = true,
-            freeze = false,
-            collision = true,
-            invisible = false,
-            siren = false,
-            door_lock_status = 0,
-            lights = 2,
-            engine_sound = "VSTR",
-            torque = 50.0,
-            horse_power = 100.0,
-            dirt_level = 0.0,
-            attched = false
-        },{
-            parent = false,
-            type = 2,
-            model = 0x8a63c7b9,
-            handle_id = 95247,
-            colors = {
-                primary = 0,
-                secondary = 0,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 156,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = true,
-                [1] = true,
-                [2] = true,
-                [3] = true,
-                [4] = true,
-                [5] = true,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {-1, false},
-                [12] = {-1, false},
-                [13] = {-1, false},
-                [14] = {-1, false},
-                [15] = {-1, false},
-                [16] = {-1, false},
-                [17] = false,
-                [18] = false,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {-1, false},
-                [24] = {-1, false}
-            },
-            on_rim = true,
-            bullet_proof_tyres = false,
-            godmode = true,
-            window_tint = 1,
-            engine_on = false,
-            freeze = true,
-            collision = false,
-            invisible = false,
-            siren = true,
-            door_lock_status = 4,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attached = true,
-            attachment = {
-                attached_to = 74255,
-                bone = 0,
-                pos = {
-                    x = 0,
-                    y = -0.0699999928,
-                    z = 0.0999999866
-                },
-                pitch = 0,
-                roll = 0,
-                yaw = 0,
-            }
-        }
-    },
-    {
-        name = "Police Insurgent",
-        {   
-            parent = true,
-            type = 2,
-            model = 0x7b7e56f0,
-            handle_id = 763918,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 152,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {0, false},
-                [15] = {3, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {15, true},
-                [24] = {-1, false},
-            },
-            bullet_proof_tyres = true,
-            godmode = true,
-            window_tint = 1,
-            engine_on = true,
-            freeze = false,
-            collision = true,
-            invisible = false,
-            siren = false,
-            door_lock_status = 0,
-            lights = 2,
-            engine_sound = "MAMBA",
-            torque = 50.0,
-            horse_power = 100.0,
-            dirt_level = 0.0,
-            attched = false
-        },{
-            parent = false,
-            type = 2,
-            model = 0x2c33b46e,
-            handle_id = 427534,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 156,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = true,
-                [1] = true,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {-1, false},
-                [12] = {-1, false},
-                [13] = {-1, false},
-                [14] = {-1, false},
-                [15] = {-1, false},
-                [16] = {-1, false},
-                [17] = false,
-                [18] = false,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {-1, false},
-                [24] = {-1, false}
-            },
-            on_rim = true,
-            bullet_proof_tyres = false,
-            godmode = true,
-            window_tint = 1,
-            engine_on = false,
-            freeze = true,
-            collision = false,
-            invisible = false,
-            siren = true,
-            door_lock_status = 4,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attached = true,
-            attachment = {
-                attached_to = 763918,
-                bone = 0,
-                pos = {
-                    x = 0,
-                    y = 0.119999982,
-                    z = 0.270000011
-                },
-                pitch = 0,
-                roll = 0,
-                yaw = 0,
-            }
-        }, {
-            parent = false,
-            type = 2,
-            model = 0xfdefaec3,
-            handle_id = 783114,
-            colors = {
-                primary = 111,
-                secondary = 1,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 134,
-                wheel = 156,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {-1, false},
-                [12] = {-1, false},
-                [13] = {-1, false},
-                [14] = {-1, false},
-                [15] = {-1, false},
-                [16] = {-1, false},
-                [17] = false,
-                [18] = false,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = false,
-                [23] = {-1, false},
-                [24] = {-1, false}
-            },
-            on_rim = true,
-            bullet_proof_tyres = false,
-            godmode = true,
-            window_tint = 1,
-            engine_on = false,
-            freeze = true,
-            collision = false,
-            invisible = false,
-            siren = true,
-            door_lock_status = 4,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attached = true,
-            attachment = {
-                attached_to = 763918,
-                bone = 0,
-                pos = {
-                    x = 0,
-                    y = -1.72000027,
-                    z = 1.05999994
-                },
-                pitch = 1.90734863e-06,
-                roll = -179.999985,
-                yaw = 0,
-            }
-        }
-    },
-    {
-        name = "Police Schafter V12",
-        {   
-            parent = true,
-            type = 2,
-            model = 0xa774b5a6,
-            handle_id = 389646,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 156,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {1, false},
-                [2] = {0, false},
-                [3] = {0, false},
-                [4] = {3, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {0, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {1, false},
-                [15] = {3, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {15, true},
-                [24] = {-1, false},
-            },
-            bullet_proof_tyres = true,
-            godmode = true,
-            window_tint = 1,
-            engine_on = true,
-            freeze = false,
-            collision = true,
-            invisible = false,
-            siren = false,
-            door_lock_status = 0,
-            lights = 2,
-            engine_sound = "",
-            torque = 50.0,
-            horse_power = 100.0,
-            dirt_level = 0.0,
-            attched = false
-        },{
-            parent = false,
-            type = 2,
-            model = 0x9f05f101,
-            handle_id = 407822,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 156,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = "POLICE",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = true,
-                [1] = true,
-                [2] = true,
-                [3] = true,
-                [4] = false,
-                [5] = true,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {-1, false},
-                [12] = {-1, false},
-                [13] = {-1, false},
-                [14] = {-1, false},
-                [15] = {-1, false},
-                [16] = {-1, false},
-                [17] = false,
-                [18] = false,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = false,
-                [23] = {-1, false},
-                [24] = {-1, false}
-            },
-            on_rim = true,
-            bullet_proof_tyres = false,
-            godmode = true,
-            window_tint = 1,
-            engine_on = false,
-            freeze = true,
-            collision = false,
-            invisible = false,
-            siren = true,
-            door_lock_status = 4,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attached = true,
-            attachment = {
-                attached_to = 389646,
-                bone = 0,
-                pos = {
-                    x = 0,
-                    y = -0.119999982,
-                    z = 0.0799999908
-                },
-                pitch = 0,
-                roll = 0,
-                yaw = 0,
-            }
-        }
-    },
-    {
-        name = "Ruinermill",
-        {   
-            parent = true,
-            type = 2,
-            model = 0x381e10bd,
-            handle_id = 152623,
-            colors = {
-                primary = 160,
-                secondary = 160,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 18,
-                wheel = 0,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = " ",
-            wheel_type = 2,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {50, false},
-                [15] = {3, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = true,
-                [23] = {72, false},
-                [24] = {-1, false},
-            },
-            bullet_proof_tyres = true,
-            godmode = true,
-            window_tint = -1,
-            engine_on = true,
-            freeze = false,
-            collision = true,
-            invisible = false,
-            siren = false,
-            door_lock_status = 0,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attched = false
-        },{
-            parent = false,
-            type = 3,
-            model = 0x745f3383,
-            handle_id = 26930,
-            opacity = 255,
-            lod_dist = 255,
-            godmode = true,
-            freeze = true,
-            collision = true,
-            invisible = false,
-            attached = true,
-            attachment = {
-                attached_to = 152623,
-                bone = 0,
-                pos = {
-                    x = 0,
-                    y = -8.99999619,
-                    z = -2.00000048
-                },
-                pitch = -89.9999924,
-                roll = -5.7220459e-06,
-                yaw = -1.33514404e-05,
-            }
-        },{
-            parent = false,
-            type = 3,
-            model = 0x745f3383,
-            handle_id = 41792,
-            opacity = 255,
-            lod_dist = 255,
-            godmode = true,
-            freeze = true,
-            collision = true,
-            invisible = false,
-            attached = true,
-            attachment = {
-                attached_to = 152623,
-                bone = 0,
-                pos = {
-                    x = 8.99999714,
-                    y = 1.34110451e-07,
-                    z = -2.00000048
-                },
-                pitch = -90,
-                roll = -5.7220459e-06,
-                yaw = 89.9999924,
-            }
-        },{
-            parent = false,
-            type = 3,
-            model = 0x745f3383,
-            handle_id = 46162,
-            opacity = 255,
-            lod_dist = 255,
-            godmode = true,
-            freeze = true,
-            collision = true,
-            invisible = false,
-            attached = true,
-            attachment = {
-                attached_to = 152623,
-                bone = 0,
-                pos = {
-                    x = -9.00000477,
-                    y = -1.04308128e-07,
-                    z = -2.00000048
-                },
-                pitch = -90,
-                roll = -5.7220459e-06,
-                yaw = -90,
-            }
-        },{
-            parent = false,
-            type = 3,
-            model = 0x745f3383,
-            handle_id = 110935,
-            opacity = 255,
-            lod_dist = 255,
-            godmode = true,
-            freeze = true,
-            collision = true,
-            invisible = false,
-            attached = true,
-            attachment = {
-                attached_to = 152623,
-                bone = 0,
-                pos = {
-                    x = -3.21865082e-06,
-                    y = 9,
-                    z = -2.00000048
-                },
-                pitch = -90,
-                roll = -5.7220459e-06,
-                yaw = -180,
-            }
-        }
-    },
-    {
-        name = "Monster Raid",
-        {   
-            parent = true,
-            type = 2,
-            model = 0xcd93a7db,
-            handle_id = 503637,
-            colors = {
-                primary = 40,
-                secondary = 40,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 18,
-                wheel = 0,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = " ",
-            wheel_type = 4,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = false,
-                [1] = false,
-                [2] = true,
-                [3] = true,
-                [4] = true,
-                [5] = false,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {-1, false},
-                [12] = {-1, false},
-                [13] = {-1, false},
-                [14] = {-1, false},
-                [15] = {-1, false},
-                [16] = {-1, false},
-                [17] = false,
-                [18] = false,
-                [19] = false,
-                [20] = false,
-                [21] = false,
-                [22] = false,
-                [23] = {8, true},
-                [24] = {-1, false},
-            },
-            bullet_proof_tyres = true,
-            godmode = true,
-            window_tint = -1,
-            engine_on = true,
-            freeze = false,
-            collision = true,
-            invisible = false,
-            siren = false,
-            door_lock_status = 0,
-            lights = 2,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attched = false
-        }, {
-            parent = false,
-            type = 2,
-            model = 0xd876dbe2,
-            handle_id = 30807,
-            colors = {
-                primary = 40,
-                secondary = 40,
-                custom_1r = 0,
-                custom_1g = 0,
-                custom_1b = 0,
-                custom_2r = 0,
-                custom_2g = 0,
-                custom_2b = 0,
-                pearl = 0,
-                wheel = 92,
-                tyre_smoke_r = 255,
-                tyre_smoke_g = 255,
-                tyre_smoke_b = 255
-            },
-            number_plate_index = 5,
-            number_plate_text = " ",
-            wheel_type = 4,
-            opacity = 255,
-            lod_dist = 16960,
-            neons = {
-                left = false,
-                right = false,
-                front = false,
-                back = false,
-                r = 255,
-                g = 0,
-                b = 255
-            },
-            break_door = {
-                [0] = true,
-                [1] = true,
-                [2] = true,
-                [3] = true,
-                [4] = false,
-                [5] = true,
-                [6] = false
-            },
-            open_door = {
-                [0] = false,
-                [1] = false,
-                [2] = false,
-                [3] = false,
-                [4] = false,
-                [5] = false,
-                [6] = false
-            },
-            mods = {
-                [0] = {-1, false},
-                [1] = {-1, false},
-                [2] = {-1, false},
-                [3] = {-1, false},
-                [4] = {-1, false},
-                [5] = {-1, false},
-                [6] = {-1, false},
-                [7] = {-1, false},
-                [8] = {-1, false},
-                [9] = {-1, false},
-                [10] = {-1, false},
-                [11] = {3, false},
-                [12] = {2, false},
-                [13] = {2, false},
-                [14] = {44, false},
-                [15] = {4, false},
-                [16] = {4, false},
-                [17] = false,
-                [18] = true,
-                [19] = false,
-                [20] = true,
-                [21] = false,
-                [22] = true,
-                [23] = {19, false},
-                [24] = {-1, false}
-            },
-            on_rim = true,
-            bullet_proof_tyres = false,
-            godmode = true,
-            window_tint = 1,
-            engine_on = false,
-            freeze = true,
-            collision = false,
-            invisible = false,
-            siren = true,
-            door_lock_status = 2,
-            lights = 0,
-            engine_sound = "",
-            torque = 1.0,
-            horse_power = 1.0,
-            dirt_level = 0.0,
-            attached = true,
-            attachment = {
-                attached_to = 503637,
-                bone = 0,
-                pos = {
-                    x = -0.0271298382,
-                    y = 0.428068489,
-                    z = 0.665802896
-                },
-                pitch = 0.123927772,
-                roll = 1.76272368,
-                yaw = -0.928627014,
-            }
-        }, {
-            parent = false,
-            type = 3,
-            model = 0x3fbdad7c,
-            handle_id = 629854,
-            opacity = 255,
-            lod_dist = 16960,
-            godmode = true,
-            freeze = true,
-            collision = true,
-            invisible = false,
-            attached = true,
-            attachment = {
-                attached_to = 503637,
-                bone = 0,
-                pos = {
-                    x = 0.834497094,
-                    y = -0.989804804,
-                    z = 1.77926338
-                },
-                pitch = 0.0348004252,
-                roll = -20.3995018,
-                yaw = 1.37551117,
-            }
-        }, {
-            parent = false,
-            type = 3,
-            model = 0xde657a3f,
-            handle_id = 400485,
-            opacity = 255,
-            lod_dist = 16960,
-            godmode = true,
-            freeze = true,
-            collision = true,
-            invisible = false,
-            attached = true,
-            attachment = {
-                attached_to = 503637,
-                bone = 0,
-                pos = {
-                    x = -0.00628418196,
-                    y = -1.18708086,
-                    z = 1.64442086
-                },
-                pitch = 0.0348004252,
-                roll = -0.399528533,
-                yaw = -0.744163513,
-            }
-        },{
-            parent = false,
-            type = 3,
-            model = 0xe2174d98,
-            handle_id = 105577,
-            opacity = 255,
-            lod_dist = 255,
-            godmode = true,
-            freeze = true,
-            collision = true,
-            invisible = false,
-            attached = true,
-            attachment = {
-                attached_to = 503637,
-                bone = 0,
-                pos = {
-                    x = 0.00973733515,
-                    y = -2.25562787,
-                    z = 1.93469644
-                },
-                pitch = 0.0348004252,
-                roll = -0.399528533,
-                yaw = -1.61295319,
-            }
-        }
-    },
-}
 
 local spawned = 0
 local new_request = {}
+
+local new_vehicle = {}
+function custom_vehicles.get_properties(ent, first)
+    local data = {
+        parent = first,
+        type = ENTITY.GET_ENTITY_TYPE(ent),
+        model = ENTITY.GET_ENTITY_MODEL(ent),
+        handle_id = ent,
+        godmode = features.get_godmode(ent),
+        freeze = not first,
+        collision = ENTITY.GET_ENTITY_COLLISION_DISABLED(ent) == 0,
+        invisible = ENTITY.IS_ENTITY_VISIBLE(ent) == 0,
+        attached = ENTITY.IS_ENTITY_ATTACHED(ent) == 1,
+        opacity = ENTITY.GET_ENTITY_ALPHA(ent),
+        lod_dist = ENTITY.GET_ENTITY_LOD_DIST(ent),
+        health = ENTITY.GET_ENTITY_HEALTH(ent)
+    }
+    if data.type == 2 then
+        local primary = memory.malloc(1)
+        local secondary = memory.malloc(1)
+        VEHICLE.GET_VEHICLE_COLOURS(ent, primary, secondary)
+        local interior = memory.malloc(1)
+        VEHICLE._GET_VEHICLE_INTERIOR_COLOR(ent, interior)
+        local dashboard = memory.malloc(1)
+        VEHICLE._GET_VEHICLE_DASHBOARD_COLOR(ent, dashboard)
+        data.colors = {
+            paint_fade = VEHICLE.GET_VEHICLE_ENVEFF_SCALE(ent),
+            xenons = VEHICLE._GET_VEHICLE_XENON_LIGHTS_COLOR(ent),
+            interior = memory.read_int(interior),
+            dashboard = memory.read_int(dashboard),
+            primary = memory.read_int(primary),
+            secondary = memory.read_int(secondary),
+            custom_primary = VEHICLE.GET_IS_VEHICLE_PRIMARY_COLOUR_CUSTOM(ent) == 1,
+            custom_secondary = VEHICLE.GET_IS_VEHICLE_SECONDARY_COLOUR_CUSTOM(ent) == 1,
+            pearl = 0,
+            wheel = 0,
+            tyre_smoke_r = 255,
+            tyre_smoke_g = 255,
+            tyre_smoke_b = 255
+        }
+        memory.free(primary)
+        memory.free(secondary)
+        memory.free(interior)
+        memory.free(dashboard)
+        local pearlescentColor = memory.malloc(1)
+        local wheelColor = memory.malloc(1)
+        local tr = memory.malloc(1)
+        local tg = memory.malloc(1)
+        local tb = memory.malloc(1)
+        VEHICLE.GET_VEHICLE_TYRE_SMOKE_COLOR(ent, tr, tg, tb)
+        VEHICLE.GET_VEHICLE_EXTRA_COLOURS(ent, pearlescentColor, wheelColor)
+        data.colors.pearl = memory.read_int(pearlescentColor)
+        data.colors.wheel = memory.read_int(wheelColor)
+        data.colors.tyre_smoke_r = memory.read_int(tr)
+        data.colors.tyre_smoke_g = memory.read_int(tg)
+        data.colors.tyre_smoke_b = memory.read_int(tb)
+        memory.free(pearlescentColor)
+        memory.free(wheelColor)
+        memory.free(tr)
+        memory.free(tg)
+        memory.free(tb)
+        if data.colors.custom_primary then
+            local r = memory.malloc(1)
+            local g = memory.malloc(1)
+            local b = memory.malloc(1)
+            VEHICLE.GET_VEHICLE_CUSTOM_PRIMARY_COLOUR(ent, r, g, b)
+            data.colors.custom_1r = memory.read_int(r)
+            data.colors.custom_1g = memory.read_int(g)
+            data.colors.custom_1b = memory.read_int(b)
+            memory.free(r)
+            memory.free(g)
+            memory.free(b)
+        end
+        if data.colors.custom_secondary then
+            local r = memory.malloc(1)
+            local g = memory.malloc(1)
+            local b = memory.malloc(1)
+            VEHICLE.GET_VEHICLE_CUSTOM_SECONDARY_COLOUR(ent, r, g, b)
+            data.colors.custom_2r = memory.read_int(r)
+            data.colors.custom_2g = memory.read_int(g)
+            data.colors.custom_2b = memory.read_int(b)
+            memory.free(r)
+            memory.free(g)
+            memory.free(b)
+        end
+        data.number_plate_index = VEHICLE.GET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(ent)
+        data.number_plate_text = VEHICLE.GET_VEHICLE_NUMBER_PLATE_TEXT(ent)
+        data.wheel_type = VEHICLE.GET_VEHICLE_WHEEL_TYPE(ent)
+        local nr = memory.malloc(1)
+        local ng = memory.malloc(1)
+        local nb = memory.malloc(1)
+        VEHICLE._GET_VEHICLE_NEON_LIGHTS_COLOUR(ent, nr, ng, nb)
+        data.neons = {
+            left = VEHICLE._IS_VEHICLE_NEON_LIGHT_ENABLED(ent, 0),
+            right = VEHICLE._IS_VEHICLE_NEON_LIGHT_ENABLED(ent, 1),
+            front = VEHICLE._IS_VEHICLE_NEON_LIGHT_ENABLED(ent, 2),
+            back = VEHICLE._IS_VEHICLE_NEON_LIGHT_ENABLED(ent, 3),
+            r = memory.read_int(nr),
+            g = memory.read_int(ng),
+            b = memory.read_int(nb)
+        }
+        memory.free(nr)
+        memory.free(ng)
+        memory.free(nb)
+        data.break_door = {}
+        data.open_door = {}
+        for i = 0, 5
+        do
+            data.break_door[i] = VEHICLE.IS_VEHICLE_DOOR_DAMAGED(ent, i) == 1
+            data.open_door[i] = VEHICLE.GET_VEHICLE_DOOR_ANGLE_RATIO(ent, i) ~= 0
+        end
+        data.mods = {}
+        for i = 0, 49
+        do
+            if i < 17 or i > 22 then
+                data.mods[i] = {VEHICLE.GET_VEHICLE_MOD(ent, i), VEHICLE.GET_VEHICLE_MOD_VARIATION(ent, i) == 1}
+            else
+                data.mods[i] = VEHICLE.IS_TOGGLE_MOD_ON(ent, i) == 1
+            end
+        end
+        data.bullet_proof_tyres = VEHICLE.GET_VEHICLE_TYRES_CAN_BURST(ent) == 0
+        data.window_tint = VEHICLE.GET_VEHICLE_WINDOW_TINT(ent)
+        data.door_lock_status = VEHICLE.GET_VEHICLE_DOOR_LOCK_STATUS(ent)
+        data.engine_on = VEHICLE.GET_IS_VEHICLE_ENGINE_RUNNING(ent) == 1
+        data.siren = VEHICLE.IS_VEHICLE_SIREN_ON(ent) == 1
+        data.engine_sound = ""
+        data.torque_multiplier = 1.0
+        data.rmp_multiplier = 1.0
+        data.dirt_level = VEHICLE.GET_VEHICLE_DIRT_LEVEL(ent)
+        local lightsOn = memory.malloc(1)
+        local highbeamsOn = memory.malloc(1)
+        VEHICLE.GET_VEHICLE_LIGHTS_STATE(ent, lightsOn, highbeamsOn)
+        local light_mode = 0
+        if memory.read_byte(highbeamsOn) == 1 then
+            light_mode = 2
+        elseif memory.read_byte(lightsOn) == 1 then
+            light_mode = 1
+        end
+        memory.free(highbeamsOn)
+        memory.free(lightsOn)
+        data.lights = light_mode
+        data.extra = {}
+        for i = 0, 20
+        do
+            if VEHICLE.DOES_EXTRA_EXIST(ent, i) == 1 then
+                data.extra[i] = VEHICLE.IS_VEHICLE_EXTRA_TURNED_ON(ent, i) == 1
+            end
+        end
+        data.tyres_bursted = {}
+        for i = 0, 5
+        do
+            data.tyres_bursted[i] = VEHICLE.IS_VEHICLE_TYRE_BURST(ent, i, true) == 1  
+        end
+        data.livery = VEHICLE.GET_VEHICLE_LIVERY(ent)
+        data.roofstate = VEHICLE.GET_CONVERTIBLE_ROOF_STATE(ent)
+    elseif data.type == 3 then
+        data.texture = OBJECT._GET_OBJECT_TEXTURE_VARIATION(ent)
+    end
+    if data.attached then
+        local offset = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ent, 0, 0, VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ent) ~= -1 and VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ent) or 0))
+        local offpos1 = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ent, offset.x, offset.y, offset.z))
+        local offset = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), 0, 0, VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ENTITY.GET_ENTITY_ATTACHED_TO(ent)) ~= -1 and VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ENTITY.GET_ENTITY_ATTACHED_TO(ent)) or 0))
+        local offpos2 = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), offset.x, offset.y, offset.z))
+        local pos = vector3(ENTITY.GET_ENTITY_COORDS(ent, true)) + offpos1 + offpos2
+        local rot1 = vector3(ENTITY.GET_ENTITY_ROTATION(ENTITY.GET_ENTITY_ATTACHED_TO(ent), 2))
+        local rot2 = vector3(ENTITY.GET_ENTITY_ROTATION(ent, 2))
+        local pitch, roll, yaw = (rot1 - rot2):abs():get()
+        pitch = rot1.x > rot2.x and -pitch or pitch
+        roll = rot1.y > rot2.y and -roll or roll
+        yaw = rot1.z > rot2.z and -yaw or yaw
+        data.attachment = {
+            attached_to = ENTITY.GET_ENTITY_ATTACHED_TO(ent),
+            bone = 0,
+            pos = {
+                x = ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), pos.x, pos.y, pos.z).x,
+                y = ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), pos.x, pos.y, pos.z).y,
+                z = ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), pos.x, pos.y, pos.z).z
+            },
+            pitch = (pitch > 90 and pitch - 180) or (pitch < -90 and pitch + 180) or pitch,
+            roll = (roll > 180 and roll - 360) or (roll < -180 and roll + 360) or roll, 
+            yaw = (yaw > 180 and yaw - 360) or (yaw < -180 and yaw + 360) or yaw
+        }
+    end
+    return data
+end
+
+function custom_vehicles.save(veh)
+    local Veh = {}
+    local vehicle = features.get_parent_attachment(veh)
+    local velocity = ENTITY.GET_ENTITY_VELOCITY(vehicle)
+    ENTITY.FREEZE_ENTITY_POSITION(vehicle, true)
+    local rot = ENTITY.GET_ENTITY_ROTATION(vehicle, 2)
+    ENTITY.SET_ENTITY_ROTATION(vehicle, 0, 0, 0, 2, true)
+    system.yield()
+    table.insert(Veh, custom_vehicles.get_properties(vehicle, true))
+    for _, v in ipairs(features.get_all_attachments(vehicle))
+    do
+        table.insert(Veh, custom_vehicles.get_properties(v, false))
+    end
+    ENTITY.SET_ENTITY_ROTATION(vehicle, rot.x, rot.y, rot.z, 2, true)
+    ENTITY.FREEZE_ENTITY_POSITION(vehicle, false)
+    ENTITY.SET_ENTITY_VELOCITY(vehicle, velocity.x, velocity.y, velocity.z)
+    return Veh
+end
+
 function custom_vehicles.request(CustomVehicle)   
+    system.notify(TRANSLATION['Info'], TRANSLATION['Waiting for models to load...'], 0, 128, 255, 255)
     for _, v in ipairs(CustomVehicle)
     do
         local loaded, hash = features.request_model(v.model)
@@ -2563,13 +237,14 @@ function custom_vehicles.unload(CustomVehicle)
     return true
 end
 
-function custom_vehicles.spawn(CustomVehicle, spawn_i, pos, id)
+function custom_vehicles.spawn(vehicle, spawn_i, pos, id)
+    local CustomVehicle = vehicle[id]
     if new_request[spawn_i][CustomVehicle.handle_id] then return end
     local ent
     if CustomVehicle.type == 2 then
-        ent = entities.create_vehicle(CustomVehicle.model, pos)
+        ent = vehicles.spawn_vehicle(CustomVehicle.model, pos)
     elseif CustomVehicle.type == 3 then
-        ent = entities.create_object(CustomVehicle.model, pos)
+        ent = features.create_object(CustomVehicle.model, pos)
         NETWORK.SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(NETWORK.NETWORK_GET_NETWORK_ID_FROM_ENTITY(ent), true)
         NETWORK._NETWORK_SET_ENTITY_INVISIBLE_TO_NETWORK(ent, false)
     end
@@ -2577,14 +252,35 @@ function custom_vehicles.spawn(CustomVehicle, spawn_i, pos, id)
         new_request[spawn_i].parent = ent
     end
     new_request[spawn_i][CustomVehicle.handle_id] = ent
+    if CustomVehicle.godmode then
+        features.set_godmode(ent, CustomVehicle.godmode)
+    end
     if CustomVehicle.type == 2 then
         DECORATOR.DECOR_SET_INT(ent, "MPBitset", 1024)
         VEHICLE.SET_VEHICLE_MOD_KIT(ent, 0)
         vehicles.repair(ent)
-        vehicles.set_godmode(ent, CustomVehicle.godmode)
+        if CustomVehicle.godmode then
+            vehicles.set_godmode(ent, CustomVehicle.godmode)
+        end
+        if CustomVehicle.colors.paint_fade then
+            VEHICLE.SET_VEHICLE_ENVEFF_SCALE(ent, CustomVehicle.colors.paint_fade)
+        end
+        if CustomVehicle.colors.interior then
+            VEHICLE._SET_VEHICLE_INTERIOR_COLOR(ent, CustomVehicle.colors.interior)
+        end
+        if CustomVehicle.colors.dashboard then
+            VEHICLE._SET_VEHICLE_DASHBOARD_COLOR(ent, CustomVehicle.colors.dashboard)
+        end
+        if CustomVehicle.colors.xenons then
+            VEHICLE._SET_VEHICLE_XENON_LIGHTS_COLOR(ent, CustomVehicle.colors.xenons)
+        end
         VEHICLE.SET_VEHICLE_COLOURS(ent, CustomVehicle.colors.primary, CustomVehicle.colors.secondary)
-        VEHICLE.SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(ent, CustomVehicle.colors.custom_1r, CustomVehicle.colors.custom_1g, CustomVehicle.colors.custom_1b)
-        VEHICLE.SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(ent, CustomVehicle.colors.custom_2r, CustomVehicle.colors.custom_2g, CustomVehicle.colors.custom_2b)
+        if CustomVehicle.colors.custom_primary then
+            VEHICLE.SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(ent, CustomVehicle.colors.custom_1r, CustomVehicle.colors.custom_1g, CustomVehicle.colors.custom_1b)
+        end
+        if CustomVehicle.colors.custom_secondary then
+            VEHICLE.SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(ent, CustomVehicle.colors.custom_2r, CustomVehicle.colors.custom_2g, CustomVehicle.colors.custom_2b)
+        end
         VEHICLE.SET_VEHICLE_EXTRA_COLOURS(ent, CustomVehicle.colors.pearl, CustomVehicle.colors.wheel)
         VEHICLE.SET_VEHICLE_TYRE_SMOKE_COLOR(ent , CustomVehicle.colors.tyre_smoke_r, CustomVehicle.colors.tyre_smoke_g, CustomVehicle.colors.tyre_smoke_b)
         VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(ent, CustomVehicle.number_plate_index)
@@ -2593,44 +289,70 @@ function custom_vehicles.spawn(CustomVehicle, spawn_i, pos, id)
         if engine_sound ~= '' then
             AUDIO._FORCE_VEHICLE_ENGINE_AUDIO(ent, CustomVehicle.engine_sound)
         end
-        for i = 0, 24
+        for k, v in pairs(CustomVehicle.mods)
         do
-            if i < 17 or i > 22 and CustomVehicle.mods[i][1] ~= -1 then
-                VEHICLE.SET_VEHICLE_MOD(ent, i, CustomVehicle.mods[i][1], CustomVehicle.mods[i][2])
+            local i = tonumber(k)
+            if i < 17 or i > 22 and v[1] ~= -1 then
+                VEHICLE.SET_VEHICLE_MOD(ent, i, v[1], v[2])
             else
-                VEHICLE.TOGGLE_VEHICLE_MOD(ent, i, CustomVehicle.mods[i])
+                VEHICLE.TOGGLE_VEHICLE_MOD(ent, i, v)
+            end
+        end
+
+        if CustomVehicle.extra then
+            for k, v in pairs(CustomVehicle.extra)
+            do
+                local i = tonumber(k)
+                VEHICLE.SET_VEHICLE_EXTRA(ent, i, not v)
             end
         end
 
         VEHICLE.SET_VEHICLE_TYRES_CAN_BURST(ent, not CustomVehicle.bullet_proof_tyres)
-        if CustomVehicle.on_rim then
-            for i = 0, 5 do
-              VEHICLE.SET_VEHICLE_TYRE_BURST(ent, i, true, 1000.0)
+        for k, v in pairs(CustomVehicle.tyres_bursted)
+        do
+            local i = tonumber(k)
+            if v then
+                VEHICLE.SET_VEHICLE_TYRE_BURST(ent, i, true, 1000.0)
             end
         end
+        VEHICLE._SET_VEHICLE_NEON_LIGHT_ENABLED(ent, 0, CustomVehicle.neons.left == 1)
+        VEHICLE._SET_VEHICLE_NEON_LIGHT_ENABLED(ent, 1, CustomVehicle.neons.right == 1)
+        VEHICLE._SET_VEHICLE_NEON_LIGHT_ENABLED(ent, 2, CustomVehicle.neons.front == 1)
+        VEHICLE._SET_VEHICLE_NEON_LIGHT_ENABLED(ent, 3, CustomVehicle.neons.back == 1)
         VEHICLE._SET_VEHICLE_NEON_LIGHTS_COLOUR(ent, CustomVehicle.neons.r, CustomVehicle.neons.g, CustomVehicle.neons.b)
-        VEHICLE._SET_VEHICLE_NEON_LIGHT_ENABLED(ent, 0, CustomVehicle.neons.left)
-        VEHICLE._SET_VEHICLE_NEON_LIGHT_ENABLED(ent, 1, CustomVehicle.neons.right)
-        VEHICLE._SET_VEHICLE_NEON_LIGHT_ENABLED(ent, 2, CustomVehicle.neons.front)
-        VEHICLE._SET_VEHICLE_NEON_LIGHT_ENABLED(ent, 3, CustomVehicle.neons.back)
         VEHICLE.SET_VEHICLE_WINDOW_TINT(ent, CustomVehicle.window_tint)
         VEHICLE.SET_VEHICLE_ENGINE_ON(ent, CustomVehicle.engine_on, true, false)
         VEHICLE.SET_VEHICLE_SIREN(ent, CustomVehicle.siren)
         VEHICLE.SET_VEHICLE_DOORS_LOCKED(ent, CustomVehicle.door_lock_status)
-        VEHICLE.SET_VEHICLE_CHEAT_POWER_INCREASE(ent, CustomVehicle.torque)
-        VEHICLE.MODIFY_VEHICLE_TOP_SPEED(ent, CustomVehicle.horse_power)
+        VEHICLE.SET_VEHICLE_CHEAT_POWER_INCREASE(ent, CustomVehicle.torque_multiplier)
+        VEHICLE.MODIFY_VEHICLE_TOP_SPEED(ent, CustomVehicle.rmp_multiplier)
         VEHICLE.SET_VEHICLE_DIRT_LEVEL(ent, CustomVehicle.dirt_level)
-        VEHICLE.SET_VEHICLE_LIGHTS(ent, CustomVehicle.lights)
-        for i = 0, 6
+        ENTITY.SET_ENTITY_HEALTH(ent, CustomVehicle.health, 1)
+        VEHICLE._SET_VEHICLE_LIGHTS_MODE(ent, CustomVehicle.lights)
+        VEHICLE.SET_VEHICLE_LIVERY(ent, CustomVehicle.livery)
+        if CustomVehicle.roofstate == 0 then
+            VEHICLE.RAISE_CONVERTIBLE_ROOF(ent, true)
+        elseif CustomVehicle.roofstate == 1 then
+            VEHICLE.LOWER_CONVERTIBLE_ROOF(ent, false)
+        elseif CustomVehicle.roofstate == 2 then
+            VEHICLE.LOWER_CONVERTIBLE_ROOF(ent, true)
+        elseif CustomVehicle.roofstate == 3 then
+            VEHICLE.LOWER_CONVERTIBLE_ROOF(ent, true)
+            VEHICLE.RAISE_CONVERTIBLE_ROOF(ent, false)
+        end
+        for k, v in pairs(CustomVehicle.open_door)
         do
-            if CustomVehicle.open_door[i] then
+            local i = tonumber(k)
+            if CustomVehicle.open_door[k] then
                 VEHICLE.SET_VEHICLE_DOOR_OPEN(ent, i, false, true)
             end
-            if CustomVehicle.break_door[i] then
+            if CustomVehicle.break_door[k] then
                 VEHICLE._SET_VEHICLE_DOOR_CAN_BREAK(ent, i, true)
                 VEHICLE.SET_VEHICLE_DOOR_BROKEN(ent, i, true)
             end
         end
+    elseif type == 3 then
+        OBJECT._SET_OBJECT_TEXTURE_VARIATION(ent, data.texture)
     end
     if CustomVehicle.opacity ~= 255 then
         ENTITY.SET_ENTITY_ALPHA(ent, CustomVehicle.opacity, false)
@@ -2640,14 +362,14 @@ function custom_vehicles.spawn(CustomVehicle, spawn_i, pos, id)
     ENTITY.SET_ENTITY_COLLISION(ent, CustomVehicle.collision, true)
     ENTITY.SET_ENTITY_VISIBLE(ent, not CustomVehicle.invisible, false)
     if not CustomVehicle.attached then return end
-    if new_request[spawn_i][CustomVehicle.attachment.attached_to] == veh then return end -- don't attach to itself
+    if new_request[spawn_i][CustomVehicle.attachment.attached_to] == ent then return end -- don't attach to itself
     local found = true
-    if not new_request[spawn_i][CustomVehicle.attachment.attached_to] then -- checks if entity for attachment exist
+    if not new_request[spawn_i][CustomVehicle.attachment.attached_to] then -- checks if entity to attach exist
         found = false
-        for _, v in ipairs(custom_vehicles.models[id])
+        for i, v in ipairs(vehicle)
         do
             if v.handle_id == CustomVehicle.attachment.attached_to then
-                custom_vehicles.spawn(v, spawn_i, pos, id)
+                custom_vehicles.spawn(vehicle, spawn_i, pos, i)
                 found = true
                 break
             end
@@ -2662,30 +384,30 @@ function custom_vehicles.spawn(CustomVehicle, spawn_i, pos, id)
     return ent
 end
 
-function custom_vehicles.create(id)
-    CreateRemoveThread(true, 'request_model_'..id, function()
-        local result = custom_vehicles.request(custom_vehicles.models[id])
+function custom_vehicles.create(vehicle, conf, clone_damage)
+    CreateRemoveThread(true, 'request_model_'..tostring(vehicle), function()
+        local result = custom_vehicles.request(vehicle)
         if result == -1 then return 0 end -- invalid model
         if result == 0 then return end -- not loaded
         spawned = spawned + 1
         local spawn_i = spawned
         new_request[spawn_i] = {}
-        local pos = features.get_offset_from_player_coords(vector3(0,5,0))
-        for _, v in ipairs(custom_vehicles.models[id])
+        local pos = features.get_offset_from_player_coords(vector3(0,8,0))
+        for i, v in ipairs(vehicle)
         do
-            custom_vehicles.spawn(v, spawn_i, pos, id)
+            custom_vehicles.spawn(vehicle, spawn_i, pos, i)
         end
-        custom_vehicles.unload(custom_vehicles.models[id])
+        custom_vehicles.unload(vehicle)
         local prev_veh = vehicles.get_player_vehicle()
         local velocity
-        if settings.Vehicle["SpawnerKeepSpeed"] and settings.Vehicle["SpawnerInside"] and prev_veh ~= NULL then
+        if conf and settings.Vehicle["SpawnerKeepSpeed"] and settings.Vehicle["SpawnerInside"] and prev_veh ~= NULL then
             velocity = ENTITY.GET_ENTITY_VELOCITY(prev_veh)
         end
         ENTITY.SET_ENTITY_HEADING(new_request[spawn_i].parent, ENTITY.GET_ENTITY_HEADING(PLAYER.PLAYER_PED_ID()))
-        if settings.Vehicle["SpawnerKeepSpeed"] and settings.Vehicle["SpawnerInside"] and prev_veh ~= NULL then
+        if conf and settings.Vehicle["SpawnerKeepSpeed"] and settings.Vehicle["SpawnerInside"] and prev_veh ~= NULL then
             velocity = ENTITY.GET_ENTITY_VELOCITY(prev_veh)
         end
-        if settings.Vehicle["SpawnerDeleteOld"] and prev_veh ~= NULL then
+        if conf and settings.Vehicle["SpawnerDeleteOld"] and prev_veh ~= NULL then
             TASK.CLEAR_PED_TASKS_IMMEDIATELY(PLAYER.PLAYER_PED_ID())
             features.delete_entity(prev_veh)
         end
@@ -2694,6 +416,9 @@ function custom_vehicles.create(id)
         end
         if settings.Vehicle["SpawnerInside"] then
             PED.SET_PED_INTO_VEHICLE(PLAYER.PLAYER_PED_ID(), new_request[spawn_i].parent, -1)
+        end
+        if clone_damage then
+            VEHICLE.COPY_VEHICLE_DAMAGES(clone_damage, new_request[spawn_i].parent)
         end
         return 0
     end)

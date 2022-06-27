@@ -1151,7 +1151,7 @@ function ped.get_outfit(ped)
             PED.GET_PED_TEXTURE_VARIATION(ped, i)
         }
     end
-    for i = 0, 2 do
+    for i = 0, 9 do
         outfit.props[i] = {
             PED.GET_PED_PROP_INDEX(ped, i),
             PED.GET_PED_PROP_TEXTURE_INDEX(ped, i)

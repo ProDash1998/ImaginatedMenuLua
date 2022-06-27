@@ -90,6 +90,15 @@ function features.get_screen_center()
 	return vector3({x = size.x/2, y = size.y/2})
 end
 
+function features.get_memory_pointer(address, offsets)
+	for i = 1, #offsets - 1
+	do
+		address = memory.read_int64(address + offsets[i])
+		if address == 0 then return 0 end
+	end
+	return address + offsets[#offsets]
+end
+
 function features.world_to_screen(pos)
 	local screenX, screenY = memory.malloc(48), memory.malloc(48)
 	GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(pos.x, pos.y, pos.z, screenX, screenY)
@@ -113,19 +122,28 @@ end
 
 function features.player_from_name(name)
 	if tonumber(name) then
-		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(tonumber(name)) == 1 then return name end
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(tonumber(name)) == 1 then return tonumber(name) end
 	end
 	local name = name:lower()
 	for i = 0, 31 do
-		if name == online.get_name(i):lower() then 
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(tonumber(i)) == 1 and name == online.get_name(i):lower() then 
+			return i
+		end
+	end
+	for i = 0, 31 do
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(tonumber(i)) == 1 and online.get_name(i):lower():find(name) then 
 			return i
 		end
 	end
 end
 
+function features.remove_god(player)
+	online.send_script_event(player, 801199324, PLAYER.PLAYER_ID(), 869796886, 0)
+end
+
 function features.request_control_once(ent)
-	NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(ent)
 	if NETWORK.NETWORK_HAS_CONTROL_OF_ENTITY(ent) == 1 then return true end
+	NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(ent)
 	if NETWORK.NETWORK_IS_SESSION_STARTED() == 1 then
 		local netId = NETWORK.NETWORK_GET_NETWORK_ID_FROM_ENTITY(ent)
 		NETWORK.NETWORK_REQUEST_CONTROL_OF_NETWORK_ID(netId)
@@ -151,6 +169,59 @@ function features.get_random_player()
 	return PLAYER.PLAYER_ID()
 end
 
+function features.draw_box_on_entity(entity, vec_min, vec_max, r, g, b, a)
+	local r, g, b, a = r or 255, g or 255, b or 255, a or 255
+	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_min.y, vec_min.z)
+	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_min.y, vec_max.z)
+	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
+	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_min.y, vec_min.z)
+	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_max.x, vec_min.y, vec_min.z)
+	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
+	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_min.y, vec_min.z)
+	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_max.y, vec_min.z)
+	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
+	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_min.y, vec_max.z)
+	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_max.x, vec_min.y, vec_max.z)
+	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
+	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_min.y, vec_max.z)
+	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_max.y, vec_max.z)
+	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
+	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_max.y, vec_min.z)
+	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_max.y, vec_max.z)
+	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
+	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_max.y, vec_min.z)
+	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_max.x, vec_max.y, vec_min.z)
+	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
+	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_max.x, vec_max.y, vec_min.z)
+	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_max.x, vec_min.y, vec_min.z)
+	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
+	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_max.x, vec_min.y, vec_min.z)
+	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_max.x, vec_min.y, vec_max.z)
+	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
+	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_max.x, vec_min.y, vec_max.z)
+	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_max.x, vec_max.y, vec_max.z)
+	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
+	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_max.x, vec_max.y, vec_max.z)
+	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_max.y, vec_max.z)
+	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
+	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_max.x, vec_max.y, vec_max.z)
+	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_max.x, vec_max.y, vec_min.z)
+	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
+end
+
+function features.get_offset_cam_coords(cam, offset)
+	local rotation = vector3(CAM.GET_CAM_ROT(cam, 2))
+	local forward = rotation:rot_to_direction()
+	rotation = rotation:rad()
+	local num = math.cos(rotation.y)
+	local x = num * math.cos(-rotation.z)
+	local y = num * math.sin(rotation.z)
+	local z = math.sin(-rotation.y)
+	local right = vector3(x, y, z)
+	local up = right:cross(forward)
+	return vector3(CAM.GET_CAM_COORD(cam)) + (right * offset.x) + (forward * offset.y) + (up * offset.z)
+end
+
 function features.get_offset_coords_from_entity_rot(entity, dist, offheading, ignore_z)
     local pos = ENTITY.GET_ENTITY_COORDS(entity, false)
     local rot = ENTITY.GET_ENTITY_ROTATION(entity, 2)
@@ -165,12 +236,11 @@ function features.get_offset_coords_from_entity_rot(entity, dist, offheading, ig
     if not ignore_z then
         offz = vector.z
     end
-
-    return {
-        x = pos.x + vector.x,
-        y = pos.y + vector.y,
-        z = pos.z + offz
-    }
+    return vector3(
+        pos.x + vector.x,
+        pos.y + vector.y,
+        pos.z + offz
+    )
 end
 
 function features.set_entity_face_entity(ent1, ent2, usePitch)
@@ -206,6 +276,49 @@ function features.get_player_from_ped(ped)
 	return -1
 end
 
+function features.set_godmode(entity, bool)
+	ENTITY.SET_ENTITY_CAN_BE_DAMAGED(entity, not bool)
+    ENTITY.SET_ENTITY_PROOFS(entity, bool, bool, bool, bool, bool, bool, bool, bool)
+    ENTITY.SET_ENTITY_INVINCIBLE(entity, bool)
+end
+
+function features.round(value, to)
+	return tonumber(string.format("%"..to.."f", value))
+end
+
+function features.draw_crosshair(x, y, spacing, tickness, r, g, b, a, b_left, b_right, b_up, b_down, borders, border_r, border_g, border_b, border_a, dot)
+	local x, y, spacing, tickness, r, g, b, a = math.floor(x), math.floor(y), math.floor(spacing), math.floor(tickness), math.floor(r), math.floor(g), math.floor(b), math.floor(a)
+	local borders, border_r, border_g, border_b, border_a = math.floor(borders), math.floor(border_r), math.floor(border_g), math.floor(border_b), math.floor(border_a)
+	local res = features.get_screen_resolution()
+	local border_thic = tickness + borders
+	if border_thic%2~=0 then border_thic = border_thic + 1 end
+	if tickness%2~=0 then tickness = tickness + 1 end
+	local to_x = (1 / res.x)
+	local to_y = (1 / res.y)
+	local spacing_x = (1 / res.x) * spacing
+	local spacing_y = (1 / res.y) * spacing
+	if borders ~= 0 then
+		local x = x + borders
+		local y = y + borders
+		if b_left then GRAPHICS.DRAW_RECT(.5 - spacing_x - (to_x * x)/2, .5, to_x * x, to_y * border_thic, border_r, border_g, border_b, border_a, false) end
+		if b_right then GRAPHICS.DRAW_RECT(.5 + spacing_x + (to_x * x)/2, .5, to_x * x, to_y * border_thic, border_r, border_g, border_b, border_a, false) end
+		if b_up then GRAPHICS.DRAW_RECT(.5, .5 - spacing_y - (to_y * y)/2, to_x * border_thic, to_y * y, border_r, border_g, border_b, border_a, false) end
+		if b_down then GRAPHICS.DRAW_RECT(.5, .5 + spacing_y + (to_y * y)/2, to_x * border_thic, to_y * y, border_r, border_g, border_b, border_a, false) end
+	end
+	if b_left then GRAPHICS.DRAW_RECT(.5 - spacing_x - (to_x * x)/2, .5, to_x * x, to_y * tickness, r, g, b, a, false) end
+	if b_right then GRAPHICS.DRAW_RECT(.5 + spacing_x + (to_x * x)/2, .5, to_x * x, to_y * tickness, r, g, b, a, false) end
+	if b_up then GRAPHICS.DRAW_RECT(.5, .5 - spacing_y - (to_y * y)/2, to_x * tickness, to_y * y, r, g, b, a, false) end
+	if b_down then GRAPHICS.DRAW_RECT(.5, .5 + spacing_y + (to_y * y)/2, to_x * tickness, to_y * y, r, g, b, a, false) end
+	if dot then GRAPHICS.DRAW_RECT(.5, .5, to_x * tickness, to_y * tickness, r, g, b, a, false) end
+end
+
+function features.create_object(hash, pos)
+	local obj = entities.create_object(hash, pos)
+    NETWORK.SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(NETWORK.NETWORK_GET_NETWORK_ID_FROM_ENTITY(obj), true)
+    NETWORK._NETWORK_SET_ENTITY_INVISIBLE_TO_NETWORK(obj, false)
+    return obj
+end
+
 function features.get_entities()
 	local ent = {}
 	for _,v in ipairs(entities.get_vehs()) do
@@ -237,6 +350,23 @@ function features.teleport(entity, x, y, z)
 	entities.request_control(entity, function()
 		ENTITY.SET_ENTITY_COORDS_NO_OFFSET(entity, x, y, z, false, false, false)
 	end)
+end
+
+function features.get_closest_apatrment_to_coord(pos)
+	local distance
+	local aparent
+	for i, v in ipairs(enum.apartment_coords)
+	do
+		local dist = pos:sqrlen(v)
+		if not distance then
+			distance = dist
+			aparent = i
+		elseif distance > dist then
+			distance = dist
+			aparent = i
+		end
+	end
+	return aparent
 end
 
 function features.get_blip_objective()
@@ -307,17 +437,29 @@ function features.get_aimed_entity(player)
 	-- return NULL
 end
 
+function features.get_player_heading(player)
+	local player = player or PLAYER.PLAYER_ID()
+	return ENTITY.GET_ENTITY_HEADING(PLAYER.GET_PLAYER_PED(player))
+end
+
 function features.get_offset_from_player_coords(offvector, player)
 	local player = player or PLAYER.PLAYER_ID()
 	local offx, offy, offz = offvector:get()
-	return ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.GET_PLAYER_PED(player), offx, offy, offz)
+	return vector3(ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.GET_PLAYER_PED(player), offx, offy, offz))
 end
 
 function features.get_player_coords(player)
 	local player = player or PLAYER.PLAYER_ID()
-	return ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(player), false)
+	return vector3(ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(player), false))
 end
-	
+
+function features.is_otr(player)
+	if globals.get_int(2689224 + (1 + (player * 451) + 207)) == 1 then
+		return true
+	end
+	return false
+end
+
 function features.is_excluded(pid)
 	local rid = tostring(online.get_rockstar_id(pid))
 	return features.player_excludes[rid] ~= nil
@@ -369,9 +511,8 @@ function features.get_parent_attachment(...)
 	if ENTITY.IS_ENTITY_ATTACHED(entity) == 1 then
 		return features.get_parent_attachment(ENTITY.GET_ENTITY_ATTACHED_TO(entity))
 	else
-		return ENTITY.GET_ENTITY_ATTACHED_TO(entity)
+		return entity
 	end
-
 end
 
 function features.get_entity_proofs(entity)
@@ -398,7 +539,7 @@ function features.get_entity_proofs(entity)
 	return proofs
 end
 
-function features.get_godmode(enitity)
+function features.get_godmode(entity)
 	local proofs = features.get_entity_proofs(entity)
 	return (proofs.bulletProof and proofs.fireProof and proofs.explosionProof)
 end
@@ -455,11 +596,11 @@ local players = {
 }
 
 function features.set_bounty(player, amount)
-	local amount = amount or 10000
+	local amount = tonumber(amount) or 10000
 	for i = 0, 31
 	do	
 		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) ~= NULL then
-			online.send_script_event(i, 1294995624, PLAYER.PLAYER_ID(), player, 1, amount, 0, 1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, globals.get_int(1921039 + 9), globals.get_int(1921039 + 10))
+			online.send_script_event(i, 1294995624, PLAYER.PLAYER_ID(), player, 1, amount <= 10000 and math.floor(amount) or 10000, 0, 1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, globals.get_int(1921039 + 9), globals.get_int(1921039 + 10))
 		end
 	end
 end

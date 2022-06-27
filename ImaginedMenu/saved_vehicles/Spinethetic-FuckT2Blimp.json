@@ -1,0 +1,984 @@
+[ {
+  "attached": false,
+  "break_door": {
+    "0": false,
+    "1": false,
+    "2": false,
+    "3": false,
+    "4": false,
+    "5": false
+  },
+  "bullet_proof_tyres": true,
+  "collision": true,
+  "colors": {
+    "custom_primary": false,
+    "custom_secondary": false,
+    "pearl": 134,
+    "primary": 134,
+    "secondary": 134,
+    "tyre_smoke_b": 255,
+    "tyre_smoke_g": 255,
+    "tyre_smoke_r": 255,
+    "wheel": 156
+  },
+  "dirt_level": 2.1415190696716,
+  "door_lock_status": 1,
+  "engine_on": true,
+  "engine_sound": "",
+  "extra": [ true, true, true, true, true, true, true, true, true, true, null, true, true ],
+  "freeze": false,
+  "godmode": true,
+  "handle_id": 278274,
+  "health": 999,
+  "invisible": false,
+  "lights": 0,
+  "livery": -1,
+  "lod_dist": 16960,
+  "model": 4143991942,
+  "mods": {
+    "0": [ -1, false ],
+    "1": [ -1, false ],
+    "2": [ -1, false ],
+    "3": [ -1, false ],
+    "4": [ -1, false ],
+    "5": [ -1, false ],
+    "6": [ -1, false ],
+    "7": [ -1, false ],
+    "8": [ -1, false ],
+    "9": [ -1, false ],
+    "10": [ -1, false ],
+    "11": [ -1, false ],
+    "12": [ -1, false ],
+    "13": [ -1, false ],
+    "14": [ -1, false ],
+    "15": [ -1, false ],
+    "16": [ -1, false ],
+    "17": false,
+    "18": false,
+    "19": false,
+    "20": false,
+    "21": false,
+    "22": false,
+    "23": [ -1, false ],
+    "24": [ -1, false ],
+    "25": [ -1, false ],
+    "26": [ -1, false ],
+    "27": [ -1, false ],
+    "28": [ -1, false ],
+    "29": [ -1, false ],
+    "30": [ -1, false ],
+    "31": [ -1, false ],
+    "32": [ -1, false ],
+    "33": [ -1, false ],
+    "34": [ -1, false ],
+    "35": [ -1, false ],
+    "36": [ -1, false ],
+    "37": [ -1, false ],
+    "38": [ -1, false ],
+    "39": [ -1, false ],
+    "40": [ -1, false ],
+    "41": [ -1, false ],
+    "42": [ -1, false ],
+    "43": [ -1, false ],
+    "44": [ -1, false ],
+    "45": [ -1, false ],
+    "46": [ -1, false ],
+    "47": [ -1, false ],
+    "48": [ -1, false ],
+    "49": [ -1, false ]
+  },
+  "neons": {
+    "b": 0,
+    "back": 0,
+    "front": 0,
+    "g": 0,
+    "left": 0,
+    "r": 0,
+    "right": 0
+  },
+  "number_plate_index": 4,
+  "number_plate_text": "28ZCB626",
+  "opacity": 255,
+  "open_door": {
+    "0": false,
+    "1": false,
+    "2": false,
+    "3": false,
+    "4": false,
+    "5": false
+  },
+  "parent": true,
+  "rmp_multiplier": 1,
+  "roofstate": 1,
+  "siren": false,
+  "torque_multiplier": 1,
+  "type": 2,
+  "tyres_bursted": {
+    "0": false,
+    "1": false,
+    "2": false,
+    "3": false,
+    "4": false,
+    "5": false
+  },
+  "wheel_type": 0,
+  "window_tint": -1
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 0,
+    "pos": {
+      "x": -7.2999877929688,
+      "y": 2.6999969482422,
+      "z": 5.1999969482422
+    },
+    "roll": 0,
+    "yaw": -89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 279810,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 3310095570,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 0,
+    "pos": {
+      "x": -7.2999877929688,
+      "y": -8.3999938964844,
+      "z": 5.1999969482422
+    },
+    "roll": 0,
+    "yaw": -89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 280066,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 3310095570,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 5.8804908642171e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 5.8000030517578,
+      "z": 6.8999862670898
+    },
+    "roll": -6.7353239501244e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 280322,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 6.5699996948242,
+      "z": 6.4999771118164
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 280578,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 6.5699996948242,
+      "z": 5.3399505615234
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 280834,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 5.8804908642171e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 6.1700057983398,
+      "z": 5.9299621582031
+    },
+    "roll": -6.7353239501244e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 281090,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 4.6999588012695,
+      "z": 6.4999771118164
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 281346,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 4.6999588012695,
+      "z": 5.3399505615234
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 281602,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 5.6923481770235e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 3.9299621582031,
+      "z": 4.9499435424805
+    },
+    "roll": -7.5101847869519e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 281858,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 3.1699295043945,
+      "z": 5.3399505615234
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 282114,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 3.1699295043945,
+      "z": 6.4999771118164
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 282370,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 2.4099273681641,
+      "z": 6.4999771118164
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 282626,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 2.4099273681641,
+      "z": 5.3499526977539
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 282882,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 5.6923481770235e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 1.6499252319336,
+      "z": 4.9599456787109
+    },
+    "roll": -7.5101847869519e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 283138,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 5.6923481770235e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 1.6499252319336,
+      "z": 6.8999862670898
+    },
+    "roll": -7.5101847869519e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 283394,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 0.63993072509766,
+      "z": 6.4999771118164
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 283650,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 0.63993072509766,
+      "z": 5.3699493408203
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 283906,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 5.3053520332469e-07,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 0.13993072509766,
+      "z": 6.2699508666992
+    },
+    "roll": 37.000801086426,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 284162,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 5.3053520332469e-07,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -0.26007080078125,
+      "z": 6.579948425293
+    },
+    "roll": 37.000801086426,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 284418,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -8.588368132223e-07,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": 0.039932250976563,
+      "z": 5.4799499511719
+    },
+    "roll": -37.099216461182,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 284674,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -8.588368132223e-07,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -0.25006866455078,
+      "z": 5.2699508666992
+    },
+    "roll": -37.099216461182,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 284930,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -6.7299957275391,
+      "z": 6.4999771118164
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 285186,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -6.7299957275391,
+      "z": 5.3999786376953
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 285442,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 9.0529135837042e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -5.9699783325195,
+      "z": 6.8899841308594
+    },
+    "roll": -7.2121606535802e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 285698,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 9.0529135837042e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -7.4800109863281,
+      "z": 6.8899841308594
+    },
+    "roll": -7.2121606535802e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 285954,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 9.0529135837042e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -8.8500442504883,
+      "z": 6.8899841308594
+    },
+    "roll": -7.2121606535802e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 286210,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 9.0529135837042e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -10.000068664551,
+      "z": 6.8899841308594
+    },
+    "roll": -7.2121606535802e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 286466,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -10.390075683594,
+      "z": 6.4999771118164
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 286722,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 9.0529135837042e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -10.000068664551,
+      "z": 5.7499542236328
+    },
+    "roll": -7.2121606535802e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 286978,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 9.0529135837042e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -8.8400421142578,
+      "z": 5.7499542236328
+    },
+    "roll": -7.2121606535802e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 287234,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": -1.7075492451113e-06,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -8.4500350952148,
+      "z": 5.3599548339844
+    },
+    "roll": 89.999984741211,
+    "yaw": 89.999992370605
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 287490,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 9.0529135837042e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -8.8400421142578,
+      "z": 4.9699401855469
+    },
+    "roll": -7.2121606535802e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 287746,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 278274,
+    "bone": 0,
+    "pitch": 9.0529135837042e-13,
+    "pos": {
+      "x": -7.3999633789063,
+      "y": -10.000068664551,
+      "z": 4.9699401855469
+    },
+    "roll": -7.2121606535802e-06,
+    "yaw": 89.999984741211
+  },
+  "collision": false,
+  "freeze": true,
+  "godmode": true,
+  "handle_id": 288002,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 16960,
+  "model": 798951501,
+  "opacity": 255,
+  "parent": false,
+  "type": 3,
+  "texture": 0
+} ]

@@ -96,11 +96,11 @@ end
     return (self.x == vec.x) and (self.y == vec.y) and (self.z == vec.z)
 end
 
---[[float]] function vector3:__lt(--[[vector3]] vec)
+--[[bool]] function vector3:__lt(--[[vector3]] vec)
      return (self.x < vec.x) and (self.y < vec.y) and (self.z < vec.z)
 end
 
---[[float]] function vector3:__le(--[[vector3]] vec)
+--[[bool]] function vector3:__le(--[[vector3]] vec)
      return (self.x <= vec.x) and (self.y <= vec.y) and (self.z <= vec.z)
 end
 
@@ -174,6 +174,10 @@ end
     return (self.x * vec.x) + (self.y * vec.y) + (self.z * vec.z)
 end
 
+--[[vector3]] function vector3:rad()
+    return vector3(math.rad(self.x), math.rad(self.y), math.rad(self.z))
+end
+
 --[[vector3]] function vector3:abs()
     return vector3(math.abs(self.x), math.abs(self.y), math.abs(self.z))
 end
@@ -188,6 +192,19 @@ end
 
 --[[vector3]] function vector3:norm()
     return self * (1 / self:mag())
+end
+
+--[[vector3]] function vector3:clamp(--[[vector3]] min, --[[vector3]] max)
+    local x = self.x
+    x = x > max.x and max.x or x
+    x = x < min.x and min.x or x
+    local y = self.y
+    y = y > max.y and max.y or y
+    y = y < min.y and min.y or y
+    local z = self.z
+    z = z > max.z and max.z or z
+    z = z < min.z and min.z or z
+    return vector3(x, y, z)
 end
 
 --[[vector3]] function vector3:lerp(--[[vector3]] vec, --[[float]] t)
@@ -207,6 +224,22 @@ end
 
 --[[vector3]] function vector3:scale(--[[vector3]] vec)
     return vector3(self.x * vec.x, self.y * vec.y, self.z * vec.z)
+end
+
+--[[vector3]] function vector3:minimize(--[[vector3]] vec)
+    return vector3(
+        self.x < vec.x and self.x or vec.x,
+        self.y < vec.y and self.y or vec.y,
+        self.z < vec.z and self.z or vec.z
+    )
+end
+
+--[[vector3]] function vector3:maximize(--[[vector3]] vec)
+    return vector3(
+        self.x > vec.x and self.x or vec.x,
+        self.y > vec.y and self.y or vec.y,
+        self.z > vec.z and self.z or vec.z
+    )
 end
 
 --[[vector3]] function vector3:move_towards(--[[vector3]] vec, --[[float]] maxdist)
@@ -259,6 +292,15 @@ end
     )
 end
 
+--[[vector3]] function vector3:direction_to_rot()
+    self:norm()
+    return vector3(
+        vector3.rad_to_deg(math.atan2(self.z, self.y)),
+        0,
+        vector3.rad_to_deg(-math.atan2(self.x, self.y))
+    )
+end
+
 --[[vector3]] function vector3:direction_to(--[[vector3]] vec)
     local vec = vec or vector3.zero()
     if vec == self then return vector3.zero() end
@@ -273,7 +315,18 @@ end
     return value * 180 / math.pi
 end
 
---[[vector3]] function vector3.point_on_circle(--[[float]] angle,--[[float]]  radius)
+--[[vector3]] function vector3.point_on_sphere(--[[float]] longitude,--[[float]] latitude,--[[float]] radius)
+    local radius = radius or 1
+    local u = math.rad(longitude)
+    local v = math.rad(latitude)
+    return vector3(
+        radius * math.sin(u) * math.cos(v) + self.x,
+        radius * math.cos(u) * math.cos(v) + self.y,
+        radius * math.sin(v) + self.z
+    )
+end
+
+--[[vector3]] function vector3.point_on_circle(--[[float]] angle,--[[float]] radius)
     local radius = radius or 1
     return vector3(math.cos(angle), math.sin(angle), 0) * radius
 end
