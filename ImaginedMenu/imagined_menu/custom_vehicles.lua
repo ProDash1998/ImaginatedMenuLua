@@ -7,7 +7,9 @@
 local features = require 'features'
 local vehicles = require 'vehicle'
 local vector3 = require 'vector3'
+local peds = require 'peds'
 local f = require 'default'
+local EntityDb = require 'entity_database'
 local settings = f.settings
 local custom_vehicles = {}
 
@@ -22,7 +24,7 @@ function custom_vehicles.get_properties(ent, first)
         model = ENTITY.GET_ENTITY_MODEL(ent),
         handle_id = ent,
         godmode = features.get_godmode(ent),
-        freeze = not first,
+        freeze = EntityDb.entity_data[ent] and ui.get_value(EntityDb.spawned_options[ent].freeze_position) or not first,
         collision = ENTITY.GET_ENTITY_COLLISION_DISABLED(ent) == 0,
         invisible = ENTITY.IS_ENTITY_VISIBLE(ent) == 0,
         attached = ENTITY.IS_ENTITY_ATTACHED(ent) == 1,
@@ -30,7 +32,21 @@ function custom_vehicles.get_properties(ent, first)
         lod_dist = ENTITY.GET_ENTITY_LOD_DIST(ent),
         health = ENTITY.GET_ENTITY_HEALTH(ent)
     }
-    if data.type == 2 then
+    if data.type == 1 then
+        data.outfit = peds.get_outfit(ent)
+        if PED.IS_PED_IN_ANY_VEHICLE(ent, false) == 1 then
+            data.in_vehicle = PED.GET_VEHICLE_PED_IS_IN(ent, false)
+            local seat_index = -1
+            for i = -1, VEHICLE.GET_VEHICLE_MODEL_NUMBER_OF_SEATS(ENTITY.GET_ENTITY_MODEL(data.in_vehicle)) - 2
+            do
+                if VEHICLE.GET_PED_IN_VEHICLE_SEAT(data.in_vehicle, i, true) == ent then
+                    seat_index = i
+                    break
+                end
+            end
+            data.seat_index = seat_index
+        end
+    elseif data.type == 2 then
         local primary = memory.malloc(1)
         local secondary = memory.malloc(1)
         VEHICLE.GET_VEHICLE_COLOURS(ent, primary, secondary)
@@ -172,49 +188,67 @@ function custom_vehicles.get_properties(ent, first)
         data.texture = OBJECT._GET_OBJECT_TEXTURE_VARIATION(ent)
     end
     if data.attached then
-        local offset = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ent, 0, 0, VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ent) ~= -1 and VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ent) or 0))
-        local offpos1 = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ent, offset.x, offset.y, offset.z))
-        local offset = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), 0, 0, VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ENTITY.GET_ENTITY_ATTACHED_TO(ent)) ~= -1 and VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ENTITY.GET_ENTITY_ATTACHED_TO(ent)) or 0))
-        local offpos2 = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), offset.x, offset.y, offset.z))
-        local pos = vector3(ENTITY.GET_ENTITY_COORDS(ent, true)) + offpos1 + offpos2
-        local rot1 = vector3(ENTITY.GET_ENTITY_ROTATION(ENTITY.GET_ENTITY_ATTACHED_TO(ent), 2))
-        local rot2 = vector3(ENTITY.GET_ENTITY_ROTATION(ent, 2))
-        local pitch, roll, yaw = (rot1 - rot2):abs():get()
-        pitch = rot1.x > rot2.x and -pitch or pitch
-        roll = rot1.y > rot2.y and -roll or roll
-        yaw = rot1.z > rot2.z and -yaw or yaw
-        data.attachment = {
-            attached_to = ENTITY.GET_ENTITY_ATTACHED_TO(ent),
-            bone = 0,
-            pos = {
-                x = ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), pos.x, pos.y, pos.z).x,
-                y = ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), pos.x, pos.y, pos.z).y,
-                z = ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), pos.x, pos.y, pos.z).z
-            },
-            pitch = (pitch > 90 and pitch - 180) or (pitch < -90 and pitch + 180) or pitch,
-            roll = (roll > 180 and roll - 360) or (roll < -180 and roll + 360) or roll, 
-            yaw = (yaw > 180 and yaw - 360) or (yaw < -180 and yaw + 360) or yaw
-        }
+        if EntityDb.entity_data[ent] and EntityDb.entity_data[ent].is_attached then
+            data.attachment = {
+                attached_to = ENTITY.GET_ENTITY_ATTACHED_TO(ent),
+                bone = EntityDb.entity_data[ent].attach_bone,
+                pos = {
+                    x = EntityDb.entity_data[ent].attachx,
+                    y = EntityDb.entity_data[ent].attachy,
+                    z = EntityDb.entity_data[ent].attachz
+                },
+                pitch = EntityDb.entity_data[ent].pitch,
+                roll = EntityDb.entity_data[ent].roll, 
+                yaw = EntityDb.entity_data[ent].yaw
+            }
+        else
+            local offset = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ent, 0, 0, VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ent) ~= -1 and VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ent) or 0))
+            local offpos1 = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ent, offset.x, offset.y, offset.z))
+            local offset = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), 0, 0, VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ENTITY.GET_ENTITY_ATTACHED_TO(ent)) ~= -1 and VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ENTITY.GET_ENTITY_ATTACHED_TO(ent)) or 0))
+            local offpos2 = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), offset.x, offset.y, offset.z))
+            local pos = vector3(ENTITY.GET_ENTITY_COORDS(ent, true)) + offpos1 + offpos2
+            local rot1 = vector3(ENTITY.GET_ENTITY_ROTATION(ENTITY.GET_ENTITY_ATTACHED_TO(ent), 2))
+            local rot2 = vector3(ENTITY.GET_ENTITY_ROTATION(ent, 2))
+            local pitch, roll, yaw = (rot2 - rot1):get()
+            data.attachment = {
+                attached_to = ENTITY.GET_ENTITY_ATTACHED_TO(ent),
+                bone = 0,
+                pos = {
+                    x = ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), pos.x, pos.y, pos.z).x,
+                    y = ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), pos.x, pos.y, pos.z).y,
+                    z = ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(ent), pos.x, pos.y, pos.z).z
+                },
+                pitch = pitch,
+                roll = roll, 
+                yaw = yaw
+            }
+        end
     end
     return data
 end
 
-function custom_vehicles.save(veh)
-    local Veh = {}
-    local vehicle = features.get_parent_attachment(veh)
-    local velocity = ENTITY.GET_ENTITY_VELOCITY(vehicle)
-    ENTITY.FREEZE_ENTITY_POSITION(vehicle, true)
-    local rot = ENTITY.GET_ENTITY_ROTATION(vehicle, 2)
-    ENTITY.SET_ENTITY_ROTATION(vehicle, 0, 0, 0, 2, true)
-    system.yield()
-    table.insert(Veh, custom_vehicles.get_properties(vehicle, true))
-    for _, v in ipairs(features.get_all_attachments(vehicle))
+local Veh
+local Vehicle
+local Velocity
+-- local Rot
+function custom_vehicles.save(veh, tick)
+    if tick == 0 then
+        Veh = {}
+        Vehicle = features.get_parent_attachment(veh)
+        Velocity = ENTITY.GET_ENTITY_VELOCITY(Vehicle)
+        ENTITY.FREEZE_ENTITY_POSITION(Vehicle, true)
+        -- Rot = ENTITY.GET_ENTITY_ROTATION(Vehicle, 2)
+        -- ENTITY.SET_ENTITY_ROTATION(Vehicle, 0, 0, 0, 2, true)
+        return
+    end
+    table.insert(Veh, custom_vehicles.get_properties(Vehicle, true))
+    for _, v in ipairs(features.get_all_attachments(Vehicle))
     do
         table.insert(Veh, custom_vehicles.get_properties(v, false))
     end
-    ENTITY.SET_ENTITY_ROTATION(vehicle, rot.x, rot.y, rot.z, 2, true)
-    ENTITY.FREEZE_ENTITY_POSITION(vehicle, false)
-    ENTITY.SET_ENTITY_VELOCITY(vehicle, velocity.x, velocity.y, velocity.z)
+    -- ENTITY.SET_ENTITY_ROTATION(Vehicle, Rot.x, Rot.y, Rot.z, 2, true)
+    ENTITY.FREEZE_ENTITY_POSITION(Vehicle, false)
+    ENTITY.SET_ENTITY_VELOCITY(Vehicle, Velocity.x, Velocity.y, Velocity.z)
     return Veh
 end
 
@@ -241,12 +275,17 @@ function custom_vehicles.spawn(vehicle, spawn_i, pos, id)
     local CustomVehicle = vehicle[id]
     if new_request[spawn_i][CustomVehicle.handle_id] then return end
     local ent
-    if CustomVehicle.type == 2 then
+    if CustomVehicle.type == 1 then
+        ent = peds.create_ped(CustomVehicle.model, pos)
+    elseif CustomVehicle.type == 2 then
         ent = vehicles.spawn_vehicle(CustomVehicle.model, pos)
     elseif CustomVehicle.type == 3 then
         ent = features.create_object(CustomVehicle.model, pos)
         NETWORK.SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(NETWORK.NETWORK_GET_NETWORK_ID_FROM_ENTITY(ent), true)
         NETWORK._NETWORK_SET_ENTITY_INVISIBLE_TO_NETWORK(ent, false)
+    end
+    if settings.Vehicle["AddToDb"] then
+        EntityDb.AddEntityToDatabase(ent)
     end
     if not new_request[spawn_i].parent and CustomVehicle.parent then
         new_request[spawn_i].parent = ent
@@ -255,8 +294,16 @@ function custom_vehicles.spawn(vehicle, spawn_i, pos, id)
     if CustomVehicle.godmode then
         features.set_godmode(ent, CustomVehicle.godmode)
     end
-    if CustomVehicle.type == 2 then
-        DECORATOR.DECOR_SET_INT(ent, "MPBitset", 1024)
+    if CustomVehicle.type == 1 then
+        peds.apply_outfit(CustomVehicle.outfit.components, CustomVehicle.outfit.props, ent)
+        if CustomVehicle.godmode then
+            peds.set_ped_god(ent)
+        end
+        if CustomVehicle.in_vehicle then
+            PED.SET_PED_INTO_VEHICLE(ent, new_request[spawn_i][CustomVehicle.in_vehicle], CustomVehicle.seat_index)
+        end
+    elseif CustomVehicle.type == 2 then
+       --  DECORATOR.DECOR_SET_INT(ent, "MPBitset", 1024)
         VEHICLE.SET_VEHICLE_MOD_KIT(ent, 0)
         vehicles.repair(ent)
         if CustomVehicle.godmode then
@@ -286,7 +333,7 @@ function custom_vehicles.spawn(vehicle, spawn_i, pos, id)
         VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(ent, CustomVehicle.number_plate_index)
         VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT(ent, CustomVehicle.number_plate_text)
         VEHICLE.SET_VEHICLE_WHEEL_TYPE(ent, CustomVehicle.wheel_type)
-        if engine_sound ~= '' then
+        if CustomVehicle.engine_sound ~= '' then
             AUDIO._FORCE_VEHICLE_ENGINE_AUDIO(ent, CustomVehicle.engine_sound)
         end
         for k, v in pairs(CustomVehicle.mods)
@@ -352,13 +399,16 @@ function custom_vehicles.spawn(vehicle, spawn_i, pos, id)
             end
         end
     elseif type == 3 then
-        OBJECT._SET_OBJECT_TEXTURE_VARIATION(ent, data.texture)
+        OBJECT._SET_OBJECT_TEXTURE_VARIATION(ent, CustomVehicle.texture)
     end
     if CustomVehicle.opacity ~= 255 then
         ENTITY.SET_ENTITY_ALPHA(ent, CustomVehicle.opacity, false)
     end
     ENTITY.SET_ENTITY_LOD_DIST(ent, CustomVehicle.lod_dist)
     ENTITY.FREEZE_ENTITY_POSITION(ent, CustomVehicle.freeze)
+    if EntityDb.entity_data[ent] then
+        EntityDb.entity_data[ent].freeze_position = CustomVehicle.freeze
+    end
     ENTITY.SET_ENTITY_COLLISION(ent, CustomVehicle.collision, true)
     ENTITY.SET_ENTITY_VISIBLE(ent, not CustomVehicle.invisible, false)
     if not CustomVehicle.attached then return end
@@ -381,6 +431,15 @@ function custom_vehicles.spawn(vehicle, spawn_i, pos, id)
         CustomVehicle.attachment.pitch, CustomVehicle.attachment.roll, CustomVehicle.attachment.yaw,
         false, true, CustomVehicle.collision, CustomVehicle.type == 1, 2, true
     )
+    if EntityDb.entity_data[ent] then
+        EntityDb.entity_data[ent].attach_bone = CustomVehicle.attachment.bone
+        EntityDb.entity_data[ent].attachx = CustomVehicle.attachment.pos.x
+        EntityDb.entity_data[ent].attachy = CustomVehicle.attachment.pos.y
+        EntityDb.entity_data[ent].attachz = CustomVehicle.attachment.pos.z
+        EntityDb.entity_data[ent].attachpitch = CustomVehicle.attachment.pitch
+        EntityDb.entity_data[ent].attachroll = CustomVehicle.attachment.roll
+        EntityDb.entity_data[ent].attachyaw = CustomVehicle.attachment.yaw
+    end
     return ent
 end
 

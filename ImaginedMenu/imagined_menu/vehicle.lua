@@ -47,12 +47,13 @@ function vehicles.spawn_vehicle(hashname, pos, heading)
 	end 
 	if STREAMING.IS_MODEL_VALID(hash) == NULL then return NULL end
 	local vehicle = entities.create_vehicle(hash, pos.x, pos.y, pos.z)
+    -- ENTITY.SET_ENTITY_AS_MISSION_ENTITY(vehicle, false, true)
     if heading then
         ENTITY.SET_ENTITY_HEADING(vehicle, heading)
     end
-    if NETWORK.NETWORK_IS_SESSION_STARTED() == 1 then
-        DECORATOR.DECOR_SET_INT(vehicle, "MPBitset", 1024)
-    end
+    -- if NETWORK.NETWORK_IS_SESSION_STARTED() == 1 then
+    --     DECORATOR.DECOR_SET_INT(vehicle, "MPBitset", 1024)
+    -- end
     return vehicle
 end
 

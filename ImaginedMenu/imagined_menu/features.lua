@@ -46,6 +46,28 @@ function features.to_bool(any)
 	end
 end
 
+function features.to_clipboard(text)
+	local Popen
+	CreateRemoveThread(true, 'copy_clipboard_'..thread_count, function(tick)
+		if tick == 0 then
+			Popen = io.popen('echo '..text..'|clip')
+		elseif tick == 15 then
+			Popen:close()
+		end
+	end)
+end
+
+function features.from_clipboard(tabl)
+	local Popen
+	CreateRemoveThread(true, 'from_clipboard_'..thread_count, function(tick)
+		if tick == 0 then
+			Popen = io.popen('powershell -command "Get-Clipboard"')
+		elseif tick == 30 then
+			tabl.output = Popen:read()
+		end
+	end)
+end
+
 function features.lshift(x, by)
   return math.floor(x * 2 ^ by)
 end
@@ -72,14 +94,24 @@ function features.XOR(a,b)
 	return bitoper(a, b, XOR)
 end
 
-function features.AND(a,b)
-	return bitoper(a, b, AND)
+function features.AND(a, b)
+    local result = 0
+    local bitval = 1
+    while a > 0 and b > 0 do
+      if a % 2 == 1 and b % 2 == 1 then -- test the rightmost bits
+          result = result + bitval      -- set the current bit
+      end
+      bitval = bitval * 2 -- shift left
+      a = math.floor(a/2) -- shift right
+      b = math.floor(b/2)
+    end
+    return result
 end
 
 function features.get_screen_resolution()
 	local px, py = alloc(2)
 	GRAPHICS._GET_ACTIVE_SCREEN_RESOLUTION(px, py)
-	local res = {x = memory.read_int(px), y = memory.read_int(py)}
+	local res = vector3(memory.read_int(px), memory.read_int(py))
 	memory.free(px)
 	memory.free(py)
 	return res
@@ -90,13 +122,26 @@ function features.get_screen_center()
 	return vector3({x = size.x/2, y = size.y/2})
 end
 
-function features.get_memory_pointer(address, offsets)
+function features.world_to_screen(pos)
+	local screenX = memory.malloc(4)
+	local screenY = memory.malloc(4)
+	WORLD.GET_SCREEN_COORD_FROM_WORLD_COORD(pos.x, pos.y, pos.z, screenX, screenY)
+	local vec2 = {
+		x = memory.read_float(screenX),
+		y = memory.read_float(screenY)
+	}
+	memory.free(screenX)
+	memory.free(screenY)
+	return vec2
+end
+
+function features.get_memory_address(pointer, offsets)
 	for i = 1, #offsets - 1
 	do
-		address = memory.read_int64(address + offsets[i])
-		if address == 0 then return 0 end
+		pointer = memory.read_int64(pointer + offsets[i])
+		if pointer == 0 then return 0 end
 	end
-	return address + offsets[#offsets]
+	return pointer + offsets[#offsets]
 end
 
 function features.world_to_screen(pos)
@@ -137,6 +182,11 @@ function features.player_from_name(name)
 	end
 end
 
+function features.player_ped(player)
+	player = player or PLAYER.PLAYER_ID()
+	return PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(player)
+end
+
 function features.remove_god(player)
 	online.send_script_event(player, 801199324, PLAYER.PLAYER_ID(), 869796886, 0)
 end
@@ -169,8 +219,9 @@ function features.get_random_player()
 	return PLAYER.PLAYER_ID()
 end
 
-function features.draw_box_on_entity(entity, vec_min, vec_max, r, g, b, a)
+function features.draw_box_on_entity(entity, r, g, b, a)
 	local r, g, b, a = r or 255, g or 255, b or 255, a or 255
+	local vec_min, vec_max = features.get_model_dimentions(ENTITY.GET_ENTITY_MODEL(entity))
 	local off_min = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_min.y, vec_min.z)
 	local off_max = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity, vec_min.x, vec_min.y, vec_max.z)
 	GRAPHICS.DRAW_LINE(off_min.x, off_min.y, off_min.z, off_max.x, off_max.y, off_max.z, r, g, b, a)
@@ -235,6 +286,9 @@ function features.get_offset_coords_from_entity_rot(entity, dist, offheading, ig
     }
     if not ignore_z then
         offz = vector.z
+        local absx = math.abs(math.cos(math.rad(rot.x)))
+        vector.x = vector.x * absx
+        vector.y = vector.y * absx
     end
     return vector3(
         pos.x + vector.x,
@@ -243,11 +297,9 @@ function features.get_offset_coords_from_entity_rot(entity, dist, offheading, ig
     )
 end
 
-function features.set_entity_face_entity(ent1, ent2, usePitch)
-    local a = vector3(ENTITY.GET_ENTITY_COORDS(ent1, false))
-    local b = vector3(ENTITY.GET_ENTITY_COORDS(ent2, false))
-    local rot = (b - a):to_rotation()
-    if not usePitch then
+function features.set_entity_face_entity(ent1, ent2, use_pitch)
+    local rot = vector3(ENTITY.GET_ENTITY_COORDS(ent1, false)):direction_to(vector3(ENTITY.GET_ENTITY_COORDS(ent2, false))):direction_to_rot()
+    if not use_pitch then
         ENTITY.SET_ENTITY_HEADING(ent1, rot.z)
     else
         ENTITY.SET_ENTITY_ROTATION(ent1, rot.x, rot.y, rot.z, 2, true)
@@ -259,7 +311,7 @@ function features.oscillate_to_coord(ent, pos, force)
 	local pos = vector3(pos)
 	local pos2 = vector3(ENTITY.GET_ENTITY_COORDS(ent, false))
 	local to = (pos - pos2) * force
-	ENTITY.APPLY_FORCE_TO_ENTITY(ent, 1, to.x, to.y, to.z, 0, 0, 0, 0, false, false, true, false, true)
+	ENTITY.SET_ENTITY_VELOCITY(ent, to.x, to.y, to.z)
 end
 
 function features.oscillate_to_entity(ent, ent2, force)
@@ -274,6 +326,15 @@ function features.get_player_from_ped(ped)
 		end
 	end
 	return -1
+end
+
+function features.get_ped_weapon(ped)
+	ped = ped or features.player_ped()
+	local ptr = memory.malloc(8)
+	WEAPON.GET_CURRENT_PED_WEAPON(ped, ptr, true)
+	local weaponhash = memory.read_int(ptr)
+	memory.free(ptr)
+	return weaponhash
 end
 
 function features.set_godmode(entity, bool)
@@ -316,6 +377,7 @@ function features.create_object(hash, pos)
 	local obj = entities.create_object(hash, pos)
     NETWORK.SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(NETWORK.NETWORK_GET_NETWORK_ID_FROM_ENTITY(obj), true)
     NETWORK._NETWORK_SET_ENTITY_INVISIBLE_TO_NETWORK(obj, false)
+    ENTITY.SET_ENTITY_AS_MISSION_ENTITY(obj, false, true)
     return obj
 end
 
@@ -334,14 +396,33 @@ function features.get_entities()
 end
 
 function features.get_ground_z(pos)
-	local ptr = memory.malloc(1)
-	MISC.GET_GROUND_Z_FOR_3D_COORD(pos.x, pos.y, pos.z, ptr, false, false)
+	local ptr = memory.malloc(4)
+	local result = MISC.GET_GROUND_Z_FOR_3D_COORD(pos.x, pos.y, pos.z, ptr, false, false)
 	local groundz = memory.read_float(ptr)
 	memory.free(ptr)
-	return math.floor(groundz)
+	return result == 1, groundz
 end
 
-function features.teleport(entity, x, y, z)
+function features.fake_tp(x, y, z)
+	local px, py, pz = 0, 0, 0
+	local addr = features.get_memory_address(WorldPtr, {0x08, 0x14C7})
+	if addr ~= 0 and memory.read_int(addr) == 0x10 then
+		px = features.get_memory_address(WorldPtr, {0x08, 0x90})
+		py = features.get_memory_address(WorldPtr, {0x08, 0x94})
+		pz = features.get_memory_address(WorldPtr, {0x08, 0x98})
+	else
+		px = features.get_memory_address(WorldPtr, {0x08, 0xD30, 0x90})
+		py = features.get_memory_address(WorldPtr, {0x08, 0xD30, 0x94})
+		pz = features.get_memory_address(WorldPtr, {0x08, 0xD30, 0x98})
+	end
+	if px ~= 0 and py ~= 0 and pz ~= 0 then
+		memory.write_float(px, x)
+		memory.write_float(py, y)
+		memory.write_float(pz, z)
+	end
+end
+
+function features.teleport(entity, x, y, z, heading)
 	if ENTITY.IS_ENTITY_A_PED(entity) == 1 then
 		if PED.IS_PED_IN_ANY_VEHICLE(entity, true) == 1 then
 			entity = PED.GET_VEHICLE_PED_IS_IN(entity, false)
@@ -349,10 +430,28 @@ function features.teleport(entity, x, y, z)
 	end
 	entities.request_control(entity, function()
 		ENTITY.SET_ENTITY_COORDS_NO_OFFSET(entity, x, y, z, false, false, false)
+		if heading then
+			ENTITY.SET_ENTITY_HEADING(entity, heading)
+		end
 	end)
 end
 
-function features.get_closest_apatrment_to_coord(pos)
+function features.get_closest_entity_to_coord(pos, min_distance)
+	min_distance = min_distance and min_distance ^ 2 or 1000000
+	local entity = 0
+	for _, v in ipairs(features.get_entities())
+	do
+		local e_pos = vector3(ENTITY.GET_ENTITY_COORDS(v, false))
+		local distance = pos:sqrlen(e_pos)
+		if v ~= features.player_ped() and min_distance > distance then
+			entity = v
+			min_distance = distance
+		end
+	end
+	return entity, min_distance
+end
+
+function features.get_closest_apartment_to_coord(pos)
 	local distance
 	local aparent
 	for i, v in ipairs(enum.apartment_coords)
@@ -372,25 +471,30 @@ end
 function features.get_blip_objective()
 	local blipFound
 	local coords
-	for i = 0, 1000
+	for _, i in ipairs({enum.blip_sprite.level, enum.blip_sprite.contraband, enum.blip_sprite.supplies, enum.blip_sprite.nhp_bag, enum.blip_sprite.sports_car, enum.blip_sprite.raceflag})
 	do
-		local b = HUD.GET_FIRST_BLIP_INFO_ID(i)
-		if HUD.DOES_BLIP_EXIST(b) == 1 then
-			local color = HUD.GET_BLIP_COLOUR(b)
-			local icon = HUD.GET_BLIP_SPRITE(b)
-			if ((color == enum.blip_color.YellowMission or color == enum.blip_color.YellowMission2 or color == enum.blip_color.Yellow) and (icon == enum.blip_sprite.level or icon == enum.blip_sprite.higher or icon == enum.blip_sprite.lower)) or
-				(color == enum.blip_color.Green and icon == enum.blip_sprite.contraband) or
-				(color == enum.blip_color.Blue and icon == enum.blip_sprite.supplies) or
-				(color == enum.blip_color.Green and icon == enum.blip_sprite.nhp_bag) or
-				(color == enum.blip_color.Blue and icon == enum.blip_sprite.sports_car) or
-				(color == enum.blip_color.White and icon == enum.blip_sprite.raceflag) or
-				(color == enum.blip_color.Blue and icon == enum.blip_sprite.level) or
-				(color == enum.blip_color.Green and icon == enum.blip_sprite.level) --	or
-				-- (icon == enum.blip_sprite.cratedrop)
-			then
-				coords = vector3(HUD.GET_BLIP_INFO_ID_COORD(b))
-				blipFound = true
-				break
+		for t = 1, 100
+		do
+			local b = HUD.GET_NEXT_BLIP_INFO_ID(i)
+			if HUD.DOES_BLIP_EXIST(b) == 1 then
+				local color = HUD.GET_BLIP_COLOUR(b)
+				local icon = HUD.GET_BLIP_SPRITE(b)
+				if (color == enum.blip_color.YellowMission and icon == enum.blip_sprite.level) or 
+					(color == enum.blip_color.YellowMission2 and icon == enum.blip_sprite.level) or 
+					(color == enum.blip_color.Yellow and icon == enum.blip_sprite.level) or
+					(color == enum.blip_color.Green and icon == enum.blip_sprite.contraband) or
+					(color == enum.blip_color.Blue and icon == enum.blip_sprite.supplies) or
+					(color == enum.blip_color.Green and icon == enum.blip_sprite.nhp_bag) or
+					(color == enum.blip_color.Blue and icon == enum.blip_sprite.sports_car) or
+					(color == enum.blip_color.White and icon == enum.blip_sprite.raceflag) or
+					(color == enum.blip_color.Blue and icon == enum.blip_sprite.level) or
+					(color == enum.blip_color.Green and icon == enum.blip_sprite.level) --	or
+					-- (icon == enum.blip_sprite.cratedrop)
+				then
+					coords = vector3(HUD.GET_BLIP_INFO_ID_COORD(b))
+					blipFound = true
+					break
+				end
 			end
 		end
 	end
@@ -453,11 +557,12 @@ function features.get_player_coords(player)
 	return vector3(ENTITY.GET_ENTITY_COORDS(PLAYER.GET_PLAYER_PED(player), false))
 end
 
+function features.is_typing(player)
+	return ENTITY.IS_ENTITY_DEAD(PLAYER.GET_PLAYER_PED(player), false) == 0 and features.AND(globals.get_int(1644218 + 241 + 136 + 2 + player * 1), 65536) ~= 0 --[[ & 1 << 16 ~= 0 ]] 
+end
+
 function features.is_otr(player)
-	if globals.get_int(2689224 + (1 + (player * 451) + 207)) == 1 then
-		return true
-	end
-	return false
+	return globals.get_int(2689224 + (1 + (player * 451) + 207)) == 1
 end
 
 function features.is_excluded(pid)
@@ -474,17 +579,17 @@ function features.is_friend(pid)
 	return isfriend
 end
 
-function features.get_raycast_result(dist, flag)
+function features.get_raycast_result(start, end_pos, ent_ignore, flag)
 	local flag = flag or -1
-	local camcoord = vector3(CAM.GET_GAMEPLAY_CAM_COORD())
-	local target = camcoord + (vector3(CAM.GET_GAMEPLAY_CAM_ROT(2)):rot_to_direction() * dist)
-	local hit, endCoords, surfaceNormal, entityHit = memory.malloc(8), alloc(3)
+	local hit, endCoords, surfaceNormal, entityHit = memory.malloc(8), memory.malloc(4 * 6), memory.malloc(4 * 6), memory.malloc(8)
 	SHAPETEST.GET_SHAPE_TEST_RESULT(
-		SHAPETEST.START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(camcoord.x, camcoord.y, camcoord.z, target.x, target.y, target.z, flag, PLAYER.PLAYER_ID(), 1),
+		SHAPETEST.START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(start.x, start.y, start.z, end_pos.x, end_pos.y, end_pos.z, flag, ent_ignore, 1),
 		hit, endCoords, surfaceNormal, entityHit
 	)
 	local result = {
 		didHit = features.to_bool(memory.read_byte(hit)),
+		endCoords = vector3(memory.read_vector3(endCoords)),
+		surfaceNormal = vector3(memory.read_vector3(surfaceNormal)),
 		hitEntity = memory.read_int(entityHit)
 	}
 	memory.free(hit)
@@ -582,6 +687,17 @@ function features.request_model(hashname)
 	return STREAMING.HAS_MODEL_LOADED(hash), hash
 end
 
+function features.get_model_dimentions(model)
+	local vec_min = memory.malloc(6 * 4)
+	local vec_max = memory.malloc(6 * 4)
+	MISC.GET_MODEL_DIMENSIONS(model, vec_min, vec_max)
+	local minimum = vector3(memory.read_vector3(vec_min))
+	local maximum = vector3(memory.read_vector3(vec_max))
+	memory.free(vec_min)
+	memory.free(vec_max)
+	return minimum, maximum
+end
+
 function features.sum_table(array)
 	local sum = 0
 	for _, v in ipairs(array) do
@@ -595,12 +711,21 @@ local players = {
 	crash = {}
 }
 
+function features.get_bullet_impact(ped)
+	local ped = ped or PLAYER.PLAYER_PED_ID()
+	local vec = memory.malloc(6 * 4)
+	WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(ped, vec)
+	local pos = vector3(memory.read_vector3(vec))
+	memory.free(vec)
+	return pos
+end
+
 function features.set_bounty(player, amount)
 	local amount = tonumber(amount) or 10000
 	for i = 0, 31
 	do	
 		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) ~= NULL then
-			online.send_script_event(i, 1294995624, PLAYER.PLAYER_ID(), player, 1, amount <= 10000 and math.floor(amount) or 10000, 0, 1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, globals.get_int(1921039 + 9), globals.get_int(1921039 + 10))
+			online.send_script_event(i, 1294995624, PLAYER.PLAYER_ID(), player, 1, (amount >= 0 and amount <= 10000) and math.floor(amount) or 10000, 0, 1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, globals.get_int(1921039 + 9), globals.get_int(1921039 + 10))
 		end
 	end
 end

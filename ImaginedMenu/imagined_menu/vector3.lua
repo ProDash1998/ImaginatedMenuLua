@@ -1,5 +1,8 @@
 -- Copyright © 2022 SATTY
 --
+-- @constructor    vector3()
+-- @constructor    vector3(float)
+-- @constructor    vector3(float, float, float)
 
 local vector3 = {}
 vector3.__index = vector3
@@ -15,35 +18,46 @@ setmetatable(vector3,
     }
 )
 
+--[[bool]] function vector3.is_vector(vec)
+    return getmetatable(vec) == vector3
+end
+
 --[[vector3]] function vector3.zero()
     return vector3(0, 0, 0)
 end
 
---[[vector3]] function vector3.one()
+--[[vector3]] function vector3.one(--[[float]] value)
+    if value then return vector3(1, 1, 1) * value end
     return vector3(1, 1, 1)
 end
 
---[[vector3]] function vector3.forward()
+--[[vector3]] function vector3.forward(--[[float]] value)
+    if value then return vector3(0, 1, 0) * value end
     return vector3(0, 1, 0)
 end
 
---[[vector3]] function vector3.back()
+--[[vector3]] function vector3.back(--[[float]] value)
+    if value then return vector3(0, -1, 0) * value end
     return vector3(0, -1, 0)
 end
 
---[[vector3]] function vector3.right()
+--[[vector3]] function vector3.right(--[[float]] value)
+    if value then return vector3(1, 0, 0) * value end
     return vector3(1, 0, 0)
 end
 
---[[vector3]] function vector3.left()
+--[[vector3]] function vector3.left(--[[float]] value)
+    if value then return vector3(-1, 0, 0) * value end
     return vector3(-1, 0, 0)
 end
 
---[[vector3]] function vector3.up()
+--[[vector3]] function vector3.up(--[[float]] value)
+    if value then return vector3(0, 0, 1) * value end
     return vector3(0, 0, 1)
 end
 
---[[vector3]] function vector3.down()
+--[[vector3]] function vector3.down(--[[float]] value)
+    if value then return vector3(0, 0, -1) * value end
     return vector3(0, 0, -1)
 end
 
@@ -53,6 +67,11 @@ end
         self.x = input.x or 0
         self.y = input.y or 0
         self.z = input.z or 0
+    elseif #{...} == 1 and type(...) == 'number' then
+        local input = ...
+        self.x = input
+        self.y = input
+        self.z = input
     else
         local x, y, z = ...
         self.x = x or 0
@@ -85,7 +104,13 @@ end
 end
 
 --[[vector3]] function vector3:__mul(--[[float]] value)
-    return vector3(self.x * value, self.y * value, self.z * value)
+    if type(value) == 'number' then
+        return vector3(self.x * value, self.y * value, self.z * value)
+    elseif type(self) == 'number' then
+        return vector3(value.x * self, value.y * self, value.z * self)
+    elseif vector3.is_vector(value) then
+        return vector3(self.x * value.x, self.y * value.y, self.z * value.z)
+    end
 end
 
 --[[vector3]] function vector3:__div(--[[float]] value)
@@ -271,7 +296,6 @@ end
 end
 
 --[[vector3]] function vector3:to_rotation()
-    if self == vector3.zero() then return vector3.zero() end
     return vector3(
         vector3.rad_to_deg(math.asin(self.z / self:mag())),
         0.0,
@@ -293,7 +317,7 @@ end
 end
 
 --[[vector3]] function vector3:direction_to_rot()
-    self:norm()
+    self = self:norm()
     return vector3(
         vector3.rad_to_deg(math.atan2(self.z, self.y)),
         0,
@@ -312,26 +336,34 @@ end
 end
 
 --[[float]] function vector3.rad_to_deg(--[[float]] value)
-    return value * 180 / math.pi
+    return value * (180 / math.pi)
 end
 
---[[vector3]] function vector3.point_on_sphere(--[[float]] longitude,--[[float]] latitude,--[[float]] radius)
+--[[vector3]] function vector3:point_on_sphere(--[[float]] longitude,--[[float]] latitude,--[[float]] radius)
     local radius = radius or 1
     local u = math.rad(longitude)
     local v = math.rad(latitude)
-    return vector3(
-        radius * math.sin(u) * math.cos(v) + self.x,
-        radius * math.cos(u) * math.cos(v) + self.y,
-        radius * math.sin(v) + self.z
-    )
+    return vector3(radius * math.sin(u) * math.cos(v), radius * math.cos(u) * math.cos(v), radius * math.sin(v)) + self
 end
 
---[[vector3]] function vector3.point_on_circle(--[[float]] angle,--[[float]] radius)
+--[[vector3]] function vector3:point_on_circle(--[[float]] angle,--[[float]] radius)
     local radius = radius or 1
-    return vector3(math.cos(angle), math.sin(angle), 0) * radius
+    return vector3(math.cos(angle), math.sin(angle), 0) * radius + self
 end
 
---[[vector3.x, vector3.y, vector3.z]] function vector3:get()
+--[[table]] function vector3:points_on_circle(--[[int]] amount,--[[float]] radius)
+    local radius = radius or 1
+    local points = {}
+    local step = 360 / amount
+    for i = 1, amount
+    do
+        local angle = math.rad(step * i)
+        table.insert(points, self:point_on_circle(angle, radius))
+    end
+    return points
+end
+
+--[[float, float, float]] function vector3:get()
     return self.x, self.y, self.z
 end
 
