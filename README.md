@@ -296,7 +296,7 @@ Features:
 	+ Vehicles:
 	 - Vehicles explode on impact
 	 - Jumpy vehicles
-	 - Launch vehicles
+	 - Launch vehicles 
 	 - Repair vehicles
 	 - Beyblades
 	 - Boost vehicles
