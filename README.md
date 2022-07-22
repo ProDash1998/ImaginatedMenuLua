@@ -4,8 +4,8 @@ made by FoxxDash/aka Ðr ÐºήgΣr & SATTY
 
 Installation guide:
 
-1. Open C:\Users\<usermachine>\Documents\Nightfall.
-2. Extract ALL files to Lua folder.	  NOTE: if you don't have this foled create it.
+1. Open `C:\Users\<usermachine>\Documents\Nightfall`.
+2. Extract ALL files to Lua folder.	  NOTE: if you don't have this foler create it.
 3. Then just open your menu go to Scripts->Lua and load the script.
 4. It will show up in Loaded scripts.
 
