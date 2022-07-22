@@ -18,92 +18,9 @@ Known bugs:
 
 Changelog:
 
-Online->Players->Imagined Menu:
-	- Blame:
-		+ Added All
-		+ Added Player
-	+ Added Airstrike player
-	- Spawn vehicle:
-		+ Added Upgrade preset [Stock, Max upgrade, Max without livery, Preformance, Preformance with spoiler]
-	+ Added Gift vehicle
-	+ Improved Copy outfil (now asks you to change model if player has different)
-	- Teleport:
-		+ Added To me
-		+ Added To Waypoint
-		+ Added Send to warehouse [Random, 1-22]
-		+ Added Send to island [Normal, Instant, LSIA, Beach]
-	+ Added Kick option
-	+ Added SE Crash option
-
-Imagined Menu:
-	+ Added Stop script
-
-Self:
-	+ Impoved Walk on water (also works with vehicels)
-
-Session:
-	- Commands
-		+ Added gift
-	+ Impoved Ear rape (now warns you before enabling)
-	- Teleport
-		+ Added To me
-		+ Added To Waypoint
-		+ Added Send to warehouse [Random, 1-22]
-		+ Added Send to island [Normal, Instant, LSIA, Beach]
-	+ Added Random player [Kill, Blame, Kick, Crash]
-	+ Added Add blip for otr players
-
-Vehicle:
-	+ Added Real fuel (beta) | Will be finished in next update
-	+ Added Vehicle customs sub
-	- Spawn vehicle:
-		+ Added Show manufacturer
-		- Spawn settings:
-			+ Upgrade preset [Stock, Max upgrade, Max without livery, Preformance, Preformance with spoiler]
-			+ Licence plate
-			+ Plate text
-	+ Added Personal vehicle [Drive, Teleport me to..., Teleport to me, Teleport to me and drive]
-	+ Added Last vehicle [Drive, Teleport me to..., Teleport to me, Teleport to me and drive]
-	+ Impoved Add blip vehicle (displays name on blip and removes blip if clicked again) 
-	+ Added Allow saveing (in garage)
-
-
-World:
-	- Editor:
-		- Added Maps (now you can save your entities form database)
-		- Spawned:
-			+ Added Remove all entities from db
-			+ Added Delete all entities
-			+ Added Vehicle properties
-			+ Added Ped properties
-	- Clear area:
-		+ Limited distance to max 50
-	+ Added Earthquake
-
-Teleport:
-	+ Added Teleport method [Load collision, Fake teleport]
-	+ Impoved Auto teleport to waypoint (now won't teleport you into water if you are in vehicle and it's way faster when teleporting to blips)
-	+ Improved Teleport from clipboard
-
-Weapons:
-	+ Added Airstrike gun
-
-Misc:
-	+ Removed Unload
-	+ Added Panic button
-
-Settings:
-	+ Added Hud sounds (enabled by default)
-	+ Added Disable notifications
-	+ Added Notification sound (enabled by default)
-
-+ Added physics check, so Tornado, Black hole, Force field should not crash as much
-+ Vehicle previews now can spawn with upgrades
-+ Saved vehicles are now refreshed after every time you enter Saved vehicles sub
-+ Fixed game crashing after spaming enter while deleting an option
-+ Improved error handling
-+ Some bug fixes and performance improvements
-
++ Made some important bug fixes
++ Donger finally stopped playing league and made Realistic fuel usage
++ Made selected player menu clearer
 
 ==============================================================
 
