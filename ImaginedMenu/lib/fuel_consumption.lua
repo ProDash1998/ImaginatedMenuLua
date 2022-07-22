@@ -206,6 +206,728 @@ fuelConsumption.gas_pumps = {
 	vector3(62.5907,2788.6772,56.924362)
 }
 
+local DefaultFuel = switch()
+	:case(2196012677, function()
+        return 60
+	end)
+	:case(931280609, function()
+	    return 100
+	end)
+	:case(628003514, function()
+	    return 100
+	end)
+	:case(1537277726, function()
+	    return 100
+	end)
+	:case(1239571361, function()
+	    return 100
+	end)
+	:case(3101054893, function()
+	    return 60
+	end)
+	:case(2487343317, function()
+	    return 50
+	end)
+	:case(2767531027, function()
+	    return 60
+	end)
+	:case(2485144969, function()
+	    return 50
+	end)
+	:case(3486135912, function()
+	    return 80
+	end)
+	:case(142944341, function()
+	    return 80
+	end)
+	:case(1878062887, function()
+	    return 80
+	end)
+	:case(634118882, function()
+	    return 80
+	end)
+	:case(470404958, function()
+	    return 80
+	end)
+	:case(666166960, function()
+	    return 80
+	end)
+	:case(359875117, function()
+	    return 80
+	end)
+	:case(2006918058, function()
+	    return 80
+	end)
+	:case(3505073125, function()
+	    return 80
+	end)
+	:case(683047626, function()
+	    return 70
+	end)
+	:case(662793086, function()
+	    return 80
+	end)
+	:case(2465530446, function()
+	    return 80
+	end)
+	:case(83136452, function()
+	    return 80
+	end)
+	:case(3126015148, function()
+	    return 80
+	end)
+	:case(1203490606, function()
+	    return 80
+	end)
+	:case(3862958888, function()
+	    return 80
+	end)
+	:case(784565758, function()
+	    return 60
+	end)
+	:case(80636076, function()
+	    return 60
+	end)
+	:case(3379262425, function()
+	    return 60
+	end)
+	:case(3606777648, function()
+	    return 60
+	end)
+	:case(2919906639, function()
+	    return 60
+	end)
+	:case(3001042683, function()
+	    return 60
+	end)
+	:case(37348240, function()
+	    return 45
+	end)
+	:case(600450546, function()
+	    return 45
+	end)
+	:case(3627815886, function()
+	    return 45
+	end)
+	:case(3705788919, function()
+	    return 45
+	end)
+	:case(159274291, function()
+	    return 60
+	end)
+	:case(3306466016, function()
+	    return 60
+	end)
+	:case(223240013, function()
+	    return 60
+	end)
+	:case(1011753235, function()
+	    return 60
+	end)
+	:case(1483171323, function()
+	    return 60
+	end)
+	:case(2634021974, function()
+	    return 60
+	end)
+	:case(1841130506, function()
+	    return 60
+	end)
+	:case(2031587082, function()
+	    return 60
+	end)
+	:case(903794909, function()
+	    return 60
+	end)
+	:case(3903371924, function()
+	    return 60
+	end)
+	:case(3249425686, function()
+	    return 60
+	end)
+	:case(2272483501, function()
+	    return 60
+	end)
+	:case(1561920505, function()
+	    return 60
+	end)
+	:case(661493923, function()
+	    return 60
+	end)
+	:case(2568944644, function()
+	    return 60
+	end)
+	:case(1141395928, function()
+	    return 60
+	end)
+	:case(108773431, function()
+	    return 60
+	end)
+	:case(2566281822, function()
+	    return 60
+	end)
+	:case(1755697647, function()
+	    return 60
+	end)
+	:case(686471183, function()
+	    return 60
+	end)
+	:case(3205927392, function()
+	    return 60
+	end)
+	:case(1304459735, function()
+	    return 60
+	end)
+	:case(4086055493, function()
+	    return 60
+	end)
+	:case(3460613305, function()
+	    return 60
+	end)
+	:case(482197771, function()
+	    return 60
+	end)
+	:case(3847255899, function()
+	    return 60
+	end)
+	:case(1416466158, function()
+	    return 60
+	end)
+	:case(867799010, function()
+	    return 60
+	end)
+	:case(3620039993, function()
+	    return 10
+	end)
+	:case(3884762073, function()
+	    return 60
+	end)
+	:case(1104234922, function()
+	    return 60
+	end)
+	:case(2537130571, function()
+	    return 60
+	end)
+	:case(1886268224, function()
+	    return 60
+	end)
+	:case(1074745671, function()
+	    return 60
+	end)
+	:case(1741861769, function()
+	    return 60
+	end)
+	:case(987469656, function()
+	    return 60
+	end)
+	:case(1887331236, function()
+	    return 60
+	end)
+	:case(2754593701, function()
+	    return 60
+	end)
+	:case(3437611258, function()
+	    return 80
+	end)
+	:case(2802050217, function()
+	    return 80
+	end)
+	:case(1456336509, function()
+	    return 60
+	end)
+	:case(540101442, function()
+	    return 60
+	end)
+	:case(3188846534, function()
+	    return 60
+	end)
+	:case(2816263004, function()
+	    return 60
+	end)
+	:case(3379732821, function()
+	    return 60
+	end)
+	:case(2983812512, function()
+	    return 60
+	end)
+	:case(2465164804, function()
+	    return 60
+	end)
+	:case(408192225, function()
+	    return 60
+	end)
+	:case(6774487, function()
+	    return 10
+	end)
+	:case(916547552, function()
+	    return 10
+	end)
+	:case(301304410, function()
+	    return 10
+	end)
+	:case(1126868326, function()
+	    return 45
+	end)
+	:case(3945366167, function()
+	    return 80
+	end)
+	:case(2166734073, function()
+	    return 10
+	end)
+	:case(4246935337, function()
+	    return 10
+	end)
+	:case(3025077634, function()
+	    return 10
+	end)
+	:case(3854198872, function()
+	    return 10
+	end)
+	:case(2704629607, function()
+	    return 10
+	end)
+	:case(2859047862, function()
+	    return 70
+	end)
+	:case(2815302597, function()
+	    return 45
+	end)
+	:case(668439077, function()
+	    return 120
+	end)
+	:case(2600885406, function()
+	    return 120
+	end)
+	:case(2252616474, function()
+	    return 120
+	end)
+	:case(2139203625, function()
+	    return 80
+	end)
+	:case(2403970600, function()
+	    return 80
+	end)
+	:case(2038858402, function()
+	    return 80
+	end)
+	:case(3057713523, function()
+	    return 80
+	end)
+	:case(2633113103, function()
+	    return 45
+	end)
+	:case(534258863, function()
+	    return 45
+	end)
+	:case(1897744184, function()
+	    return 45
+	end)
+	:case(2434067162, function()
+	    return 80
+	end)
+	:case(2071877360, function()
+	    return 80
+	end)
+	:case(2370534026, function()
+	    return 80
+	end)
+	:case(92612664, function()
+	    return 70
+	end)
+	:case(1233534620, function()
+	    return 80
+	end)
+	:case(2044532910, function()
+	    return 80
+	end)
+	:case(3449006043, function()
+	    return 80
+	end)
+	:case(1721676810, function()
+	    return 80
+	end)
+	:case(840387324, function()
+	    return 80
+	end)
+	:case(3579220348, function()
+	    return 80
+	end)
+	:case(433954513, function()
+	    return 80
+	end)
+	:case(408825843, function()
+	    return 45
+	end)
+	:case(4008920556, function()
+	    return 80
+	end)
+	:case(3087195462, function()
+	    return 80
+	end)
+	:case(2249373259, function()
+	    return 80
+	end)
+	:case(3105951696, function()
+	    return 80
+	end)
+	:case(989381445, function()
+	    return 80
+	end)
+	:case(2198148358, function()
+	    return 80
+	end)
+	:case(1180875963, function()
+	    return 80
+	end)
+	:case(1356124575, function()
+	    return 80
+	end)
+	:case(740289177, function()
+	    return 45
+	end)
+	:case(298565713, function()
+	    return 10
+	end)
+	:case(1284356689, function()
+	    return 80
+	end)
+	:case(1886712733, function()
+	    return 100
+	end)
+	:case(3288047904, function()
+	    return 120
+	end)
+	:case(2164484578, function()
+	    return 70
+	end)
+	:case(1353720154, function()
+	    return 80
+	end)
+	:case(2186977100, function()
+	    return 80
+	end)
+	:case(3410276810, function()
+	    return 40
+	end)
+	:case(1783355638, function()
+	    return 30
+	end)
+	:case(356391690, function()
+	    return 100
+	end)
+	:case(3695398481, function()
+	    return 70
+	end)
+	:case(734217681, function()
+	    return 70
+	end)
+	:case(4278019151, function()
+	    return 70
+	end)
+	:case(2072156101, function()
+	    return 70
+	end)
+	:case(1739845664, function()
+	    return 70
+	end)
+	:case(2307837162, function()
+	    return 75
+	end)
+	:case(4061868990, function()
+	    return 75
+	end)
+	:case(121658888, function()
+	    return 75
+	end)
+	:case(444171386, function()
+	    return 75
+	end)
+	:case(682434785, function()
+	    return 75
+	end)
+	:case(2948279460, function()
+	    return 60
+	end)
+	:case(3387490166, function()
+	    return 60
+	end)
+	:case(2551651283, function()
+	    return 60
+	end)
+	:case(893081117, function()
+	    return 60
+	end)
+	:case(1132262048, function()
+	    return 60
+	end)
+	:case(1876516712, function()
+	    return 70
+	end)
+	:case(2549763894, function()
+	    return 60
+	end)
+	:case(296357396, function()
+	    return 60
+	end)
+	:case(2588363614, function()
+	    return 250
+	end)
+	:case(1033245328, function()
+	    return 10
+	end)
+	:case(276773164, function()
+	    return 10
+	end)
+	:case(509498602, function()
+	    return 10
+	end)
+	:case(867467158, function()
+	    return 10
+	end)
+	:case(3314393930, function()
+	    return 10
+	end)
+	:case(861409633, function()
+	    return 10
+	end)
+	:case(1336872304, function()
+	    return 250
+	end)
+	:case(1861786828, function()
+	    return 10
+	end)
+	:case(3251507587, function()
+	    return 2
+	end)
+	:case(4018222598, function()
+	    return 2
+	end)
+	:case(3806844075, function()
+	    return 2
+	end)
+	:case(3264692260, function()
+	    return 2
+	end)
+	:case(3678636260, function()
+	    return 2
+	end)
+	:case(3983945033, function()
+	    return 2
+	end)
+	:case(231083307, function()
+	    return 10
+	end)
+	:case(437538602, function()
+	    return 10
+	end)
+	:case(400514754, function()
+	    return 2
+	end)
+	:case(771711535, function()
+	    return 250
+	end)
+	:case(3228633070, function()
+	    return 250
+	end)
+	:case(4012021193, function()
+	    return 2
+	end)
+	:case(1070967343, function()
+	    return 10
+	end)
+	:case(908897389, function()
+	    return 10
+	end)
+	:case(290013743, function()
+	    return 10
+	end)
+	:case(1448677353, function()
+	    return 10
+	end)
+	:case(2194326579, function()
+	    return 2
+	end)
+	:case(1181327175, function()
+	    return 100
+	end)
+	:case(837858166, function()
+	    return 100
+	end)
+	:case(295054921, function()
+	    return 100
+	end)
+	:case(788747387, function()
+	    return 100
+	end)
+	:case(745926877, function()
+	    return 100
+	end)
+	:case(4244420235, function()
+	    return 100
+	end)
+	:case(1621617168, function()
+	    return 100
+	end)
+	:case(1394036463, function()
+	    return 100
+	end)
+	:case(2025593404, function()
+	    return 100
+	end)
+	:case(744705981, function()
+	    return 100
+	end)
+	:case(1949211328, function()
+	    return 100
+	end)
+	:case(2310691317, function()
+	    return 100
+	end)
+	:case(4252008158, function()
+	    return 100
+	end)
+	:case(2634305738, function()
+	    return 100
+	end)
+	:case(353883353, function()
+	    return 100
+	end)
+	:case(4212341271, function()
+	    return 100
+	end)
+	:case(3568198617, function()
+	    return 100
+	end)
+	:case(1229411063, function()
+	    return 100
+	end)
+	:case(1593933419, function()
+	    return 100
+	end)
+	:case(1044954915, function()
+	    return 100
+	end)
+	:case(710198397, function()
+	    return 100
+	end)
+	:case(2623428164, function()
+	    return 100
+	end)
+	:case(3955379698, function()
+	    return 100
+	end)
+	:case(1075432268, function()
+	    return 100
+	end)
+	:case(2694714877, function()
+	    return 100
+	end)
+	:case(1543134283, function()
+	    return 100
+	end)
+	:case(2449479409, function()
+	    return 100
+	end)
+	:case(4143991942, function()
+	    return 100
+	end)
+	:case(3681241380, function()
+	    return 100
+	end)
+	:case(3987008919, function()
+	    return 100
+	end)
+	:case(1283517198, function()
+	    return 120
+	end)
+	:case(3581397346, function()
+	    return 120
+	end)
+	:case(2222034228, function()
+	    return 120
+	end)
+	:case(345756458, function()
+	    return 120
+	end)
+	:case(3196165219, function()
+	    return 70
+	end)
+	:case(1941029835, function()
+	    return 70
+	end)
+	:case(1171614426, function()
+	    return 70
+	end)
+	:case(2287941233, function()
+	    return 120
+	end)
+	:case(456714581, function()
+	    return 60
+	end)
+	:case(562680400, function()
+	    return 80
+	end)
+	:case(3471458123, function()
+	    return 120
+	end)
+	:case(630371791, function()
+	    return 120
+	end)
+	:case(4081974053, function()
+	    return 60
+	end)
+	:case(4262731174, function()
+	    return 100
+	end)
+	:case(2859440138, function()
+	    return 100
+	end)
+	:case(3040635986, function()
+	    return 100
+	end)
+	:case(782665360, function()
+	    return 100
+	end)
+	:case(3147997943, function()
+	    return 100
+	end)
+	:case(1542143200, function()
+	    return 100
+	end)
+	:case(3715219435, function()
+	    return 100
+	end)
+	:case(1489874736, function()
+	    return 100
+	end)
+	:case(2014313426, function()
+	    return 120
+	end)
+	:case(2053223216, function()
+	    return 80
+	end)
+	:case(850991848, function()
+	    return 70
+	end)
+	:case(3493417227, function()
+	    return 80
+	end)
+	:case(679453769, function()
+	    return 80
+	end)
+	:case(1909700336, function()
+	    return 80
+	end)
+	:case(2112052861, function()
+	    return 80
+	end)
+	:case(1653666139, function()
+	    return 80
+	end)
+	:case(2306538597, function()
+	    return 80
+	end)
+
 local IsElectric = switch() -- 1st param is default capacity, 2nd param is default consumption rate, 3rd param is throttle consumption multiplier
 	:case(utils.joaat("Airtug"), function()
 		return 600, .0005, 1
@@ -499,11 +1221,13 @@ function fuelConsumption.DoTick()
 		local cap, rate, throttle = fuelConsumption.GetMaxCapacity(veh)
 		if not cap then return end
 		local fuel = vehicles.fuel_get(veh)
+		local default = DefaultFuel(ENTITY.GET_ENTITY_MODEL(veh)) or 65
 		fuelConsumption.tankVolume[veh] = {
 			capacity = cap,
 			rate = rate,
 			throttle = throttle,
-			fill = (fuel / 65 * cap)
+			default = default,
+			fill = (fuel / default * cap)
 		}
 		return
 	end
@@ -512,7 +1236,8 @@ function fuelConsumption.DoTick()
 		fuelConsumption.tankVolume[veh].fill = minus > 0 and minus or 0
 	end
 	local class = VEHICLE.GET_VEHICLE_CLASS(veh)
-	
+	local model = ENTITY.GET_ENTITY_MODEL(veh)
+
 	if VEHICLE.GET_IS_VEHICLE_ENGINE_RUNNING(veh) == 1 and vehicles.get_throttle(veh) ~= 0 then
 		local loss = 100
 		local engine = VEHICLE.GET_VEHICLE_MOD(veh, 11) + 1
@@ -528,19 +1253,24 @@ function fuelConsumption.DoTick()
 		local minus = (fuelConsumption.tankVolume[veh].fill - fuelConsumption.tankVolume[veh].rate)
 		fuelConsumption.tankVolume[veh].fill = minus > 0 and minus or 0
 		--system.log('debug', tostring(-fuelConsumption.tankVolume[veh].rate))
-	end 
+	elseif IsElectric(model) and vehicles.get_throttle(veh) == 0 then
+		local plus = fuelConsumption.tankVolume[veh].fill + 0.0003
+		fuelConsumption.tankVolume[veh].fill = plus > fuelConsumption.tankVolume[veh].capacity and fuelConsumption.tankVolume[veh].capacity or plus
+	end
 
-	vehicles.fuel_set(veh, (fuelConsumption.tankVolume[veh].fill / fuelConsumption.tankVolume[veh].capacity) * 65)
-	-- if fuelConsumption.tankVolume[veh].fill == 0 and VEHICLE.GET_IS_VEHICLE_ENGINE_RUNNING(veh) == 1 then
-	-- 	entities.request_control(veh, function()
-	-- 		VEHICLE.SET_VEHICLE_ENGINE_ON(veh, false, true, true)
-	-- 	end)
-	-- end
+	if IsElectric(model) and fuelConsumption.tankVolume[veh].fill == 0 then
+		entities.request_control(veh, function()
+			VEHICLE.SET_VEHICLE_ENGINE_ON(veh, false, true, true)
+		end)
+	end
+	if not IsElectric(model) then
+		vehicles.fuel_set(veh, (fuelConsumption.tankVolume[veh].fill / fuelConsumption.tankVolume[veh].capacity) * fuelConsumption.tankVolume[veh].default)
+	end
 end
 
 function fuelConsumption.GetFuel(veh)
 	if not fuelConsumption.tankVolume[veh] then return end
-	return vehicles.fuel_get(veh) / 65
+	return vehicles.fuel_get(veh) / fuelConsumption.tankVolume[veh].default
 end
 
 function fuelConsumption.Draw(percentage)

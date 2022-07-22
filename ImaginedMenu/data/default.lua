@@ -1133,6 +1133,20 @@ local default = {
 		["No entities in database"] = "No entities in database",
 		["Teleport to reference"] = "Teleport to reference",
 		["Player has different model, would you like to change?"] = "Player has different model, would you like to change?",
+		-- 1.1.4.1
+		["Delete mode is enabled!"] = "Delete mode is enabled!",
+		["Reference position"] = "Reference position",
+		["Save nearby entities"] = "Save nearby entities",
+		["Radius"] = "Radius",
+		["No entities to save"] = "No entities to save",
+		["Nearby"] = "Nearby",
+		["Database"] = "Database",
+		["My new map"] = "My new map",
+		["Saved %i entities"] = "Saved %i entities",
+		["Name already taken"] = "Name already taken",
+		["Version"] = "Version",
+		["Credits to"] = "Credits to",
+		["and"] = "and",
 	}
 }
 

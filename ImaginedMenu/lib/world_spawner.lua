@@ -81,11 +81,11 @@ function world_spawner.spawn(entity, spawn_i, pos, id)
         end)
     local ent = SpawnEntity(data.type)
     if ent == 0 then system.notify(TRANSLATION["Info"], TRANSLATION["Failed to spawn entity: "]..data.handle_id, 255, 0, 0, 255) system.log('Imagined Menu', "Failed to spawn entity model: "..data.model.." | "..tostring(STREAMING.IS_MODEL_VALID(data.model) and "Valid" or "Invalid").." | Handle: "..data.handle_id.." | Type: "..data.type) end
+    EntityDb.AddEntityToDatabase(ent)
     if data.position then
         ENTITY.SET_ENTITY_COORDS_NO_OFFSET(ent, data.position.x, data.position.y, data.position.z, false, false, false)
         ENTITY.SET_ENTITY_ROTATION(ent, data.position.pitch, data.position.roll, data.position.yaw, 2, true)
     end
-
     if not new_request[spawn_i].parent and data.parent then
         new_request[spawn_i].parent = ent
     end
@@ -269,8 +269,8 @@ function world_spawner.create_vehicle(vehicle, conf, clone_damage)
         for i, v in ipairs(vehicle)
         do
             local ent = world_spawner.spawn(vehicle, spawn_i, pos, i)
-            if ent and settings.Vehicle["AddToDb"] then
-                EntityDb.AddEntityToDatabase(ent)
+            if ent and not settings.Vehicle["AddToDb"] then
+                EntityDb.entity_data[ent] = nil
             end
         end
         world_spawner.unload(vehicle)
@@ -313,9 +313,6 @@ function world_spawner.spawn_map(data)
         for i, v in ipairs(data)
         do
             local ent = world_spawner.spawn(data, spawn_i, vector3(), i)
-            if ent then
-                EntityDb.AddEntityToDatabase(ent)
-            end
         end
 
         return 0

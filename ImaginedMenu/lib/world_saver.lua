@@ -33,6 +33,7 @@ local peds = require 'peds'
 local EntityDb = require 'entity_database'
 local json = require 'JSON'
 local filesystem = require 'filesys'
+local TRANSLATION = require('default').translation
 
 local world_saver = {}
 
@@ -196,9 +197,9 @@ function world_saver.get_properties(ent, first)
                     y = EntityDb.entity_data[ent].attachy,
                     z = EntityDb.entity_data[ent].attachz
                 },
-                pitch = EntityDb.entity_data[ent].pitch,
-                roll = EntityDb.entity_data[ent].roll, 
-                yaw = EntityDb.entity_data[ent].yaw
+                pitch = EntityDb.entity_data[ent].attachpitch,
+                roll = EntityDb.entity_data[ent].attachroll, 
+                yaw = EntityDb.entity_data[ent].attachyaw
             }
         else
             local offset = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ent, 0, 0, VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ent) ~= -1 and VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ent) or 0))
@@ -268,6 +269,7 @@ function world_saver.save_map(entities, path, refernce_pos)
             end
         end
     end
+    system.notify(TRANSLATION["Imagined Menu"], string.format(TRANSLATION["Saved %i entities"], #data), 0, 255, 0, 255, true)
     insert(data, {reference = refernce_pos})
     filesystem.write(json:encode_pretty(data), path)
 end
