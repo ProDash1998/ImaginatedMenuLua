@@ -1,4 +1,4 @@
-#Welcome to Imagined Menu v1.1.4
+#Welcome to Imagined Menu v1.1.5
 
 made by FoxxDash/aka Ðr ÐºήgΣr & SATTY
 
@@ -213,7 +213,7 @@ Features:
 	+ Vehicles:
 	 - Vehicles explode on impact
 	 - Jumpy vehicles
-	 - Launch vehicles 
+	 - Launch vehicles
 	 - Repair vehicles
 	 - Beyblades
 	 - Boost vehicles
