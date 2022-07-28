@@ -1270,7 +1270,11 @@ end
 
 function fuelConsumption.GetFuel(veh)
 	if not fuelConsumption.tankVolume[veh] then return end
-	return vehicles.fuel_get(veh) / fuelConsumption.tankVolume[veh].default
+	return fuelConsumption.tankVolume[veh].fill / fuelConsumption.tankVolume[veh].capacity
+end
+
+function fuelConsumption.IsElectric(veh)
+	return IsElectric(ENTITY.GET_ENTITY_MODEL(veh)) ~= nil
 end
 
 function fuelConsumption.Draw(percentage)

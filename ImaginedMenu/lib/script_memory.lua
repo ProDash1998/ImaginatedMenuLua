@@ -12,10 +12,11 @@ local vector3 = require "vector3"
 
 local s_memory = {}
 local to_free = {}
+local fail_scan = {}
 
 function s_memory.add(key, pointer)
 	local bad = {}
-	if pointer == 0 then error("Failed to find pattern: "..key, 0) end
+	if pointer == 0 then insert(fail_scan, "Failed to find pattern: "..key) end
 	s_memory[key] = pointer
 end
 
@@ -71,11 +72,12 @@ end
 function s_memory.get_memory_address(pointer, offsets)
 	for i = 1, #offsets - 1
 	do
-		if not pointer then return 0 end
 		pointer = memory.read_int64(pointer + offsets[i])
 		if not pointer or pointer == 0 then return 0 end
 	end
 	return pointer + offsets[#offsets]
 end
+
+if #fail_scan > 0 then error(table.concat(fail_scan, "\n"), 0) end
 
 return s_memory

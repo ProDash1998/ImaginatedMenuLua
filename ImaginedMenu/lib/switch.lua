@@ -1,3 +1,9 @@
+--
+-- made by FoxxDash/aka Ðr ÐºήgΣr & SATTY
+--
+-- Copyright © 2022 Imagined Menu
+--
+
 local switch = {}
 switch.__index = switch
 

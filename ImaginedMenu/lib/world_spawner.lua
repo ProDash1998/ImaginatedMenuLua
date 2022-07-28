@@ -32,6 +32,7 @@ local vehicles = require 'vehicle'
 local vector3 = require 'vector3'
 local peds = require 'peds'
 local EntityDb = require 'entity_database'
+local world_saver = require 'world_saver'
 local TRANSLATION = require('default').translation
 local settings = require('default').settings
 local world_spawner = {}
@@ -99,6 +100,7 @@ function world_spawner.spawn(entity, spawn_i, pos, id)
     if data.dynamic ~= nil then
         ENTITY.SET_ENTITY_DYNAMIC(ent, data.dynamic)
     end
+    ENTITY.SET_ENTITY_HEALTH(ent, data.health, 0)
     if data.type == 1 then
         peds.apply_outfit(data.outfit.components, data.outfit.props, ent)
         if data.godmode then
@@ -107,6 +109,24 @@ function world_spawner.spawn(entity, spawn_i, pos, id)
         if data.in_vehicle then
             PED.SET_PED_INTO_VEHICLE(ent, new_request[spawn_i][data.in_vehicle], data.seat_index)
         end
+        if data.noflee then
+            peds.calm_ped(ent, true)
+        end
+        if data.armor then
+            PED.SET_PED_ARMOUR(ent, data.armor)
+        end
+        if data.can_ragdoll ~= nil then
+            PED.SET_PED_CAN_RAGDOLL(ent, data.can_ragdoll)
+            PED.SET_PED_CAN_RAGDOLL_FROM_PLAYER_IMPACT(ent, data.can_ragdoll)
+        end
+        if data.is_tiny then
+            PED.SET_PED_CONFIG_FLAG(ent, 223, true)
+        end
+        if data.current_weapon then
+            WEAPON.GIVE_WEAPON_TO_PED(ent, data.current_weapon, 9999, false, true)
+            WEAPON.SET_CURRENT_PED_WEAPON(ent, data.current_weapon, true)
+        end
+        EntityDb.entity_data[ent].noflee = true
     elseif data.type == 2 then
         -- DECORATOR.DECOR_SET_INT(ent, "MPBitset", 1024)
         VEHICLE.SET_VEHICLE_MOD_KIT(ent, 0)
@@ -180,7 +200,6 @@ function world_spawner.spawn(entity, spawn_i, pos, id)
         if data.rmp_multiplier then data.rpm_multiplier = data.rmp_multiplier end
         VEHICLE.MODIFY_VEHICLE_TOP_SPEED(ent, data.rpm_multiplier)
         VEHICLE.SET_VEHICLE_DIRT_LEVEL(ent, data.dirt_level)
-        ENTITY.SET_ENTITY_HEALTH(ent, data.health, 1)
         VEHICLE._SET_VEHICLE_LIGHTS_MODE(ent, data.lights)
         VEHICLE.SET_VEHICLE_LIVERY(ent, data.livery)
         local Roof = switch()
@@ -230,10 +249,10 @@ function world_spawner.spawn(entity, spawn_i, pos, id)
     local found = true
     if not new_request[spawn_i][data.attachment.attached_to] then -- checks if entity to attach exist
         found = false
-        for i, v in ipairs(vehicle)
+        for i, v in ipairs(entity)
         do
             if v.handle_id == data.attachment.attached_to then
-                custom_vehicles.spawn(vehicle, spawn_i, pos, i)
+                world_spawner.spawn(entity, spawn_i, pos, i)
                 found = true
                 break
             end
@@ -301,7 +320,7 @@ function world_spawner.create_vehicle(vehicle, conf, clone_damage)
     end)
 end
 
-function world_spawner.spawn_map(data)
+function world_spawner.spawn_map(data, no_db)
     CreateRemoveThread(true, 'request_model_'..tostring(data), function()
         local result = world_spawner.request(data)
         if result == -1 then return 0 end -- invalid model
@@ -313,10 +332,29 @@ function world_spawner.spawn_map(data)
         for i, v in ipairs(data)
         do
             local ent = world_spawner.spawn(data, spawn_i, vector3(), i)
+            if no_db and ent then
+                EntityDb.entity_data[ent] = nil
+            end 
         end
 
         return 0
     end)
+end
+
+function world_spawner.copy_entity(entity, attachments)
+    local data = {}
+    if attachments then
+        local entity = features.get_parent_attachment(entity)
+        data = {world_saver.get_properties(entity, true)}
+        for _, v in ipairs(features.get_all_attachments(entity)) do
+            insert(data, world_saver.get_properties(v, false))
+        end
+    else
+        data = {world_saver.get_properties(entity, true)}
+        data[1].attached = false
+        data[1].in_vehicle = nil
+    end
+    world_spawner.spawn_map(data)
 end
 
 return world_spawner

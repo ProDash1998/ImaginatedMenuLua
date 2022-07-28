@@ -1,0 +1,61 @@
+[ {
+  "attached": false,
+  "collision": true,
+  "dynamic": true,
+  "freeze": true,
+  "godmode": true,
+  "gravity": true,
+  "handle_id": 120684,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 60,
+  "model": 959275690,
+  "opacity": 255,
+  "parent": true,
+  "position": {
+    "pitch": 0,
+    "roll": 0,
+    "x": 1507.9111328125,
+    "y": -1435.3843994141,
+    "yaw": 0,
+    "z": 100.2972946167
+  },
+  "texture": 0,
+  "type": 3
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 120684,
+    "bone": 0,
+    "pitch": 0,
+    "pos": {
+      "x": 0,
+      "y": 0,
+      "z": 1.3000001907349
+    },
+    "roll": 0,
+    "yaw": 0
+  },
+  "collision": true,
+  "dynamic": true,
+  "freeze": true,
+  "godmode": true,
+  "gravity": true,
+  "handle_id": 111724,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 60,
+  "model": 959275690,
+  "opacity": 255,
+  "parent": false,
+  "position": {
+    "pitch": 0,
+    "roll": 0,
+    "x": 1507.9111328125,
+    "y": -1435.3843994141,
+    "yaw": -0,
+    "z": 101.59729766846
+  },
+  "texture": 0,
+  "type": 3
+} ]

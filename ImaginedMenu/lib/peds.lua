@@ -21,715 +21,2456 @@ local TASK = TASK
 local ENTITY = ENTITY
 
 local features = require 'features'
+local switch = require 'switch'
+local enum = require 'enums'
+local weapons = require 'weapons'
 
 local ped = {}
 
-ped.names = {
-    [1074457665] = "Abigail",
-    [-1988720319] = "AbigailCutscene",
-    [-257153498] = "Abner",
-    [1413662315] = "Acult01AMM",
-    [1430544400] = "Acult01AMO",
-    [-1251702741] = "Acult01AMY",
-    [1268862154] = "Acult02AMO",
-    [-2132435154] = "Acult02AMY",
-    [-781039234] = "AfriAmer01AMM",
-    [-67533719] = "Agent14",
-    [1841036427] = "Agent14Cutscene",
-    [-680474188] = "AgentCutscene",
-    [1567728751] = "AirHostess01SFY",
-    [1644266841] = "AirWorkerSMY",
-    [-252946718] = "AlDiNapoli",
-    [1830688247] = "AmandaTownley",
-    [-1779492637] = "AmandaTownleyCutscene",
-    [-1643617475] = "AmmuCity01SMY",
-    [233415434] = "AmmuCountrySMM",
-    [1206185632] = "Andreas",
-    [-413773017] = "AndreasCutscene",
-    [117698822] = "AnitaCutscene",
-    [-815646164] = "AntonB",
-    [-1513650250] = "AntonCutscene",
-    [-236444766] = "ArmBoss01GMM",
-    [-39239064] = "ArmGoon01GMM",
-    [-984709238] = "ArmGoon02GMY",
-    [-412008429] = "ArmLieut01GMM",
-    [-839953400] = "Armoured01",
-    [-1782092083] = "Armoured01SMM",
-    [1669696074] = "Armoured02SMM",
-    [1657546978] = "ArmyMech01SMY",
-    [2129936603] = "Ashley",
-    [650367097] = "AshleyCutscene",
-    [-1306051250] = "Autopsy01SMY",
-    [68070371] = "AutoShop01SMM",
-    [-261389155] = "Autoshop02SMM",
-    [939183526] = "AviSchwartzman",
-    [-1734476390] = "AviSchwartzmanCutscene",
-    [1752208920] = "Azteca01GMY",
-    [-636391810] = "BabyD",
-    [-198252413] = "BallaEast01GMY",
-    [588969535] = "BallaOrig01GMY",
-    [361513884] = "Ballas01GFY",
-    [-1492432238] = "BallasOG",
-    [-1410400252] = "BallasOGCutscene",
-    [599294057] = "BallaSout01GMY",
-    [-1022961931] = "Bankman01",
-    [-1868718465] = "Bankman",
-    [-1755309778] = "BankmanCutscene",
-    [-442429178] = "Barman01SMY",
-    [797459875] = "Barry",
-    [1767447799] = "BarryCutscene",
-    [2014052797] = "Bartender01SFY",
-    [1380197501] = "Baygor",
-    [1250841910] = "BayWatch01SFY",
-    [189425762] = "BayWatch01SMY",
-    [808859815] = "Beach01AFM",
-    [-945854168] = "Beach01AFY",
-    [1077785853] = "Beach01AMM",
-    [-2077764712] = "Beach01AMO",
-    [-771835772] = "Beach01AMY",
-    [2021631368] = "Beach02AMM",
-    [600300561] = "Beach02AMY",
-    [-408329255] = "Beach03AMY",
-    [2114544056] = "BeachVesp01AMY",
-    [-900269486] = "Beachvesp02AMY",
-    [-994634286] = "Benny",
-    [1464257942] = "BestMen",
-    [-1113448868] = "Beverly",
-    [-1267809450] = "BeverlyCutscene",
-    [-1106743555] = "BevHills01AFM",
-    [1146800212] = "Bevhills01AFY",
-    [1423699487] = "BevHills01AMM",
-    [1982350912] = "BevHills01AMY",
-    [-1606864033] = "BevHills02AFM",
-    [1546450936] = "BevHills02AFY",
-    [1068876755] = "BevHills02AMM",
-    [1720428295] = "BevHills02AMY",
-    [549978415] = "Bevhills03AFY",
-    [920595805] = "BevHills04AFY",
-    [1984382277] = "BikeHire01",
-    [-96953009] = "BikerChic",
-    [-1275859404] = "BlackOps01SMY",
-    [2047212121] = "BlackOps02SMY",
-    [1349953339] = "BlackOps03SMY",
-    [-832573324] = "Boar",
-    [848542878] = "BoatStaff01F",
-    [-933295480] = "BoatStaff01M",
-    [1004114196] = "BodyBuild01AFM",
-    [-1613485779] = "Bouncer01SMM",
-    [-1111799518] = "Brad",
-    [1915268960] = "BradCadaverCutscene",
-    [-270159898] = "BradCutscene",
-    [933205398] = "BreakDance01AMY",
-    [1633872967] = "Bride",
-    [-2101379423] = "BrideCutscene",
-    [-1954728090] = "BurgerDrug",
-    [-1931689897] = "BurgerDrugCutscene",
-    [-654717625] = "BusBoy01SMY",
-    [-1697435671] = "Busicas01AMY",
-    [664399832] = "Business01AFY",
-    [2120901815] = "Business01AMM",
-    [-912318012] = "Business01AMY",
-    [532905404] = "Business02AFM",
-    [826475330] = "Business02AFY",
-    [-1280051738] = "Business02AMY",
-    [-1366884940] = "Business03AFY",
-    [-1589423867] = "Business03AMY",
-    [-1211756494] = "Business04AFY",
-    [-1382092357] = "Busker01SMO",
-    [-2063996617] = "Car3Guy1",
-    [71501447] = "Car3Guy1Cutscene",
-    [1975732938] = "Car3Guy2",
-    [327394568] = "Car3Guy2Cutscene",
-    [-1932625649] = "CarBuyerCutscene",
-    [-520477356] = "Casey",
-    [-359228352] = "CaseyCutscene",
-    [1462895032] = "Cat",
-    [-907676309] = "CCrew01SMM",
-    [261586155] = "Chef01SMY",
-    [-2054645053] = "Chef2",
-    [-1369710022] = "Chef2Cutscene",
-    [1240128502] = "Chef",
-    [-1555576182] = "ChefCutscene",
-    [788443093] = "ChemSec01SMM",
-    [-166363761] = "ChemWork01GMM",
-    [-1176698112] = "ChiBoss01GMM",
-    [-1430839454] = "ChickenHawk",
-    [275618457] = "ChiCold01GMM",
-    [2119136831] = "ChiGoon01GMM",
-    [-9308122] = "ChiGoon02GMM",
-    [-1469565163] = "Chimp",
-    [-1463670378] = "ChinGoonCutscene",
-    [610290475] = "Chip",
-    [351016938] = "Chop",
-    [1650288984] = "CIASec01SMM",
-    [-1057787465] = "Claude01",
-    [1825562762] = "Clay",
-    [-607414220] = "ClayCutscene",
-    [-1660909656] = "ClayPain",
-    [-429715051] = "Cletus",
-    [-890640939] = "CletusCutscene",
-    [71929310] = "Clown01SMY",
-    [436345731] = "CntryBar01SMM",
-    [-1230338610] = "ComJane",
-    [-673538407] = "Construct01SMY",
-    [-973145378] = "Construct02SMY",
-    [368603149] = "Cop01SFY",
-    [1581098148] = "Cop01SMY",
-    [-1699520669] = "CopCutscene",
-    [1457690978] = "Cormorant",
-    [773063444] = "Corpse01",
-    [228356856] = "Corpse02",
-    [-50684386] = "Cow",
-    [1682622302] = "Coyote",
-    [678319271] = "CrisFormage",
-    [-1041006362] = "CrisFormageCutscene",
-    [402729631] = "Crow",
-    [-1538297973] = "CustomerCutscene",
-    [755956971] = "Cyclist01",
-    [-37334073] = "Cyclist01amy",
-    [1182012905] = "Dale",
-    [216536661] = "DaleCutscene",
-    [365775923] = "DaveNorton",
-    [-2054740852] = "DaveNortonCutscene",
-    [-459818001] = "Dealer01SMY",
-    [-321892375] = "DebraCutscene",
-    [-664053099] = "Deer",
-    [-2113195075] = "Denise",
-    [1870669624] = "DeniseCutscene",
-    [-1249041111] = "DeniseFriendCutscene",
-    [1952555184] = "Devin",
-    [788622594] = "DevinCutscene",
-    [-1688898956] = "DevinSec01SMY",
-    [-12678997] = "DHill01AMY",
-    [1646160893] = "DoaMan",
-    [349680864] = "DockWork01SMM",
-    [-2039072303] = "DockWork01SMY",
-    [-730659924] = "Doctor01SMM",
-    [-1950698411] = "Dolphin",
-    [-1674727288] = "Dom",
-    [1198698306] = "DomCutscene",
-    [579932932] = "Doorman01SMY",
-    [1699403886] = "DownTown01AFM",
-    [766375082] = "DownTown01AMY",
-    [-628553422] = "Dreyfuss",
-    [1012965715] = "DreyfussCutscene",
-    [-872673803] = "DrFriedlander",
-    [-1549575121] = "DrFriedlanderCutscene",
-    [1943971979] = "Drowned",
-    [1976765073] = "DWService01SMY",
-    [-175076858] = "DWService02SMY",
-    [-1656894598] = "EastSA01AFM",
-    [-173013091] = "EastSA01AFY",
-    [-106498753] = "EastSA01AMM",
-    [-1538846349] = "Eastsa01AMY",
-    [1674107025] = "EastSA02AFM",
-    [70821038] = "EastSA02AFY",
-    [131961260] = "EastSa02AMM",
-    [377976310] = "EastSA02AMY",
-    [1371553700] = "EastSA03AFY",
-    [712602007] = "EdToh",
-    [1755064960] = "Epsilon01AFY",
-    [2010389054] = "Epsilon01AMY",
-    [-1434255461] = "Epsilon02AMY",
-    [1161072059] = "ExArmy01",
-    [-795819184] = "Fabien",
-    [1191403201] = "FabienCutscene",
-    [1777626099] = "Factory01SFY",
-    [1097048408] = "Factory01SMY",
-    [-398748745] = "FamCA01GMY",
-    [866411749] = "FamDD01",
-    [-613248456] = "FamDNF01GMY",
-    [-2077218039] = "FamFor01GMY",
-    [1309468115] = "Families01GFY",
-    [-1806291497] = "Farmer01AMM",
-    [-88831029] = "FatBla01AFM",
-    [-1244692252] = "FatCult01AFM",
-    [1641152947] = "FatLatin01AMM",
-    [951767867] = "FatWhite01AFM",
-    [988062523] = "FBISuit01",
-    [1482427218] = "FBISuit01Cutscene",
-    [373000027] = "FemBarberSFM",
-    [874722259] = "FIBArchitect",
-    [-2051422616] = "FIBMugger01",
-    [-306416314] = "FIBOffice01SMM",
-    [653289389] = "FIBOffice02SMM",
-    [1558115333] = "FIBSec01",
-    [2072724299] = "FIBSec01SMM",
-    [728636342] = "FilmDirector",
-    [732742363] = "FilmNoir",
-    [1189322339] = "FinGuru01",
-    [-1229853272] = "Fireman01SMY",
-    [802685111] = "Fish",
-    [1165780219] = "Fitness01AFY",
-    [331645324] = "Fitness02AFY",
-    [-1313761614] = "Floyd",
-    [103106535] = "FloydCutscene",
-    [466359675] = "FosRepCutscene",
-    [-1692214353] = "Franklin",
-    [-1667301416] = "FreemodeFemale01",
-    [1885233650] = "FreeModeMale01",
-    [-2078561997] = "G",
-    [-1453933154] = "Gaffer01SMM",
-    [-294281201] = "GarbageSMY",
-    [1240094341] = "Gardener01SMM",
-    [-775102410] = "Gay01AMY",
-    [-1519253631] = "Gay02AMY",
-    [-1567723049] = "GCutscene",
-    [115168927] = "GenFat01AMM",
-    [330231874] = "GenFat02AMM",
-    [793439294] = "GenHot01AFY",
-    [1640504453] = "GenStreet01AFO",
-    [-1386944600] = "GenStreet01AMO",
-    [-1736970383] = "GenStreet01AMY",
-    [891398354] = "GenStreet02AMY",
-    [411102470] = "GenTransportSMM",
-    [1169888870] = "GlenStank01",
-    [2111372120] = "Golfer01AFY",
-    [-1444213182] = "Golfer01AMM",
-    [-685776591] = "Golfer01AMY",
-    [-1001079621] = "Griff01",
-    [815693290] = "Grip01SMY",
-    [-20018299] = "Groom",
-    [2058033618] = "GroomCutscene",
-    [-396800478] = "GroveStrDlrCutscene",
-    [261428209] = "GuadalopeCutscene",
-    [-961242577] = "Guido01",
-    [-1289578670] = "GunVend01",
-    [-1022036185] = "GurkCutscene",
-    [-1715797768] = "Hacker",
-    [1099825042] = "HairDress01SMM",
-    [1015224100] = "HammerShark",
-    [1704428387] = "Hao",
-    [-325152996] = "HaoCutscene",
-    [1809430156] = "HasJew01AMM",
-    [-512913663] = "HasJew01AMY",
-    [1794449327] = "Hen",
-    [-245247470] = "HighSec01SMM",
-    [691061163] = "HighSec02SMM",
-    [813893651] = "Hiker01AFY",
-    [1358380044] = "Hiker01AMY",
-    [1822107721] = "HillBilly01AMM",
-    [2064532783] = "HillBilly02AMM",
-    [-264140789] = "Hippie01",
-    [343259175] = "Hippie01AFY",
-    [2097407511] = "Hippy01AMY",
-    [-2109222095] = "Hipster01AFY",
-    [587703123] = "Hipster01AMY",
-    [-1745486195] = "Hipster02AFY",
-    [349505262] = "Hipster02AMY",
-    [-1514497514] = "Hipster03AFY",
-    [1312913862] = "Hipster03AMY",
-    [429425116] = "Hipster04AFY",
-    [42647445] = "Hooker01SFY",
-    [348382215] = "Hooker02SFY",
-    [51789996] = "Hooker03SFY",
-    [-1768198658] = "HotPosh01",
-    [1863555924] = "HughCutscene",
-    [1193010354] = "Humpback",
-    [-837606178] = "Hunter",
-    [1531218220] = "HunterCutscene",
-    [1318032802] = "Husky",
-    [1939545845] = "HWayCop01SMY",
-    [880829941] = "ImpoRage",
-    [-482210853] = "ImranCutscene",
-    [-1160266880] = "Indian01AFO",
-    [153984193] = "Indian01AFY",
-    [-573920724] = "Indian01AMM",
-    [706935758] = "Indian01AMY",
-    [1153203121] = "JackHowitzerCutscene",
-    [225287241] = "Janet",
-    [808778210] = "JanetCutscene",
-    [-1040164288] = "JanitorCutscene",
-    [-1452549652] = "JanitorSMM",
-    [2050158196] = "JayNorris",
-    [-835930287] = "Jesus01",
-    [767028979] = "JetSki01AMY",
-    [-254493138] = "JewelAss01",
-    [257763003] = "JewelAss",
-    [1145088004] = "JewelAssCutscene",
-    [-1395868234] = "JewelSec01",
-    [-422822692] = "JewelThief",
-    [-308279251] = "JimmyBoston",
-    [60192701] = "JimmyBostonCutscene",
-    [1459905209] = "JimmyDisanto",
-    [-1194552652] = "JimmyDisantoCutscene",
-    [-1105179493] = "JoeMinuteman",
-    [-258122199] = "JoeMinutemanCutscene",
-    [-2016771922] = "JohnnyKlebitz",
-    [-91572095] = "JohnnyKlebitzCutscene",
-    [-518348876] = "Josef",
-    [1167549130] = "JosefCutscene",
-    [2040438510] = "Josh",
-    [1158606749] = "JoshCutscene",
-    [-619494093] = "Juggalo01AFY",
-    [-1849016788] = "Juggalo01AMY",
-    [2109968527] = "Justin",
-    [-346957479] = "KarenDaniels",
-    [1269774364] = "KarenDanielsCutscene",
-    [1530648845] = "KerryMcintosh",
-    [-1920284487] = "KillerWhale",
-    [891945583] = "KorBoss01GMM",
-    [611648169] = "Korean01GMY",
-    [-1880237687] = "Korean02GMY",
-    [2093736314] = "KorLieut01GMY",
-    [1388848350] = "KTown01AFM",
-    [1204772502] = "KTown01AFO",
-    [-782401935] = "KTown01AMM",
-    [355916122] = "KTown01AMO",
-    [452351020] = "KTown01AMY",
-    [1090617681] = "KTown02AFM",
-    [696250687] = "KTown02AMY",
-    [1706635382] = "LamarDavis",
-    [1162230285] = "LamarDavisCutscene",
-    [-1635724594] = "Lathandy01SMM",
-    [321657486] = "Latino01AMY",
-    [-538688539] = "Lazlow",
-    [949295643] = "LazlowCutscene",
-    [1302784073] = "LesterCrest",
-    [-1248528957] = "LesterCrestCutscene",
-    [1401530684] = "LifeInvad01",
-    [1918178165] = "LifeInvad01Cutscene",
-    [-570394627] = "LifeInvad01SMM",
-    [666718676] = "LifeInvad02",
-    [-610530921] = "LineCookSMM",
-    [-44746786] = "Lost01GFY",
-    [1330042375] = "Lost01GMY",
-    [1032073858] = "Lost02GMY",
-    [850468060] = "Lost03GMY",
-    [1985653476] = "LSMetro01SMM",
-    [-52653814] = "Magenta",
-    [1477887514] = "MagentaCutscene",
-    [-527186490] = "Maid01SFM",
-    [803106487] = "Malibu01AMM",
-    [-927261102] = "Mani",
-    [-46035440] = "Manuel",
-    [-72125238] = "ManuelCutscene",
-    [2124742566] = "Mariachi01SMM",
-    [-220552467] = "Marine01SMM",
-    [1702441027] = "Marine01SMY",
-    [-265970301] = "Marine02SMM",
-    [1490458366] = "Marine02SMY",
-    [1925237458] = "Marine03SMY",
-    [479578891] = "Markfost",
-    [411185872] = "Marnie",
-    [1464721716] = "MarnieCutscene",
-    [943915367] = "Marston01",
-    [1129928304] = "MartinMadrazoCutscene",
-    [-1552967674] = "Maryann",
-    [161007533] = "MaryannCutscene",
-    [1005070462] = "Maude",
-    [-1127975477] = "MaudeCutscene",
-    [1631478380] = "MerryWeatherCutscene",
-    [1768677545] = "MethHead01AMY",
-    [1466037421] = "MexBoss01GMM",
-    [1226102803] = "MexBoss02GMM",
-    [-578715987] = "MexCntry01AMM",
-    [-1109568186] = "MexGang01GMY",
-    [653210662] = "MexGoon01GMY",
-    [832784782] = "MexGoon02GMY",
-    [-1773333796] = "MexGoon03GMY",
-    [-1302522190] = "MexLabor01AMM",
-    [810804565] = "Mexthug01AMY",
-    [225514697] = "Michael",
-    [-1080659212] = "Michelle",
-    [1890499016] = "MichelleCutscene",
-    [-715445259] = "Migrant01SFY",
-    [-317922106] = "Migrant01SMM",
-    [1191548746] = "MilitaryBum",
-    [-886023758] = "Milton",
-    [-1217776881] = "MiltonCutscene",
-    [1021093698] = "MimeSMY",
-    [1095737979] = "Miranda",
-    [1573528872] = "Mistress",
-    [-785842275] = "Misty01",
-    [-1358701087] = "Molly",
-    [1167167044] = "MollyCutscene",
-    [1694362237] = "Motox01AMY",
-    [2007797722] = "Motox02AMY",
-    [307287994] = "MountainLion",
-    [1684083350] = "MovAlien01",
-    [1270514905] = "MoviePremFemaleCutscene",
-    [-1922568579] = "MoviePremMaleCutscene",
-    [894928436] = "MovieStar",
-    [587253782] = "MovPrem01SFY",
-    [-664900312] = "MovPrem01SMM",
-    [-407694286] = "MovSpace01SMM",
-    [1822283721] = "MPros01",
-    [-304305299] = "MrK",
-    [-1010001291] = "MrKCutscene",
-    [946007720] = "MrsPhillips",
-    [-872569905] = "MrsPhillipsCutscene",
-    [503621995] = "MrsThornhill",
-    [1334976110] = "MrsThornhillCutscene",
-    [1264920838] = "MusclBeac01AMY",
-    [-920443780] = "MusclBeac02AMY",
-    [-568861381] = "Natalia",
-    [1325314544] = "NataliaCutscene",
-    [-1124046095] = "NervousRon",
-    [2023152276] = "NervousRonCutscene",
-    [-927525251] = "Nigel",
-    [-515400693] = "NigelCutscene",
-    [-287649847] = "Niko01",
-    [1746653202] = "OGBoss01AMM",
-    [1906124788] = "OldMan1A",
-    [518814684] = "OldMan1aCutscene",
-    [-283816889] = "OldMan2",
-    [-1728452752] = "OldMan2Cutscene",
-    [1625728984] = "Omega",
-    [-1955548155] = "OmegaCutscene",
-    [768005095] = "Oneil",
-    [1641334641] = "Orleans",
-    [-1389097126] = "OrleansCutscene",
-    [648372919] = "Ortega",
-    [-1059388209] = "OrtegaCutscene",
-    [-199280229] = "OscarCutscene",
-    [357551935] = "Paige",
-    [1528799427] = "PaigeCutscene",
-    [-322270187] = "Paparazzi01AMM",
-    [1346941736] = "Paparazzi",
-    [-1717894970] = "Paper",
-    [1798879480] = "PaperCutscene",
-    [-1286380898] = "Paramedic01SMM",
-    [921110016] = "Party01",
-    [-2114499097] = "PartyTarget",
-    [-982642292] = "Patricia",
-    [-544533759] = "PatriciaCutscene",
-    [1209091352] = "PestCont01SMY",
-    [994527967] = "PestContDriver",
-    [193469166] = "PestContGunman",
-    [-1323586730] = "Pig",
-    [111281960] = "Pigeon",
-    [-413447396] = "Pilot01SMM",
-    [-1422914553] = "Pilot01SMY",
-    [-163714847] = "Pilot02SMM",
-    [-598109171] = "Pogo01",
-    [1329576454] = "PoloGoon01GMY",
-    [-1561829034] = "PoloGoon02GMY",
-    [-1445349730] = "Polynesian01AMM",
-    [-2088436577] = "Polynesian01AMY",
-    [1125994524] = "Poodle",
-    [645279998] = "Popov",
-    [1635617250] = "PopovCutscene",
-    [602513566] = "PoppyMich",
-    [793443893] = "PornDudesCutscene",
-    [1650036788] = "Postal01SMM",
-    [1936142927] = "Postal02SMM",
-    [1681385341] = "Priest",
-    [1299047806] = "PriestCutscene",
-    [-756833660] = "Princess",
-    [1456041926] = "PrisGuard01SMM",
-    [1596003233] = "PrisMuscl01SMY",
-    [2073775040] = "Prisoner01",
-    [-1313105063] = "Prisoner01SMY",
-    [-2057423197] = "PrologueDriver",
-    [-267695653] = "PrologueDriverCutscene",
-    [-988619485] = "PrologueHostage01",
-    [379310561] = "PrologueHostage01AFM",
-    [-1760377969] = "PrologueHostage01AMM",
-    [-1576494617] = "PrologueMournFemale01",
-    [-829029621] = "PrologueMournMale01",
-    [1888624839] = "PrologueSec01",
-    [2141384740] = "PrologueSec01Cutscene",
-    [666086773] = "PrologueSec02",
-    [512955554] = "PrologueSec02Cutscene",
-    [1832265812] = "Pug",
-    [-541762431] = "Rabbit",
-    [-449965460] = "RampGang",
-    [-1031795266] = "RampGangCutscene",
-    [1165307954] = "RampHic",
-    [-2054384456] = "RampHicCutscene",
-    [-554721426] = "RampHipster",
-    [569740212] = "RampHipsterCutscene",
-    [1634506681] = "RampMarineCutscene",
-    [-424905564] = "RampMex",
-    [-162605104] = "RampMexCutscene",
-    [-1614285257] = "Ranger01SFY",
-    [-277793362] = "Ranger01SMY",
-    [940326374] = "Rashkovsky",
-    [411081129] = "RashkovskyCutscene",
-    [-1011537562] = "Rat",
-    [776079908] = "ReporterCutscene",
-    [882848737] = "Retriever",
-    [-1026527405] = "Rhesus",
-    [1624626906] = "RivalPaparazzi",
-    [-178150202] = "RoadCyc01AMY",
-    [-1067576423] = "Robber01SMY",
-    [-709209345] = "RoccoPelosi",
-    [-1436281204] = "RoccoPelosiCutscene",
-    [-1788665315] = "Rottweiler",
-    [1011059922] = "RsRanger01AMO",
-    [-951490775] = "Runner01AFY",
-    [623927022] = "Runner01AMY",
-    [-2076336881] = "Runner02AMY",
-    [1064866854] = "RurMeth01AFY",
-    [1001210244] = "RurMeth01AMM",
-    [1024089777] = "RussianDrunk",
-    [1179785778] = "RussianDrunkCutscene",
-    [-569505431] = "Salton01AFM",
-    [-855671414] = "Salton01AFO",
-    [1328415626] = "Salton01AMM",
-    [539004493] = "Salton01AMO",
-    [-681546704] = "Salton01AMY",
-    [1626646295] = "Salton02AMM",
-    [-1299428795] = "Salton03AMM",
-    [-1773858377] = "Salton04AMM",
-    [-1872961334] = "SalvaBoss01GMY",
-    [663522487] = "SalvaGoon01GMY",
-    [846439045] = "SalvaGoon02GMY",
-    [62440720] = "SalvaGoon03GMY",
-    [1794381917] = "SBikeAMO",
-    [-614546432] = "SCDressy01AFY",
-    [1092080539] = "Scientist01SMM",
-    [-1689993] = "ScreenWriter",
-    [-1948177172] = "ScreenWriterCutscene",
-    [-1420211530] = "Scrubs01SFY",
-    [-745300483] = "Seagull",
-    [-681004504] = "Security01SMM",
-    [1126154828] = "Shepherd",
-    [1096929346] = "Sheriff01SFY",
-    [-1320879687] = "Sheriff01SMY",
-    [-1371020112] = "ShopHighSFM",
-    [416176080] = "ShopKeep01",
-    [-1452399100] = "ShopLowSFY",
-    [1846684678] = "ShopMaskSMY",
-    [1055701597] = "ShopMidSFY",
-    [1283141381] = "SiemonYetarian",
-    [-1064078846] = "SiemonYetarianCutscene",
-    [1767892582] = "Skater01AFY",
-    [-640198516] = "Skater01AMM",
-    [-1044093321] = "Skater01AMY",
-    [-1342520604] = "Skater02AMY",
-    [-1332260293] = "Skidrow01AFM",
-    [32417469] = "SkidRow01AMM",
-    [451459928] = "SnowCop01SMM",
-    [193817059] = "SoCenLat01AMM",
-    [-2034368986] = "Solomon",
-    [-154017714] = "SolomonCutscene",
-    [1951946145] = "SouCent01AFM",
-    [1039800368] = "SouCent01AFO",
-    [744758650] = "SouCent01AFY",
-    [1750583735] = "SouCent01AMM",
-    [718836251] = "SouCent01AMO",
-    [-417940021] = "SouCent01AMY",
-    [-215821512] = "SouCent02AFM",
-    [-1519524074] = "SouCent02AFO",
-    [1519319503] = "SouCent02AFY",
-    [-1620232223] = "SouCent02AMM",
-    [1082572151] = "SouCent02AMO",
-    [-1398552374] = "SouCent02AMY",
-    [-2018356203] = "SouCent03AFY",
-    [-1948675910] = "SouCent03AMM",
-    [238213328] = "SouCent03AMO",
-    [-1007618204] = "SouCent03AMY",
-    [-1023672578] = "SouCent04AMM",
-    [-1976105999] = "SouCent04AMY",
-    [-840346158] = "SouCentMC01AFM",
-    [-1408326184] = "SpyActor",
-    [1535236204] = "SpyActress",
-    [-1852518909] = "StagGrm01AMO",
-    [-812470807] = "StBla01AMY",
-    [-1731772337] = "Stbla02AMY",
-    [941695432] = "SteveHain",
-    [-1528782338] = "SteveHainsCutscene",
-    [-1589092019] = "Stingray",
-    [-2039163396] = "StLat01AMY",
-    [-1029146878] = "StLat02AMM",
-    [915948376] = "Stretch",
-    [-1992464379] = "StretchCutscene",
-    [-1360365899] = "Stripper01Cutscene",
-    [1381498905] = "Stripper01SFY",
-    [-2126242959] = "Stripper02Cutscene",
-    [1846523796] = "Stripper02SFY",
-    [695248020] = "StripperLite",
-    [1544875514] = "StripperLiteSFY",
-    [2035992488] = "StrPerf01SMM",
-    [469792763] = "StrPreach01SMM",
-    [-48477765] = "StrPunk01GMY",
-    [228715206] = "StrPunk02GMY",
-    [-829353047] = "StrVend01SMM",
-    [-1837161693] = "StrVend01SMY",
-    [605602864] = "StWhi01AMY",
-    [919005580] = "StWhi02AMY",
-    [-1222037748] = "SunBathe01AMY",
-    [-356333586] = "Surfer01AMY",
-    [-1920001264] = "SWAT01SMY",
-    [824925120] = "SweatShop01SFM",
-    [-2063419726] = "SweatShop01SFY",
-    [-409745176] = "Talina",
-    [226559113] = "Tanisha",
-    [1123963760] = "TanishaCutscene",
-    [-597926235] = "TaoCheng",
-    [-2006710211] = "TaoChengCutscene",
-    [2089096292] = "TaosTranslator",
-    [1397974313] = "TaosTranslatorCutscene",
-    [-1709285806] = "TapHillBilly",
-    [-1800524916] = "Tattoo01AMO",
-    [1426880966] = "Tennis01AFY",
-    [1416254276] = "Tennis01AMM",
-    [-1573167273] = "TennisCoach",
-    [1545995274] = "TennisCoachCutscene",
-    [1728056212] = "Terry",
-    [978452933] = "TerryCutscene",
-    [113504370] = "TigerShark",
-    [1776856003] = "TomCutscene",
-    [-847807830] = "TomEpsilon",
-    [-1945119518] = "TomEpsilonCutscene",
-    [-892841148] = "Tonya",
-    [1665391897] = "TonyaCutscene",
-    [-1661836925] = "Topless01AFY",
-    [1347814329] = "Tourist01AFM",
-    [1446741360] = "Tourist01AFY",
-    [-929103484] = "Tourist01AMM",
-    [-1859912896] = "Tourist02AFY",
-    [-566941131] = "TracyDisanto",
-    [101298480] = "TracyDisantoCutScene",
-    [1461287021] = "TrafficWarden",
-    [-567724045] = "TrafficWardenCutscene",
-    [1787764635] = "Tramp01",
-    [1224306523] = "Tramp01AFM",
-    [516505552] = "Tramp01AMM",
-    [390939205] = "Tramp01AMO",
-    [-1935621530] = "TrampBeac01AFM",
-    [1404403376] = "TrampBeac01AMM",
-    [-521758348] = "TranVest01AMM",
-    [-150026812] = "TranVest02AMM",
-    [-1686040670] = "Trevor",
-    [1498487404] = "Trucker01SMM",
-    [1382414087] = "TylerDixon",
-    [-277325206] = "UndercoverCopCutscene",
-    [-1614577886] = "UPS01SMM",
-    [-792862442] = "UPS02SMM",
-    [-905948951] = "USCG01SMY",
-    [1520708641] = "Vagos01GFY",
-    [-995747907] = "VagosFun01",
-    [-100858228] = "VagosSpeak",
-    [1224690857] = "VagosSpeakCutscene",
-    [999748158] = "Valet01SMY",
-    [-1047300121] = "VinDouche01AMY",
-    [435429221] = "Vinewood01AFY",
-    [1264851357] = "VineWood01AMY",
-    [-625565461] = "Vinewood02AFY",
-    [1561705728] = "VineWood02AMY",
-    [933092024] = "Vinewood03AFY",
-    [534725268] = "Vinewood03AMY",
-    [-85696186] = "Vinewood04AFY",
-    [835315305] = "Vinewood04AMY",
-    [-1835459726] = "Wade",
-    [-765011498] = "WadeCutscene",
-    [-1387498932] = "Waiter01SMY",
-    [-1427838341] = "WeiCheng",
-    [819699067] = "WeiChengCutscene",
-    [-1384627013] = "Westy",
-    [-1871275377] = "WillyFist",
-    [1426951581] = "WinClean01SMY",
-    [1142162924] = "XMech01SMY",
-    [-1105135100] = "XMech02SMY",
-    [-1004861906] = "Yoga01AFY",
-    [-1425378987] = "Yoga01AMY",
-    [188012277] = "Zimbor",
-    [-357782800] = "ZimborCutscene",
-    [-1404353274] = "Zombie01",
-}
+ped.GetPedName = switch()
+    :case("u_f_y_danceburl_01", function()
+        return "Female Club Dancer"
+    end)
+    :case("s_m_m_tattoo_01", function()
+        return "Tattoo Artist 2"
+    end)
+    :case("g_m_m_armgoon_01", function()
+        return "Armenian Goon"
+    end)
+    :case("s_m_m_strvend_01", function()
+        return "Street Vendor"
+    end)
+    :case("mp_s_m_armoured_01", function()
+        return "Armoured Van Security Male"
+    end)
+    :case("s_f_y_hooker_01", function()
+        return "Hooker"
+    end)
+    :case("s_m_y_uscg_01", function()
+        return "US Coastguard"
+    end)
+    :case("u_m_y_smugmech_01", function()
+        return "Hangar Mechanic"
+    end)
+    :case("mp_f_deadhooker", function()
+        return "Dead Hooker"
+    end)
+    :case("u_m_m_curtis", function()
+        return "Curtis"
+    end)
+    :case("s_m_m_paramedic_01", function()
+        return "Paramedic"
+    end)
+    :case("a_m_m_rurmeth_01", function()
+        return "Rural Meth Addict Male"
+    end)
+    :case("a_c_sharktiger", function()
+        return "Tiger Shark"
+    end)
+    :case("ig_tomcasino", "csb_tomcasino", function()
+        return "Tom Connors"
+    end)
+    :case("a_c_coyote", function()
+        return "Coyote"
+    end)
+    :case("a_f_y_carclub_01", function()
+        return "Car Club Female"
+    end)
+    :case("u_m_m_partytarget", function()
+        return "Party Target"
+    end)
+    :case("a_c_deer", function()
+        return "Deer"
+    end)
+    :case("a_c_westy", function()
+        return "Westie"
+    end)
+    :case("ig_davenorton", "cs_davenorton", function()
+        return "Dave Norton"
+    end)
+    :case("a_f_y_beach_02", function()
+        return "Beach Young Female 2"
+    end)
+    :case("g_m_m_chigoon_01", function()
+        return "Chinese Goon"
+    end)
+    :case("ig_nigel", "cs_nigel", function()
+        return "Nigel"
+    end)
+    :case("s_m_y_blackops_02", function()
+        return "Black Ops Soldier 2"
+    end)
+    :case("u_m_o_dean", function()
+        return "Dean"
+    end)
+    :case("mp_m_avongoon", function()
+        return "Avon Goon"
+    end)
+    :case("ig_dom", "cs_dom", function()
+        return "Dom Beasley"
+    end)
+    :case("s_m_y_winclean_01", function()
+        return "Window Cleaner"
+    end)
+    :case("a_f_y_indian_01", function()
+        return "Indian Young Female"
+    end)
+    :case("u_f_y_beth", function()
+        return "Beth"
+    end)
+    :case("s_m_y_waretech_01", function()
+        return "Warehouse Technician"
+    end)
+    :case("s_m_y_pestcont_01", function()
+        return "Pest Control"
+    end)
+    :case("ig_orleans", "cs_orleans", function()
+        return "Bigfoot"
+    end)
+    :case("g_f_y_lost_01", function()
+        return "The Lost MC Female"
+    end)
+    :case("u_m_m_jesus_01", function()
+        return "Jesus"
+    end)
+    :case("s_m_y_busboy_01", function()
+        return "Busboy"
+    end)
+    :case("a_m_m_tramp_01", "u_m_o_tramp_01", function()
+        return "Tramp Male"
+    end)
+    :case("u_m_y_baygor", function()
+        return "Kifflom Guy"
+    end)
+    :case("a_f_y_rurmeth_01", function()
+        return "Rural Meth Addict Female"
+    end)
+    :case("ig_sacha", function()
+        return "Sacha Yetarian"
+    end)
+    :case("ig_milton", "cs_milton", function()
+        return "Milton McIlroy"
+    end)
+    :case("a_m_y_juggalo_01", function()
+        return "Juggalo Male"
+    end)
+    :case("u_m_m_griff_01", function()
+        return "Griff"
+    end)
+    :case("ig_mrk", function()
+        return "Ferdinand Kerimov (Mr. K)"
+    end)
+    :case("s_m_m_trucker_01", function()
+        return "Trucker Male"
+    end)
+    :case("s_m_y_xmech_01", "s_m_y_xmech_02_mp", function()
+        return "Mechanic"
+    end)
+    :case("ig_englishdave_02", "csb_englishdave_02", function()
+        return "English Dave 2"
+    end)
+    :case("a_m_y_clubcust_03", function()
+        return "Club Customer Male 3"
+    end)
+    :case("ig_mrs_thornhill", "cs_mrs_thornhill", function()
+        return "Mrs. Thornhill"
+    end)
+    :case("a_m_y_bevhills_01", function()
+        return "Beverly Hills Young Male"
+    end)
+    :case("ig_andreas", "cs_andreas", function()
+        return "Andreas Sanchez"
+    end)
+    :case("a_m_y_stwhi_01", function()
+        return "White Street Male"
+    end)
+    :case("u_m_y_dancelthr_01", function()
+        return "Male Club Dancer (Leather)"
+    end)
+    :case("s_m_y_blackops_01", function()
+        return "Black Ops Soldier"
+    end)
+    :case("s_f_y_cop_01", function()
+        return "Cop Female"
+    end)
+    :case("s_m_m_movspace_01", function()
+        return "Movie Astronaut"
+    end)
+    :case("a_m_y_methhead_01", function()
+        return "Meth Addict"
+    end)
+    :case("u_m_y_chip", function()
+        return "Chip"
+    end)
+    :case("ig_manuel", "cs_manuel", function()
+        return "Manuel"
+    end)
+    :case("ig_karen_daniels", "cs_karen_daniels", function()
+        return "Karen Daniels"
+    end)
+    :case("ig_oldrichguy", function()
+        return "Old Rich Guy"
+    end)
+    :case("mp_f_freemode_01", function()
+        return "Freemode Female"
+    end)
+    :case("ig_benny_02", function()
+        return "Benny (Los Santos Tuners)"
+    end)
+    :case("a_f_y_hipster_03", function()
+        return "Hipster Female 3"
+    end)
+    :case("s_m_y_ranger_01", function()
+        return "Ranger Male"
+    end)
+    :case("s_m_m_bouncer_02", function()
+        return "Bouncer 2"
+    end)
+    :case("a_c_stingray", function()
+        return "Stingray"
+    end)
+    :case("ig_terry", "cs_terry", function()
+        return "Terry"
+    end)
+    :case("s_f_m_maid_01", function()
+        return "Maid"
+    end)
+    :case("csb_prologuedriver", function()
+        return "Prologue Driver"
+    end)
+    :case("ig_pilot", "s_m_y_pilot_01", "s_m_m_pilot_01", function()
+        return "Pilot"
+    end)
+    :case("s_m_m_fiboffice_02", function()
+        return "FIB Office Worker 2"
+    end)
+    :case("s_m_y_ammucity_01", function()
+        return "Ammu-Nation City Clerk"
+    end)
+    :case("ig_natalia", "cs_natalia", function()
+        return "Natalia"
+    end)
+    :case("s_f_y_movprem_01", "cs_movpremf_01", function()
+        return "Movie Premiere Female"
+    end)
+    :case("mp_f_cocaine_01", function()
+        return "Biker Cocaine Female"
+    end)
+    :case("csb_undercover", function()
+        return "Undercover Cop"
+    end)
+    :case("a_m_y_hipster_03", function()
+        return "Hipster Male 3"
+    end)
+    :case("u_m_m_glenstank_01", function()
+        return "Glen-Stank Male"
+    end)
+    :case("csb_bogdan", function()
+        return "Bogdan"
+    end)
+    :case("ig_talina", function()
+        return "Talina"
+    end)
+    :case("ig_russiandrunk", function()
+        return "Russian Drunk"
+    end)
+    :case("a_f_y_business_03", function()
+        return "Business Young Female 3"
+    end)
+    :case("ig_sol", "csb_sol", function()
+        return "Soloman"
+    end)
+    :case("s_f_m_fembarber", function()
+        return "Barber Female"
+    end)
+    :case("u_f_y_poppymich_02", function()
+        return "Poppy Mitchell 2"
+    end)
+    :case("csb_jackhowitzer", function()
+        return "Jack Howitzer"
+    end)
+    :case("u_m_y_fibmugger_01", function()
+        return "FIB Mugger"
+    end)
+    :case("mp_f_cardesign_01", function()
+        return "Office Garage Mechanic (Female)"
+    end)
+    :case("s_f_m_sweatshop_01", function()
+        return "Sweatshop Worker"
+    end)
+    :case("ig_car3guy2", "csb_car3guy2", function()
+        return "Car Guy 2"
+    end)
+    :case("u_m_m_blane", function()
+        return "Blane"
+    end)
+    :case("ig_tracydisanto", "cs_tracydisanto", function()
+        return "Tracey De Santa"
+    end)
+    :case("ig_djsolmanager", function()
+        return "Soloman Manager"
+    end)
+    :case("a_m_m_tranvest_01", function()
+        return "Transvestite Male"
+    end)
+    :case("u_m_y_dancerave_01", function()
+        return "Male Club Dancer (Rave)"
+    end)
+    :case("ig_solomon", "cs_solomon", function()
+        return "Solomon Richards"
+    end)
+    :case("u_m_y_danceburl_01", function()
+        return "Male Club Dancer (Burlesque)"
+    end)
+    :case("a_m_y_cyclist_01", "u_m_y_cyclist_01", function()
+        return "Cyclist Male"
+    end)
+    :case("ig_tonya", "csb_tonya", function()
+        return "Tonya"
+    end)
+    :case("a_m_m_salton_02", function()
+        return "Salton Male 2"
+    end)
+    :case("a_c_humpback", function()
+        return "Humpback"
+    end)
+    :case("a_m_y_motox_02", function()
+        return "Motocross Biker 2"
+    end)
+    :case("a_f_y_golfer_01", function()
+        return "Golfer Young Female"
+    end)
+    :case("ig_kerrymcintosh", function()
+        return "Kerry McIntosh"
+    end)
+    :case("a_c_seagull", function()
+        return "Seagull"
+    end)
+    :case("g_m_y_salvagoon_01", function()
+        return "Salvadoran Goon"
+    end)
+    :case("s_m_y_dwservice_02", function()
+        return "DW Airport Worker 2"
+    end)
+    :case("ig_popov", "csb_popov", function()
+        return "Dima Popov"
+    end)
+    :case("s_m_y_westsec_01", function()
+        return "Duggan Secruity"
+    end)
+    :case("csb_anton", "u_m_y_antonb", function()
+        return "Anton Beaudelaire"
+    end)
+    :case("u_m_m_streetart_01", function()
+        return "Street Art Male"
+    end)
+    :case("g_m_y_famfor_01", function()
+        return "Families FOR Male"
+    end)
+    :case("ig_omega", "cs_omega", function()
+        return "Omega"
+    end)
+    :case("mp_m_weapexp_01", function()
+        return "Weapon Exp (Male)"
+    end)
+    :case("a_f_y_clubcust_03", function()
+        return "Club Customer Female 3"
+    end)
+    :case("ig_djtalignazio", function()
+        return "DJ Ignazio"
+    end)
+    :case("ig_celeb_01", "csb_celeb_01", function()
+        return "Celebrity"
+    end)
+    :case("mp_g_m_pros_01", function()
+        return "Pros"
+    end)
+    :case("cs_gurk", function()
+        return "GURK?"
+    end)
+    :case("u_f_o_eileen", function()
+        return "Eileen"
+    end)
+    :case("ig_englishdave", "csb_englishdave", function()
+        return "English Dave"
+    end)
+    :case("a_f_m_bevhills_01", function()
+        return "Beverly Hills Female"
+    end)
+    :case("s_m_m_armoured_02", function()
+        return "Armoured Van Security 2"
+    end)
+    :case("s_m_m_strpreach_01", function()
+        return "Street Preacher"
+    end)
+    :case("a_f_m_soucentmc_01", function()
+        return "South Central MC Female"
+    end)
+    :case("u_m_y_mani", function()
+        return "Mani"
+    end)
+    :case("u_m_y_gunvend_01", function()
+        return "Gun Vendor"
+    end)
+    :case("ig_isldj_04_e_01", function()
+        return "Island Dj 4E"
+    end)
+    :case("ig_maryann", "cs_maryann", function()
+        return "Mary-Ann Quinn"
+    end)
+    :case("a_m_y_acult_01", function()
+        return "Altruist Cult Young Male"
+    end)
+    :case("a_c_cat_01", function()
+        return "Cat"
+    end)
+    :case("u_f_y_corpse_01", function()
+        return "Corpse Young Female"
+    end)
+    :case("g_m_y_lost_03", function()
+        return "The Lost MC Male 3"
+    end)
+    :case("a_m_m_mexlabor_01", function()
+        return "Mexican Labourer"
+    end)
+    :case("ig_chengsr", "cs_chengsr", function()
+        return "Wei Cheng"
+    end)
+    :case("ig_tanisha", "cs_tanisha", function()
+        return "Tanisha"
+    end)
+    :case("a_f_m_bodybuild_01", function()
+        return "Bodybuilder Female"
+    end)
+    :case("ig_ballasog", "csb_ballasog", function()
+        return "Ballas OG"
+    end)
+    :case("s_m_y_barman_01", function()
+        return "Barman"
+    end)
+    :case("a_f_m_prolhost_01", function()
+        return "Prologue Host Female"
+    end)
+    :case("ig_jay_norris", function()
+        return "Jay Norris"
+    end)
+    :case("ig_trafficwarden", "csb_trafficwarden", function()
+        return "Traffic Warden"
+    end)
+    :case("s_m_y_mime", function()
+        return "Mime Artist"
+    end)
+    :case("a_c_pigeon", function()
+        return "Pigeon"
+    end)
+    :case("u_m_y_paparazzi", function()
+        return "Paparazzi Young Male"
+    end)
+    :case("a_c_sharkhammer", function()
+        return "Hammerhead Shark"
+    end)
+    :case("s_m_m_janitor", "csb_janitor", function()
+        return "Janitor"
+    end)
+    :case("ig_clay", "cs_clay", function()
+        return "Clay Simons (The Lost)"
+    end)
+    :case("ig_mp_agent14", "csb_mp_agent14", function()
+        return "Agent 14"
+    end)
+    :case("u_m_m_fibarchitect", function()
+        return "FIB Architect"
+    end)
+    :case("u_m_y_pogo_01", function()
+        return "Pogo the Monkey"
+    end)
+    :case("s_m_m_lifeinvad_01", function()
+        return "Life Invader Male"
+    end)
+    :case("g_m_y_korlieut_01", function()
+        return "Korean Lieutenant"
+    end)
+    :case("ig_johnnyklebitz", "cs_johnnyklebitz", function()
+        return "Johnny Klebitz"
+    end)
+    :case("mp_f_counterfeit_01", function()
+        return "Biker Counterfeit Female"
+    end)
+    :case("u_m_y_corpse_01", function()
+        return "Dead Courier"
+    end)
+    :case("a_m_y_vinewood_01", function()
+        return "Vinewood Male"
+    end)
+    :case("s_m_y_marine_02", function()
+        return "Marine Young 2"
+    end)
+    :case("a_c_rabbit_01", function()
+        return "Rabbit"
+    end)
+    :case("ig_bestmen", function()
+        return "Best Man"
+    end)
+    :case("g_m_m_chemwork_01", function()
+        return "Chemical Plant Worker"
+    end)
+    :case("u_f_m_casinoshop_01", function()
+        return "Casino shop owner"
+    end)
+    :case("mp_f_stripperlite", function()
+        return "Stripper Lite (Female)"
+    end)
+    :case("a_m_m_hillbilly_01", function()
+        return "Hillbilly Male"
+    end)
+    :case("u_m_m_aldinapoli", function()
+        return "Al Di Napoli Male"
+    end)
+    :case("ig_old_man2", "cs_old_man2", function()
+        return "Old Man 2"
+    end)
+    :case("s_m_m_autoshop_02", function()
+        return "Autoshop Worker 2"
+    end)
+    :case("u_f_o_carol", function()
+        return "Carol"
+    end)
+    :case("ig_mimi", "csb_mimi", function()
+        return "Mimi"
+    end)
+    :case("u_m_y_juggernaut_01", function()
+        return "Avon Juggernaut"
+    end)
+    :case("u_m_y_juggernaut_02", function()
+        return "Juggernaut 2"
+    end)
+    :case("s_m_y_construct_02", function()
+        return "construction Worker 2"
+    end)
+    :case("a_m_y_beach_03", function()
+        return "Beach Young Male 3"
+    end)
+    :case("u_m_m_filmdirector", function()
+        return "Movie Director"
+    end)
+    :case("a_m_y_breakdance_01", function()
+        return "Breakdancer Male"
+    end)
+    :case("s_m_o_busker_01", function()
+        return "Busker"
+    end)
+    :case("u_m_y_caleb", function()
+        return "Caleb"
+    end)
+    :case("u_m_m_spyactor", function()
+        return "Spy Actor"
+    end)
+    :case("mp_f_bennymech_01", function()
+        return "Benny Mechanic (Female)"
+    end)
+    :case("u_f_o_prolhost_01", function()
+        return "Prologue Host Old Female"
+    end)
+    :case("u_m_m_bankman", function()
+        return "Bank Manager Male"
+    end)
+    :case("csb_imran", function()
+        return "Imran Shinowa"
+    end)
+    :case("a_m_m_hillbilly_02", function()
+        return "Hillbilly Male 2"
+    end)
+    :case("ig_screen_writer", "csb_screen_writer", function()
+        return "Screenwriter"
+    end)
+    :case("s_m_y_strvend_01", function()
+        return "Street Vendor Young"
+    end)
+    :case("a_m_o_beach_02", function()
+        return "Beach Old Male 2"
+    end)
+    :case("csb_vagspeak", function()
+        return "Vagos Speak"
+    end)
+    :case("mp_m_shopkeep_01", function()
+        return "Shopkeeper (Male)"
+    end)
+    :case("u_m_y_guido_01", function()
+        return "Guido"
+    end)
+    :case("a_m_y_runner_01", function()
+        return "Jogger Male"
+    end)
+    :case("a_f_y_eastsa_01", function()
+        return "East SA Young Female"
+    end)
+    :case("ig_moodyman_02", "csb_moodyman_02", function()
+        return "Moodyman"
+    end)
+    :case("a_m_y_sunbathe_01", function()
+        return "Sunbather Male"
+    end)
+    :case("s_m_m_armoured_01", function()
+        return "Armoured Van Security"
+    end)
+    :case("a_m_m_tennis_01", function()
+        return "Tennis Player Male"
+    end)
+    :case("a_m_o_beach_01", function()
+        return "Beach Old Male"
+    end)
+    :case("a_f_m_ktown_02", function()
+        return "Korean Female 2"
+    end)
+    :case("s_m_y_airworker", function()
+        return "Air Worker Male"
+    end)
+    :case( "u_m_y_burgerdrug_01", "csb_burgerdrug", function()
+        return "Burger Drug Worker"
+    end)
+    :case("a_c_crow", function()
+        return "Crow"
+    end)
+    :case("mp_f_boatstaff_01", function()
+        return "Boat-Staff Female"
+    end)
+    :case("a_m_o_tramp_01", function()
+        return "Tramp Old Male"
+    end)
+    :case("ig_paige", "csb_paige", function()
+        return "Paige Harris"
+    end)
+    :case("ig_taocheng", "cs_taocheng", function()
+        return "Tao Cheng"
+    end)
+    :case("a_c_poodle", function()
+        return "Poodle"
+    end)
+    :case("u_m_y_imporage", function()
+        return "Impotent Rage"
+    end)
+    :case("ig_paper", "cs_paper", function()
+        return "United Paper Man"
+    end)
+    :case("s_m_y_dockwork_01", function()
+        return "Dock Worker"
+    end)
+    :case("ig_georginacheng", "csb_georginacheng", function()
+        return "Georgina Cheng"
+    end)
+    :case("a_f_m_trampbeac_01", function()
+        return "Beach Tramp Female"
+    end)
+    :case("u_f_y_princess", function()
+        return "Princess"
+    end)
+    :case("a_f_y_bevhills_01", function()
+        return "Beverly Hills Young Female"
+    end)
+    :case("ig_janet", "cs_janet", function()
+        return "Janet"
+    end)
+    :case("ig_stretch", "cs_stretch", function()
+        return "Stretch"
+    end)
+    :case("u_m_m_vince", function()
+        return "Vince"
+    end)
+    :case("a_m_y_vinewood_03", function()
+        return "Vinewood Male 3"
+    end)
+    :case("s_m_y_armymech_01", function()
+        return "Army Mechanic"
+    end)
+    :case("ig_chrisformage", "cs_chrisformage", function()
+        return "Cris Formage"
+    end)
+    :case("csb_oscar", function()
+        return "Oscar"
+    end)
+    :case("s_m_y_garbage", function()
+        return "Garbage Worker"
+    end)
+    :case("s_m_m_ups_02", function()
+        return "UPS Driver 2"
+    end)
+    :case("a_m_y_mexthug_01", function()
+        return "Mexican Thug"
+    end)
+    :case("g_f_y_vagos_01", function()
+        return "Vagos Female"
+    end)
+    :case("a_c_dolphin", function()
+        return "Dolphin"
+    end)
+    :case("hc_driver", function()
+        return "Jewel Heist Driver"
+    end)
+    :case("ig_bride", "csb_bride", function()
+        return "Bride"
+    end)
+    :case("s_f_y_ranger_01", function()
+        return "Ranger Female"
+    end)
+    :case("ig_isldj_02", "csb_isldj_02", function()
+        return "Island Dj 2"
+    end)
+    :case("g_m_y_mexgoon_03", function()
+        return "Mexican Goon 3"
+    end)
+    :case("ig_maude", "csb_maude", function()
+        return "Maude"
+    end)
+    :case("ig_josh", "cs_josh", function()
+        return "Josh"
+    end)
+    :case("u_m_y_sbike", function()
+        return "Sports Biker"
+    end)
+    :case("a_m_o_ktown_01", function()
+        return "Korean Old Male"
+    end)
+    :case("u_f_y_taylor", function()
+        return "Taylor"
+    end)
+    :case("a_f_y_tourist_02", function()
+        return "Tourist Young Female 2"
+    end)
+    :case("ig_tenniscoach", "cs_tenniscoach", function()
+        return "Tennis Coach"
+    end)
+    :case("s_f_y_baywatch_01", function()
+        return "Baywatch Female"
+    end)
+    :case("a_f_y_vinewood_01", function()
+        return "Vinewood Female"
+    end)
+    :case("a_m_m_soucent_01", function()
+        return "South Central Male"
+    end)
+    :case("ig_talmm", "csb_talmm", function()
+        return "Tale of Us 2"
+    end)
+    :case("a_m_y_acult_02", function()
+        return "Altruist Cult Young Male 2"
+    end)
+    :case("cs_bradcadaver", function()
+        return "Brad's Cadaver"
+    end)
+    :case("csb_mweather", function()
+        return "Merryweather Merc"
+    end)
+    :case("s_m_m_ups_01", function()
+        return "UPS Driver"
+    end)
+    :case("ig_molly", "cs_molly", function()
+        return "Molly"
+    end)
+    :case("ig_amandatownley", "cs_amandatownley", function()
+        return "Amanda De Santa"
+    end)
+    :case("ig_barry", "cs_barry", function()
+        return "Barry"
+    end)
+    :case("csb_mrs_r", function()
+        return "Mrs. Rackman"
+    end)
+    :case("ig_joeminuteman", "cs_joeminuteman", function()
+        return "Minuteman Joe"
+    end)
+    :case("u_m_y_zombie_01", function()
+        return "Zombie"
+    end)
+    :case("ig_magenta", "cs_magenta", function()
+        return "Magenta"
+    end)
+    :case("g_m_y_strpunk_01", function()
+        return "Street Punk"
+    end)
+    :case("ig_wade", "cs_wade", function()
+        return "Wade"
+    end)
+    :case("a_m_m_hasjew_01", function()
+        return "Hasidic Jew Male"
+    end)
+    :case("mp_m_cocaine_01", function()
+        return "Biker Cocaine Male"
+    end)
+    :case("u_f_m_casinocash_01", function()
+        return "Casino Cashier"
+    end)
+    :case("ig_roccopelosi", "csb_roccopelosi", function()
+        return "Rocco Pelosi"
+    end)
+    :case("a_f_m_business_02", function()
+        return "Business Female 2"
+    end)
+    :case("a_f_m_downtown_01", function()
+        return "Downtown Female"
+    end)
+    :case("g_m_y_ballaorig_01", function()
+        return "Ballas Original Male"
+    end)
+    :case("mp_f_meth_01", function()
+        return "Biker Meth Female"
+    end)
+    :case("ig_vagspeak", function()
+        return "Vagos Funeral Speaker"
+    end)
+    :case("a_c_fish", function()
+        return "Fish"
+    end)
+    :case("ig_dale", "cs_dale", function()
+        return "Dale"
+    end)
+    :case("u_m_y_babyd", function()
+        return "Baby D"
+    end)
+    :case("s_m_m_chemsec_01", function()
+        return "Chemical Plant Security"
+    end)
+    :case("s_f_y_factory_01", function()
+        return "Factory Worker Female"
+    end)
+    :case("u_m_y_party_01", function()
+        return "Partygoer"
+    end)
+    :case("s_f_y_casino_01", function()
+        return "Casino Staff Female"
+    end)
+    :case("s_m_y_casino_01", function()
+        return "Casino Staff"
+    end)
+    :case("s_m_y_shop_mask", function()
+        return "Mask Salesman"
+    end)
+    :case("csb_drugdealer", function()
+        return "Drug Dealer"
+    end)
+    :case("ig_siemonyetarian", "cs_siemonyetarian", function()
+        return "Simeon Yetarian"
+    end)
+    :case("a_c_panther", function()
+        return "Panther"
+    end)
+    :case("s_m_m_pilot_02", function()
+        return "Pilot 2"
+    end)
+    :case("u_m_m_jewelsec_01", function()
+        return "Jeweller Security"
+    end)
+    :case("a_m_y_soucent_04", function()
+        return "South Central Young Male 4"
+    end)
+    :case("s_m_m_strperf_01", function()
+        return "Street Performer"
+    end)
+    :case("s_m_m_scientist_01", function()
+        return "Scientist"
+    end)
+    :case("mp_m_claude_01", function()
+        return "Claude Speed"
+    end)
+    :case("a_m_y_smartcaspat_01", function()
+        return "Formel Casino Guests"
+    end)
+    :case("s_m_m_fiboffice_01", function()
+        return "FIB Office Worker"
+    end)
+    :case("s_m_y_construct_01", function()
+        return "construction Worker"
+    end)
+    :case("s_m_y_fireman_01", function()
+        return "Fireman Male"
+    end)
+    :case("a_m_m_salton_01", function()
+        return "Salton Male"
+    end)
+    :case("a_c_retriever", function()
+        return "Retriever"
+    end)
+    :case("s_m_m_gardener_01", function()
+        return "Gardener"
+    end)
+    :case("s_f_y_bartender_01", function()
+        return "Bartender"
+    end)
+    :case("ig_taocheng2", "cs_taocheng2", function()
+        return "Tao Cheng (Casino)"
+    end)
+    :case("a_c_rottweiler", function()
+        return "Rottweiler"
+    end)
+    :case("a_m_y_business_01", function()
+        return "Business Young Male"
+    end)
+    :case("a_f_m_beach_01", function()
+        return "Beach Female"
+    end)
+    :case("s_m_y_devinsec_01", function()
+        return "Devin's Security"
+    end)
+    :case("ig_jewelass", "u_f_y_jewelass_01", "cs_jewelass", function()
+        return "Jeweller Assistant"
+    end)
+    :case("csb_customer", function()
+        return "Customer"
+    end)
+    :case("u_m_y_militarybum", function()
+        return "Ex-Mil Bum"
+    end)
+    :case("a_f_y_femaleagent", function()
+        return "Female Agent"
+    end)
+    :case("g_m_y_famca_01", function()
+        return "Families CA Male"
+    end)
+    :case("s_m_y_factory_01", function()
+        return "Factory Worker Male"
+    end)
+    :case("a_m_m_soucent_03", function()
+        return "South Central Male 3"
+    end)
+    :case("ig_abigail", "csb_abigail", function()
+        return "Abigail Mathers"
+    end)
+    :case("a_m_y_bevhills_02", function()
+        return "Beverly Hills Young Male 2"
+    end)
+    :case("s_m_m_gaffer_01", function()
+        return "Gaffer"
+    end)
+    :case("ig_jimmyboston", "cs_jimmyboston", function()
+        return "Jimmy Boston"
+    end)
+    :case("ig_djsoljakob", function()
+        return "DJ Jakob"
+    end)
+    :case("a_m_m_beach_02", function()
+        return "Beach Male 2"
+    end)
+    :case("a_m_o_soucent_03", function()
+        return "South Central Old Male 3"
+    end)
+    :case("g_m_y_azteca_01", function()
+        return "Azteca"
+    end)
+    :case("ig_jio", "csb_jio", function()
+        return "Jio"
+    end)
+    :case("ig_jio_02", "csb_jio_02", function()
+        return "Jio 2"
+    end)
+    :case("ig_tomepsilon", "cs_tomepsilon", function()
+        return "Epsilon Tom"
+    end)
+    :case("s_m_y_swat_01", function()
+        return "SWAT"
+    end)
+    :case("s_m_y_doorman_01", function()
+        return "Doorman"
+    end)
+    :case("s_f_y_scrubs_01", function()
+        return "Hospital Scrubs Female"
+    end)
+    :case("a_f_y_hippie_01", function()
+        return "Hippie Female"
+    end)
+    :case("a_f_y_yoga_01", function()
+        return "Yoga Female"
+    end)
+    :case("a_c_mtlion", function()
+        return "Mountain Lion"
+    end)
+    :case("a_f_y_topless_01", function()
+        return "Topless"
+    end)
+    :case("a_f_o_genstreet_01", function()
+        return "General Street Old Female"
+    end)
+    :case("a_f_m_salton_01", function()
+        return "Salton Female"
+    end)
+    :case("ig_talcc", "csb_talcc", function()
+        return "Tale of Us 1"
+    end)
+    :case("a_f_y_eastsa_02", function()
+        return "East SA Young Female 2"
+    end)
+    :case("a_f_y_fitness_02", function()
+        return "Fitness Female 2"
+    end)
+    :case("a_m_y_clubcust_01", function()
+        return "Club Customer Male 1"
+    end)
+    :case("a_f_y_business_04", function()
+        return "Business Young Female 4"
+    end)
+    :case("ig_stevehains", "cs_stevehains", function()
+        return "Steve Haines"
+    end)
+    :case("ig_helmsmanpavel", "csb_helmsmanpavel", function()
+        return "Helmsman Pavel"
+    end)
+    :case("a_m_y_beach_01", function()
+        return "Beach Young Male"
+    end)
+    :case("a_f_m_soucent_02", function()
+        return "South Central Female 2"
+    end)
+    :case("u_m_m_promourn_01", function()
+        return "Prologue Mourner Male"
+    end)
+    :case("ig_fbisuit_01", "cs_fbisuit_01", function()
+        return "FIB Suit"
+    end)
+    :case("a_f_y_tennis_01", function()
+        return "Tennis Player Female"
+    end)
+    :case("a_m_y_beach_02", function()
+        return "Beach Young Male 2"
+    end)
+    :case("a_f_o_soucent_02", function()
+        return "South Central Old Female 2"
+    end)
+    :case("a_f_y_hipster_04", function()
+        return "Hipster Female 4"
+    end)
+    :case("csb_grove_str_dlr", function()
+        return "Grove Street Dealer"
+    end)
+    :case("s_m_y_dwservice_01", function()
+        return "DW Airport Worker"
+    end)
+    :case("ig_claypain", function()
+        return "Clay Jackson (The Pain Giver)"
+    end)
+    :case("a_f_o_soucent_01", function()
+        return "South Central Old Female"
+    end)
+    :case("hc_gunman", function()
+        return "Jewel Heist Gunman"
+    end)
+    :case("a_f_y_epsilon_01", function()
+        return "Epsilon Female"
+    end)
+    :case("player_two", function()
+        return "Trevor"
+    end)
+    :case("a_m_y_runner_02", function()
+        return "Jogger Male 2"
+    end)
+    :case("mp_m_fibsec_01", "s_m_m_fibsec_01", function()
+        return "FIB Security"
+    end)
+    :case("ig_hao_02", "csb_hao_02", function()
+        return "Hao 2"
+    end)
+    :case("a_f_y_business_02", function()
+        return "Business Young Female 2"
+    end)
+    :case("u_f_y_hotposh_01", function()
+        return "Hot Posh Female"
+    end)
+    :case("a_f_y_hipster_01", function()
+        return "Hipster Female"
+    end)
+    :case("ig_isldj_04_d_01", function()
+        return "Island Dj 4D"
+    end)
+    :case("a_f_y_tourist_01", function()
+        return "Tourist Young Female"
+    end)
+    :case("mp_m_weed_01", function()
+        return "Biker Weed Male"
+    end)
+    :case("ig_wendy", "csb_wendy", function()
+        return "Wendy"
+    end)
+    :case("s_f_y_airhostess_01", function()
+        return "Air Hostess"
+    end)
+    :case("ig_lazlow_2", "cs_lazlow_2", function()
+        return "Lazlow 2"
+    end)
+    :case("a_c_chickenhawk", function()
+        return "Hawk"
+    end)
+    :case("a_f_y_vinewood_03", function()
+        return "Vinewood Female 3"
+    end)
+    :case("mp_m_counterfeit_01", function()
+        return "Biker Counterfeit Male"
+    end)
+    :case("ig_benny", function()
+        return "Benny"
+    end)
+    :case("a_f_y_bevhills_04", function()
+        return "Beverly Hills Young Female 4"
+    end)
+    :case("a_f_y_eastsa_03", function()
+        return "East SA Young Female 3"
+    end)
+    :case("s_m_y_waiter_01", function()
+        return "Waiter"
+    end)
+    :case("s_m_m_fieldworker_01", function()
+        return "Field Worker"
+    end)
+    :case("a_f_m_fatbla_01", function()
+        return "Fat Black Female"
+    end)
+    :case("a_m_y_latino_01", function()
+        return "Latino Young Male"
+    end)
+    :case("s_m_y_baywatch_01", function()
+        return "Baywatch Male"
+    end)
+    :case("s_m_m_mariachi_01", function()
+        return "Mariachi"
+    end)
+    :case("a_f_o_indian_01", function()
+        return "Indian Old Female"
+    end)
+    :case("a_f_m_bevhills_02", function()
+        return "Beverly Hills Female 2"
+    end)
+    :case("a_f_m_ktown_01", function()
+        return "Korean Female"
+    end)
+    :case("a_f_m_tramp_01", function()
+        return "Tramp Female"
+    end)
+    :case("ig_lestercrest_2", "cs_lestercrest_2", function()
+        return "Lester Crest (Doomsday Heist)"
+    end)
+    :case("a_f_m_soucent_01", function()
+        return "South Central Female"
+    end)
+    :case("a_f_m_skidrow_01", function()
+        return "Skid Row Female"
+    end)
+    :case("a_f_y_scdressy_01", function()
+        return "Dressy Female"
+    end)
+    :case("ig_lifeinvad_01", "cs_lifeinvad_01", function()
+        return "Life Invader"
+    end)
+    :case("a_m_y_yoga_01", function()
+        return "Yoga Male"
+    end)
+    :case("a_f_y_bevhills_02", function()
+        return "Beverly Hills Young Female 2"
+    end)
+    :case("u_m_o_taphillbilly", function()
+        return "Jesco White (Tapdancing Hillbilly)"
+    end)
+    :case("g_m_y_salvagoon_02", function()
+        return "Salvadoran Goon 2"
+    end)
+    :case("a_f_m_tourist_01", function()
+        return "Tourist Female"
+    end)
+    :case("ig_ramp_hic", "csb_ramp_hic", function()
+        return "Hick"
+    end)
+    :case("mp_m_bogdangoon", function()
+        return "Bogdan Goon"
+    end)
+    :case("a_f_y_vinewood_02", function()
+        return "Vinewood Female 2"
+    end)
+    :case("a_f_m_eastsa_02", function()
+        return "East SA Female 2"
+    end)
+    :case("ig_thornton", "csb_thornton", function()
+        return "Thornton Duggan"
+    end)
+    :case("ig_sessanta", function()
+        return "Sessanta"
+    end)
+    :case("g_m_y_pologoon_01", function()
+        return "Polynesian Goon"
+    end)
+    :case("a_f_y_clubcust_01", function()
+        return "Club Customer Female 1"
+    end)
+    :case("a_f_y_hiker_01", function()
+        return "Hiker Female"
+    end)
+    :case("a_f_m_fatcult_01", function()
+        return "Fat Cult Female"
+    end)
+    :case("a_f_y_soucent_01", function()
+        return "South Central Young Female"
+    end)
+    :case("u_m_m_jewelthief", function()
+        return "Jewel Thief"
+    end)
+    :case("a_f_y_genhot_01", function()
+        return "General Hot Young Female"
+    end)
+    :case("s_m_m_autoshop_03", function()
+        return "Autoshop Worker 3"
+    end)
+    :case("a_f_y_clubcust_04", function()
+        return "Club Customer Female 4"
+    end)
+    :case("a_m_y_ktown_02", function()
+        return "Korean Young Male 2"
+    end)
+    :case("a_f_y_hipster_02", function()
+        return "Hipster Female 2"
+    end)
+    :case("a_m_y_epsilon_01", function()
+        return "Epsilon Male"
+    end)
+    :case("csb_fos_rep", function()
+        return "FOS Rep?"
+    end)
+    :case("csb_hugh", function()
+        return "Hugh Welsh"
+    end)
+    :case("a_f_y_fitness_01", function()
+        return "Fitness Female"
+    end)
+    :case("a_f_m_fatwhite_01", function()
+        return "Fat White Female"
+    end)
+    :case("ig_groom", "csb_groom", function()
+        return "Groom"
+    end)
+    :case("a_f_m_eastsa_01", function()
+        return "East SA Female"
+    end)
+    :case("g_m_m_slasher_01", function()
+        return "Gang Slasher Male"
+    end)
+    :case("u_f_y_corpse_02", function()
+        return "Corpse Young Female 2"
+    end)
+    :case("a_c_chop", "a_c_chop_02", function()
+        return "Chop"
+    end)
+    :case("a_f_y_soucent_02", function()
+        return "South Central Young Female 2"
+    end)
+    :case("a_f_y_juggalo_01", function()
+        return "Juggalo Female"
+    end)
+    :case("a_f_y_skater_01", function()
+        return "Skater Female"
+    end)
+    :case("ig_isldj_00", "csb_isldj_00", function()
+        return "Island Dj"
+    end)
+    :case("s_m_y_prisoner_01", "u_m_y_prisoner_01", function()
+        return "Prisoner"
+    end)
+    :case("a_f_y_business_01", function()
+        return "Business Young Female"
+    end)
+    :case("a_f_o_salton_01", function()
+        return "Salton Old Female"
+    end)
+    :case("csb_alan", function()
+        return "Alan Jerome"
+    end)
+    :case("ig_zimbor", "cs_zimbor", function()
+        return "Zimbor"
+    end)
+    :case("ig_rashcosvki", "csb_rashcosvki", function()
+        return "Maxim Rashkovsky"
+    end)
+    :case("csb_sessanta", function()
+        return "sessanta"
+    end)
+    :case("ig_lestercrest_3", "cs_lestercrest_3", function()
+        return "Lester Crest 3"
+    end)
+    :case("g_m_m_chicold_01", function()
+        return "Chinese Goon Older"
+    end)
+    :case("a_m_y_hasjew_01", function()
+        return "Hasidic Jew Young Male"
+    end)
+    :case("a_m_y_carclub_01", function()
+        return "Car Club Male"
+    end)
+    :case("a_m_m_stlat_02", function()
+        return "Latino Street Male 2"
+    end)
+    :case("s_m_y_marine_03", function()
+        return "Marine Young 3"
+    end)
+    :case("a_c_rat", function()
+        return "Rat"
+    end)
+    :case("ig_djblamadon", "csb_djblamadon", function()
+        return "DJ Black Madonna"
+    end)
+    :case("s_f_y_shop_low", function()
+        return "Sales Assistant (Low-End)"
+    end)
+    :case("ig_marnie", "cs_marnie", function()
+        return "Marnie Allen"
+    end)
+    :case("a_m_y_gencaspat_01", function()
+        return "Casual Casino Guests"
+    end)
+    :case("a_m_y_clubcust_02", function()
+        return "Club Customer Male 2"
+    end)
+    :case("s_m_m_autoshop_01", function()
+        return "Autoshop Worker"
+    end)
+    :case("s_m_m_security_01", function()
+        return "Security Guard"
+    end)
+    :case("a_m_y_gay_01", function()
+        return "Gay Male"
+    end)
+    :case("hc_hacker", function()
+        return "Jewel Heist Hacker"
+    end)
+    :case("s_m_y_clown_01", function()
+        return "Clown"
+    end)
+    :case("mp_m_g_vagfun_01", function()
+        return "Vagos Funeral"
+    end)
+    :case("ig_denise", "cs_denise", function()
+        return "Denise"
+    end)
+    :case("u_m_y_ushi", function()
+        return "Ushi"
+    end)
+    :case("u_m_y_croupthief_01", function()
+        return "Casino Thief"
+    end)
+    :case("a_m_m_skidrow_01", function()
+        return "Skid Row Male"
+    end)
+    :case("s_f_y_sheriff_01", function()
+        return "Sheriff Female"
+    end)
+    :case("a_m_o_salton_01", function()
+        return "Salton Old Male"
+    end)
+    :case("ig_taostranslator2", "cs_taostranslator2", function()
+        return "Tao's Translator (Casino)"
+    end)
+    :case("a_m_y_eastsa_02", function()
+        return "East SA Young Male 2"
+    end)
+    :case("a_m_m_ktown_01", function()
+        return "Korean Male"
+    end)
+    :case("a_m_m_soucent_02", function()
+        return "South Central Male 2"
+    end)
+    :case("a_m_m_soucent_04", function()
+        return "South Central Male 4"
+    end)
+    :case("ig_isldj_01", "csb_isldj_01", function()
+        return "Island Dj 1"
+    end)
+    :case("a_m_y_stlat_01", function()
+        return "Latino Street Young Male"
+    end)
+    :case("s_m_m_postal_02", function()
+        return "Postal Worker Male 2"
+    end)
+    :case("ig_michelle", "cs_michelle", function()
+        return "Michelle"
+    end)
+    :case("ig_juanstrickler", "csb_juanstrickler", function()
+        return "Juan Strickler"
+    end)
+    :case("a_m_o_soucent_01", function()
+        return "South Central Old Male"
+    end)
+    :case("g_m_y_mexgoon_02", function()
+        return "Mexican Goon 2"
+    end)
+    :case("a_m_o_acult_01", function()
+        return "Altruist Cult Old Male"
+    end)
+    :case("a_c_husky", function()
+        return "Husky"
+    end)
+    :case("a_m_m_og_boss_01", function()
+        return "OG Boss"
+    end)
+    :case("a_m_y_soucent_01", function()
+        return "South Central Young Male"
+    end)
+    :case("g_m_importexport_01", function()
+        return "Gang Male (Import-Export)"
+    end)
+    :case("a_m_m_bevhills_02", function()
+        return "Beverly Hills Male 2"
+    end)
+    :case("a_c_cow", function()
+        return "Cow"
+    end)
+    :case("a_m_y_business_02", function()
+        return "Business Young Male 2"
+    end)
+    :case("a_m_y_beachvesp_01", function()
+        return "Vespucci Beach Male"
+    end)
+    :case("a_m_m_genfat_02", function()
+        return "General Fat Male 2"
+    end)
+    :case("cs_tom", function()
+        return "Tom"
+    end)
+    :case("a_m_m_genfat_01", function()
+        return "General Fat Male"
+    end)
+    :case("a_m_y_downtown_01", function()
+        return "Downtown Male"
+    end)
+    :case("a_m_y_beachvesp_02", function()
+        return "Vespucci Beach Male 2"
+    end)
+    :case("a_m_m_malibu_01", function()
+        return "Malibu Male"
+    end)
+    :case("ig_nervousron", "cs_nervousron", function()
+        return "Nervous Ron"
+    end)
+    :case("g_m_y_ballaeast_01", function()
+        return "Ballas East Male"
+    end)
+    :case("a_c_rhesus", function()
+        return "Rhesus"
+    end)
+    :case("a_m_m_acult_01", function()
+        return "Altruist Cult Mid-Age Male"
+    end)
+    :case("a_m_y_jetski_01", function()
+        return "Jetskier"
+    end)
+    :case("a_m_y_vinewood_02", function()
+        return "Vinewood Male 2"
+    end)
+    :case("ig_car3guy1", function()
+        return "Car 3 Guy 1"
+    end)
+    :case("a_m_y_stwhi_02", function()
+        return "White Street Male 2"
+    end)
+    :case("a_c_chimp", function()
+        return "Chimp"
+    end)
+    :case("ig_mrsphillips", "cs_mrsphillips", function()
+        return "Mrs. Phillips"
+    end)
+    :case("ig_drfriedlander", "cs_drfriedlander", function()
+        return "Dr. Friedlander"
+    end)
+    :case("a_m_y_genstreet_01", function()
+        return "General Street Young Male"
+    end)
+    :case("s_f_y_hooker_02", function()
+        return "Hooker 2"
+    end)
+    :case("a_m_y_skater_02", function()
+        return "Skater Young Male 2"
+    end)
+    :case("a_m_m_afriamer_01", function()
+        return "African American Male"
+    end)
+    :case("csb_cop", function()
+        return "Cop"
+    end)
+    :case("ig_vincent_3", function()
+         return "Vincent (Casino) 3"
+    end)
+    :case("ig_vincent_2", "csb_vincent_2", function()
+        return "Vincent (Casino) 2"
+    end)
+    :case("ig_djblamrupert", function()
+        return "DJ Rupert"
+    end)
+    :case("a_c_pug", function()
+        return "Pug"
+    end)
+    :case("a_m_y_eastsa_01", function()
+        return "East SA Young Male"
+    end)
+    :case("a_m_y_tattoocust_01", function()
+        return "Tattoo Cust Male"
+    end)
+    :case("u_m_m_edtoh", function()
+        return "Ed Toh"
+    end)
+    :case("ig_dreyfuss", "cs_dreyfuss", function()
+        return "Peter Dreyfuss"
+    end)
+    :case("ig_ary", "csb_ary", function()
+        return "Ary"
+    end)
+    :case("ig_ary_02", "csb_ary_02", function()
+        return "Ary 2"
+    end)
+    :case("csb_avischwartzman_02", function()
+        return "Avi Schwartzman"
+    end)
+    :case("a_m_m_salton_04", function()
+        return "Salton Male 4"
+    end)
+    :case("mp_f_weed_01", function()
+        return "Biker Weed Female"
+    end)
+    :case("a_m_y_clubcust_04", function()
+        return "Club Customer Male 4"
+    end)
+    :case("mp_m_securoguard_01", function()
+        return "Securoserve Guard (Male)"
+    end)
+    :case("a_m_m_paparazzi_01", function()
+        return "Paparazzi Male"
+    end)
+    :case("a_m_m_trampbeac_01", function()
+        return "Beach Tramp Male"
+    end)
+    :case("a_m_y_stbla_01", function()
+        return "Black Street Male"
+    end)
+    :case("a_m_m_indian_01", function()
+        return "Indian Male"
+    end)
+    :case("g_m_m_korboss_01", function()
+        return "Korean Boss"
+    end)
+    :case("a_m_y_soucent_03", function()
+        return "South Central Young Male 3"
+    end)
+    :case("ig_beverly", "cs_beverly", function()
+        return "Beverly Felton"
+    end)
+    :case("a_c_shepherd", function()
+        return "Australian Shepherd"
+    end)
+    :case("a_m_m_mexcntry_01", function()
+        return "Mexican Rural"
+    end)
+    :case("a_m_y_polynesian_01", function()
+        return "Polynesian Young"
+    end)
+    :case("a_m_m_eastsa_01", function()
+        return "East SA Male"
+    end)
+    :case("u_f_y_spyactress", function()
+        return "Spy Actress"
+    end)
+    :case("a_m_o_soucent_02", function()
+        return "South Central Old Male 2"
+    end)
+    :case("a_m_y_salton_01", function()
+        return "Salton Young Male"
+    end)
+    :case("a_m_y_indian_01", function()
+        return "Indian Young Male"
+    end)
+    :case("a_m_y_beach_04", function()
+        return "Beach Young Male 4"
+    end)
+    :case("s_m_m_movprem_01", "cs_movpremmale", function()
+        return "Movie Premiere Male"
+    end)
+    :case("a_m_y_hipster_01", function()
+        return "Hipster Male"
+    end)
+    :case("s_f_y_hooker_03", function()
+        return "Hooker 3"
+    end)
+    :case("ig_tylerdix", function()
+        return "Tyler Dixon"
+    end)
+    :case("a_m_m_business_01", function()
+        return "Business Male"
+    end)
+    :case("s_m_m_highsec_02", function()
+        return "High Security 2"
+    end)
+    :case("ig_isldj_04_d_02", function()
+        return "Island Dj 4D2"
+    end)
+    :case("csb_prolsec", "u_m_m_prolsec_01", function()
+        return "Prologue Security"
+    end)
+    :case("u_m_y_proldriver_01", function()
+        return "Prologue Driver"
+    end)
+    :case("a_m_y_epsilon_02", function()
+        return "Epsilon Male 2"
+    end)
+    :case("a_f_o_ktown_01", function()
+        return "Korean Old Female"
+    end)
+    :case("u_m_m_doa_01", function()
+        return "DOA Man"
+    end)
+    :case("a_m_y_golfer_01", function()
+        return "Golfer Young Male"
+    end)
+    :case("a_m_o_acult_02", function()
+        return "Altruist Cult Old Male 2"
+    end)
+    :case("s_m_y_prismuscl_01", function()
+        return "Prisoner (Muscular)"
+    end)
+    :case("a_f_y_bevhills_05", function()
+        return "Beverly Hills Young Female 5"
+    end)
+    :case("ig_jimmydisanto2", "cs_jimmydisanto2", function()
+        return "Jimmy De Santa 2"
+    end)
+    :case("a_m_m_beach_01", function()
+        return "Beach Male"
+    end)
+    :case("a_m_m_fatlatin_01", function()
+        return "Fat Latino Male"
+    end)
+    :case("a_m_y_motox_01", function()
+        return "Motocross Biker"
+    end)
+    :case("ig_djtalaurelia", function()
+        return " DJ Aurelia"
+    end)
+    :case("u_f_m_debbie_01", function()
+        return "Debbie (AgathaÂ´s Secretary)"
+    end)
+    :case("a_m_y_skater_01", function()
+        return "Skater Young Male"
+    end)
+    :case("a_m_y_soucent_02", function()
+        return "South Central Young Male 2"
+    end)
+    :case("s_m_m_linecook", function()
+        return "Line Cook"
+    end)
+    :case("ig_agent", "csb_agent", "ig_agent_02", function()
+        return "Agent"
+    end)
+    :case("ig_chef", "s_m_y_chef_01", "csb_chef", function()
+        return "Chef"
+    end)
+    :case("ig_chef2", "csb_chef2", function()
+        return "Chef 2"
+    end)
+    :case("s_m_m_movalien_01", function()
+        return "Alien"
+    end)
+    :case("a_m_m_bevhills_01", function()
+        return "Beverly Hills Male"
+    end)
+    :case("a_m_m_skater_01", function()
+        return "Skater Male"
+    end)
+    :case("ig_kerrymcintosh_02", function()
+        return "Kerry McIntosh 2"
+    end)
+    :case("s_m_y_clubbar_01", function()
+        return "Club Bartender Male"
+    end)
+    :case("s_m_m_highsec_03", function()
+        return "High Security 3"
+    end)
+    :case("s_f_m_autoshop_01", function()
+        return "Autoshop Worker Female"
+    end)
+    :case("u_m_m_rivalpap", function()
+        return "Rival Paparazzo"
+    end)
+    :case("ig_dix", "csb_dix", function()
+        return "Dixon"
+    end)
+    :case("a_m_y_gay_02", function()
+        return "Gay Male 2"
+    end)
+    :case("ig_jackie", function()
+        return "Jackie"
+    end)
+    :case("a_m_m_golfer_01", function()
+        return "Golfer Male"
+    end)
+    :case("s_m_m_hairdress_01", function()
+        return "Hairdresser Male"
+    end)
+    :case("a_m_y_musclbeac_01", function()
+        return "Beach Muscle Male"
+    end)
+    :case("a_m_y_vinewood_04", function()
+        return "Vinewood Male 4"
+    end)
+    :case("a_m_y_hipster_02", function()
+        return "Hipster Male 2"
+    end)
+    :case("a_f_y_bevhills_03", function()
+        return "Beverly Hills Young Female 3"
+    end)
+    :case("a_m_m_tourist_01", function()
+        return "Tourist Male"
+    end)
+    :case("g_m_m_prisoners_01", function()
+        return "Gang Prisoner Male"
+    end)
+    :case("g_m_y_salvagoon_03", function()
+        return "Salvadoran Goon 3"
+    end)
+    :case("mp_m_execpa_01", function()
+        return "Executive PA Male"
+    end)
+    :case("s_m_m_marine_02", function()
+        return "Marine 2"
+    end)
+    :case("mp_m_niko_01", function()
+        return "Niko Bellic"
+    end)
+    :case("mp_m_boatstaff_01", function()
+        return "Boat-Staff Male"
+    end)
+    :case("s_m_y_valet_01", function()
+        return "Valet"
+    end)
+    :case("mp_f_forgery_01", function()
+        return "Biker Forgery Female"
+    end)
+    :case("ig_avery", "csb_avery", function()
+        return "Avery Duggan"
+    end)
+    :case("ig_lazlow", "cs_lazlow", function()
+        return "Lazlow"
+    end)
+    :case("mp_f_execpa_01", function()
+        return "Executive PA Female"
+    end)
+    :case("mp_m_weapwork_01", function()
+        return "Weapon Work (Male)"
+    end)
+    :case("s_m_m_bouncer_01", function()
+        return "Bouncer"
+    end)
+    :case("csb_anita", function()
+        return "Anita Mendoza"
+    end)
+    :case("mp_m_waremech_01", function()
+        return "Warehouse Mechanic (Male)"
+    end)
+    :case("mp_m_marston_01", function()
+        return "John Marston"
+    end)
+    :case("u_f_y_lauren", function()
+        return "Lauren"
+    end)
+    :case("csb_porndudes", function()
+        return "Porn Dude"
+    end)
+    :case("mp_m_forgery_01", function()
+        return "Biker Forgery Male"
+    end)
+    :case("mp_m_exarmy_01", function()
+        return "Ex-Army Male"
+    end)
+    :case("mp_f_misty_01", function()
+        return "Misty"
+    end)
+    :case("mp_m_famdd_01", function()
+        return "Families DD Male"
+    end)
+    :case("mp_m_freemode_01", function()
+        return "Freemode Male"
+    end)
+    :case("mp_f_execpa_02", function()
+        return "Executive PA Female 2"
+    end)
+    :case("ig_ortega", "csb_ortega", function()
+        return "Ortega"
+    end)
+    :case("mp_m_meth_01", function()
+        return "Biker Meth Male"
+    end)
+    :case("s_m_m_ccrew_01", function()
+        return "Crew Member"
+    end)
+    :case("a_m_m_mlcrisis_01", function()
+        return "Midlife Crisis Casino Bikers"
+    end)
+    :case("a_m_y_vindouche_01", function()
+        return "Vinewood Douche"
+    end)
+    :case("a_f_y_beach_01", function()
+        return "Beach Young Female"
+    end)
+    :case("ig_brad", "cs_brad", function()
+        return "Brad"
+    end)
+    :case("a_c_hen", function()
+        return "Hen"
+    end)
+    :case("ig_ashley", "cs_ashley", function()
+        return "Ashley Butler"
+    end)
+    :case("g_m_m_chiboss_01", function()
+        return "Chinese Boss"
+    end)
+    :case("ig_patricia", "cs_patricia", function()
+        return "Patricia"
+    end)
+    :case("g_m_y_salvaboss_01", function()
+        return "Salvadoran Boss"
+    end)
+    :case("a_f_y_smartcaspat_01", function()
+        return "Formel Casino Guest"
+    end)
+    :case("g_f_y_ballas_01", function()
+        return "Ballas Female"
+    end)
+    :case("u_m_y_staggrm_01", function()
+        return "Stag Party Groom"
+    end)
+    :case("a_m_y_surfer_01", function()
+        return "Surfer"
+    end)
+    :case("a_c_pig", function()
+        return "Pig"
+    end)
+    :case("g_m_y_strpunk_02", function()
+        return "Street Punk 2"
+    end)
+    :case("u_m_m_willyfist", function()
+        return "Love Fist Willy"
+    end)
+    :case("player_zero", function()
+        return "Michael"
+    end)
+    :case("s_f_y_stripper_01", "csb_stripper_01", function()
+        return "Stripper"
+    end)
+    :case("s_m_m_marine_01", function()
+        return "Marine"
+    end)
+    :case("g_m_y_famdnf_01", function()
+        return "Families DNF Male"
+    end)
+    :case("g_m_m_mexboss_02", function()
+        return "Mexican Boss 2"
+    end)
+    :case("ig_prolsec_02", "cs_prolsec_02", function()
+        return "Prologue Security 2"
+    end)
+    :case("s_m_m_ciasec_01", function()
+        return "IAA Security"
+    end)
+    :case("a_f_y_gencaspat_01", function()
+        return "Casual Casino Guest"
+    end)
+    :case("g_m_m_cartelguards_02", function()
+        return "Cartel Guard 2"
+    end)
+    :case("g_m_m_armboss_01", function()
+        return "Armenian Boss"
+    end)
+    :case("a_m_y_roadcyc_01", function()
+        return "Road Cyclist"
+    end)
+    :case("ig_brucie2", "csb_brucie2", function()
+        return "Brucie Kibbutz"
+    end)
+    :case("g_m_y_armgoon_02", function()
+        return "Armenian Goon 2"
+    end)
+    :case("g_m_y_mexgoon_01", function()
+        return "Mexican Goon"
+    end)
+    :case("s_m_m_ammucountry", function()
+        return "Ammu-Nation Rural Clerk"
+    end)
+    :case("s_m_m_postal_01", function()
+        return "Postal Worker Male"
+    end)
+    :case("u_m_y_rsranger_01", function()
+        return "Republican Space Ranger"
+    end)
+    :case("g_m_y_lost_02", function()
+        return "The Lost MC Male 2"
+    end)
+    :case("s_m_y_xmech_02", function()
+        return "MC Clubhouse Mechanic"
+    end)
+    :case("ig_djblamryans", function()
+        return "DJ Ryan S"
+    end)
+    :case("ig_djblamryanh", function()
+        return "DJ Ryan H"
+    end)
+    :case("g_m_m_armlieut_01", function()
+        return "Armenian Lieutenant"
+    end)
+    :case("a_m_y_stbla_02", function()
+        return "Black Street Male 2"
+    end)
+    :case("ig_oneil", function()
+        return "O'Neil Brothers"
+    end)
+    :case("ig_djgeneric_01", function()
+        return "Generic DJ"
+    end)
+    :case("ig_lifeinvad_02", function()
+        return "Life Invader 2"
+    end)
+    :case("a_f_y_vinewood_04", function()
+        return "Vinewood Female 4"
+    end)
+    :case("u_m_y_tattoo_01", function()
+        return "Tattoo Artist"
+    end)
+    :case("ig_avon", "csb_avon", function()
+        return "Avon Hertz"
+    end)
+    :case("ig_djsolrobt", function()
+        return "DJ Rob T"
+    end)
+    :case("u_f_y_dancerave_01", function()
+        return "Female Club Dancer (Rave)"
+    end)
+    :case("ig_jimmyboston_02", function()
+        return "Jimmy Boston 2"
+    end)
+    :case("a_m_m_farmer_01", function()
+        return "Farmer"
+    end)
+    :case("ig_lacey_jones_02", function()
+        return "Lacy Jones 2"
+    end)
+    :case("u_m_m_markfost", function()
+        return "Mark Fostenburg"
+    end)
+    :case("g_m_m_chigoon_02", function()
+        return "Chinese Goon 2"
+    end)
+    :case("ig_drugdealer", function()
+        return "Drugdealer"
+    end)
+    :case("ig_malc", function()
+        return "Malc"
+    end)
+    :case("ig_fabien", "cs_fabien", function()
+        return "Fabien"
+    end)
+    :case("u_f_m_miranda", function()
+        return "Miranda"
+    end)
+    :case("ig_djdixmanager", function()
+        return "DJ Dixon Manager"
+    end)
+    :case("ig_djsolfotios", function()
+        return "DJ Fotios"
+    end)
+    :case("a_f_y_runner_01", function()
+        return "Jogger Female"
+    end)
+    :case("ig_lildee", function()
+        return "Lil Dee"
+    end)
+    :case("s_m_y_blackops_03", function()
+        return "Black Ops Soldier 3"
+    end)
+    :case("a_c_killerwhale", function()
+        return "Killer Whale"
+    end)
+    :case("s_m_y_marine_01", function()
+        return "Marine Young"
+    end)
+    :case("ig_djsolmike", function()
+        return "DJ Mike T"
+    end)
+    :case("ig_bankman", "cs_bankman", function()
+        return "Bank Manager"
+    end)
+    :case("g_f_importexport_01", function()
+        return "Import Export Female"
+    end)
+    :case("g_f_importexport_01", function()
+        return "Gang Female (Import-Export)"
+    end)
+    :case("g_m_y_mexgang_01", function()
+        return "Mexican Gang Member"
+    end)
+    :case("s_f_y_beachbarstaff_01", function()
+        return "Beach Bar Staff"
+    end)
+    :case("s_f_m_retailstaff_01", function()
+        return "Retailstaff"
+    end)
+    :case("s_f_m_shop_high", function()
+        return "Sales Assistant (High-End)"
+    end)
+    :case("s_f_y_migrant_01", function()
+        return "Migrant Female"
+    end)
+    :case("a_m_o_genstreet_01", function()
+        return "General Street Old Male"
+    end)
+    :case("s_f_y_stripperlite", function()
+        return "Stripper Lite"
+    end)
+    :case("ig_isldj_04", "csb_isldj_04", function()
+        return "Island Dj 4"
+    end)
+    :case("s_f_y_clubbar_01", function()
+        return "Club Bartender Female"
+    end)
+    :case("s_f_y_clubbar_02", function()
+        return "Club Bartender Female 2"
+    end)
+    :case("ig_g", "csb_g", function()
+        return "Gerald"
+    end)
+    :case("ig_money", "csb_money", function()
+        return "Money Man"
+    end)
+    :case("u_f_m_promourn_01", function()
+        return "Prologue Mourner Female"
+    end)
+    :case("a_m_m_polynesian_01", function()
+        return "Polynesian"
+    end)
+    :case("u_f_m_corpse_01", function()
+        return "Corpse Female"
+    end)
+    :case("u_f_m_miranda_02", function()
+        return "Miranda 2"
+    end)
+    :case("u_f_y_mistress", function()
+        return "Mistress"
+    end)
+    :case("u_f_y_dancelthr_01", function()
+        return "Female Club Dancer (Leather)"
+    end)
+    :case("u_f_o_moviestar", function()
+        return "Movie Star Female"
+    end)
+    :case("a_m_m_salton_03", function()
+        return "Salton Male 3"
+    end)
+    :case("a_f_y_clubcust_02", function()
+        return "Club Customer Female 2"
+    end)
+    :case("s_f_y_shop_mid", function()
+        return "Sales Assistant (Mid-Price)"
+    end)
+    :case("u_f_y_bikerchic", function()
+        return "Biker Chic Female"
+    end)
+    :case("u_f_y_poppymich", function()
+        return "Poppy Mitchell"
+    end)
+    :case("s_m_m_drugprocess_01", function()
+        return "Drug Processer"
+    end)
+    :case("ig_sss", "csb_sss", function()
+        return "Sss"
+    end)
+    :case("ig_cletus", "csb_cletus", function()
+        return "Cletus"
+    end)
+    :case("ig_tylerdix_02", function()
+        return "Tyler Dixon 2"
+    end)
+    :case("ig_ramp_gang", "csb_ramp_gang", function()
+        return "Families Gang Member?"
+    end)
+    :case("csb_reporter", function()
+        return "Reporter"
+    end)
+    :case("s_m_m_highsec_04", function()
+        return "High Security 4"
+    end)
+    :case("s_m_m_highsec_05", function()
+        return "High Security 5"
+    end)
+    :case("s_m_m_lsmetro_01", function()
+        return "LS Metro Worker Male"
+    end)
+    :case("a_m_m_prolhost_01", function()
+        return "Prologue Host Male"
+    end)
+    :case("s_m_y_autopsy_01", function()
+        return "Autopsy Tech"
+    end)
+    :case("a_m_y_hiker_01", function()
+        return "Hiker Male"
+    end)
+    :case("s_m_m_raceorg_01", function()
+        return "Racer Organisator"
+    end)
+    :case("s_m_y_westsec_02", function()
+        return "Duggan Security 2"
+    end)
+    :case("ig_avischwartzman_02", function()
+        return "Avi Schawrtzman"
+    end)
+    :case("ig_josef", "cs_josef", function()
+        return "Josef"
+    end)
+    :case("u_m_y_justin", function()
+        return "Justin"
+    end)
+    :case("s_m_m_migrant_01", function()
+        return "Migrant Male"
+    end)
+    :case("mp_f_chbar_01", function()
+        return "Clubhouse Bar Female"
+    end)
+    :case("s_m_y_grip_01", function()
+        return "Grip"
+    end)
+    :case("s_m_y_sheriff_01", function()
+        return "Sheriff Male"
+    end)
+    :case("a_m_y_busicas_01", function()
+        return "Business Casual"
+    end)
+    :case("s_m_y_hwaycop_01", function()
+        return "Highway Cop"
+    end)
+    :case("ig_priest", "cs_priest", function()
+        return "Priest"
+    end)
+    :case("g_m_y_pologoon_02", function()
+        return "Polynesian Goon 2"
+    end)
+    :case("s_m_y_robber_01", function()
+        return "Robber"
+    end)
+    :case("a_m_y_genstreet_02", function()
+        return "General Street Young Male 2"
+    end)
+    :case("ig_huang", "csb_huang", function()
+        return "Huang"
+    end)
+    :case("s_m_y_cop_01", function()
+        return "Cop Male"
+    end)
+    :case("g_m_m_mexboss_01", function()
+        return "Mexican Boss"
+    end)
+    :case("a_c_cormorant", function()
+        return "Cormorant"
+    end)
+    :case("csb_denise_friend", function()
+        return "Denise's Friend"
+    end)
+    :case("s_m_m_lathandy_01", function()
+        return "Latino Handyman Male"
+    end)
+    :case("ig_vincent", "csb_vincent", function()
+        return "Vincent (Casino)"
+    end)
+    :case("g_m_m_cartelguards_01", function()
+        return "Cartel Guard"
+    end)
+    :case("s_m_m_doctor_01", function()
+        return "Doctor"
+    end)
+    :case("s_m_m_snowcop_01", function()
+        return "Snow Cop Male"
+    end)
+    :case("ig_isldj_03", "csb_isldj_03", function()
+        return "Island Dj 3"
+    end)
+    :case("s_m_y_dealer_01", function()
+        return "Dealer"
+    end)
+    :case("u_m_m_bikehire_01", function()
+        return "Bike Hire Guy"
+    end)
+    :case("g_m_y_lost_01", function()
+        return "The Lost MC Male"
+    end)
+    :case("cs_carbuyer", function()
+        return "Car Buyer"
+    end)
+    :case("g_m_y_ballasout_01", function()
+        return "Ballas South Male"
+    end)
+    :case("ig_ramp_hipster", "csb_ramp_hipster", function()
+        return "Hipster"
+    end)
+    :case("ig_ramp_mex", "csb_ramp_mex", function()
+        return "Mexican"
+    end)
+    :case("s_m_m_cntrybar_01", function()
+        return "Bartender (Rural)"
+    end)
+    :case("s_m_m_gentransport", function()
+        return "Transport Worker Male"
+    end)
+    :case("ig_agatha", "csb_agatha", function()
+        return "Agatha Baker"
+    end)
+    :case("ig_lamardavis", "cs_lamardavis", function()
+        return "Lamar Davis"
+    end)
+    :case("ig_lamardavis_02", "cs_lamardavis_02", function()
+        return "Lamar Davis 2"
+    end)
+    :case("ig_tonyprince", "csb_tonyprince", function()
+        return "Tony Prince"
+    end)
+    :case("cs_debra", function()
+        return "Debra"
+    end)
+    :case("ig_lestercrest", "cs_lestercrest", function()
+        return "Lester Crest"
+    end)
+    :case("ig_gustavo", "csb_gustavo", function()
+        return "Gustavo"
+    end)
+    :case("csb_bryony", function()
+        return "Bryony"
+    end)
+    :case("u_m_y_abner", function()
+        return "Abner"
+    end)
+    :case("ig_taostranslator", "cs_taostranslator", function()
+        return "Tao's Translator"
+    end)
+    :case("mp_f_helistaff_01", function()
+        return "Heli-Staff Female"
+    end)
+    :case("a_m_y_ktown_01", function()
+        return "Korean Young Male"
+    end)
+    :case("cs_martinmadrazo", function()
+        return "Martin Madrazo"
+    end)
+    :case("ig_hao", "csb_hao", function()
+        return "Hao"
+    end)
+    :case("a_m_y_hippy_01", "u_m_y_hippie_01", function()
+        return "Hippie Male"
+    end)
+    :case("cs_guadalope", function()
+        return "Guadalope"
+    end)
+    :case("g_f_y_families_01", function()
+        return "Families Female"
+    end)
+    :case("a_m_y_dhill_01", function()
+        return "Downhill Cyclist"
+    end)
+    :case("u_f_y_comjane", function()
+        return "Jane"
+    end)
+    :case("ig_hunter", "cs_hunter", function()
+        return "Hunter"
+    end)
+    :case("ig_jimmydisanto", "cs_jimmydisanto", function()
+        return "Jimmy De Santa"
+    end)
+    :case("s_f_y_stripper_02", "csb_stripper_02", function()
+        return "Stripper 2"
+    end)
+    :case("ig_patricia_02", "cs_patricia_02", function()
+        return "Patricia 2"
+    end)
+    :case("u_m_o_finguru_01", function()
+        return "Financial Guru"
+    end)
+    :case("s_m_m_highsec_01", function()
+        return "High Security"
+    end)
+    :case("ig_floyd", "cs_floyd", function()
+        return "Floyd Hebert"
+    end)
+    :case("a_m_m_socenlat_01", function()
+        return "South Central Latino Male"
+    end)
+    :case("p_franklin_02", "player_one", function()
+        return "Franklin"
+    end)
+    :case("a_f_y_soucent_03", function()
+        return "South Central Young Female 3"
+    end)
+    :case("ig_mjo", "csb_mjo", function()
+        return "Mjo"
+    end)
+    :case("ig_mjo_02", "csb_mjo_02", function()
+        return "Mjo 2"
+    end)
+    :case("s_f_y_sweatshop_01", function()
+        return "Sweatshop Worker Young"
+    end)
+    :case("a_m_y_business_03", function()
+        return "Business Young Male 3"
+    end)
+    :case("ig_devin", "cs_devin", function()
+        return "Devin"
+    end)
+    :case("u_m_y_gabriel", function()
+        return "Gabriel"
+    end)
+    :case("ig_miguelmadrazo", "csb_miguelmadrazo", function()
+        return "Miguel Madrazo"
+    end)
+    :case("a_m_m_tranvest_02", function()
+        return "Transvestite Male 2"
+    end)
+    :case("ig_casey", "cs_casey", function()
+        return "Casey"
+    end)
+    :case("a_c_boar", function()
+        return "Boar"
+    end)
+    :case("a_m_m_eastsa_02", function()
+        return "East SA Male 2"
+    end)
+    :case("g_m_m_casrn_01", function()
+        return "Casino Guests?"
+    end)
+    :case("ig_old_man1a", "cs_old_man1a", function()
+        return "Old Man 1"
+    end)
+    :case("u_m_o_filmnoir", function()
+        return "Movie Corpse (Suited)"
+    end)
+    :case("s_m_m_prisguard_01", function()
+        return "Prison Guard"
+    end)
+    :case("ig_kaylee", function()
+        return "Kaylee"
+    end)
+    :case("a_m_y_musclbeac_02", function()
+        return "Beach Muscle Male 2"
+    end)
+    :case("a_f_m_genbiker_01", function()
+        return "Biker Female"
+    end)
+    :case("a_f_y_studioparty_01", function()
+        return "Studio Female"
+    end)
+    :case("a_f_y_studioparty_02", function()
+        return "Studio Female 2"
+    end)
+    :case("a_m_m_genbiker_01", function()
+        return "Biker Male"
+    end)
+    :case("a_m_m_studioparty_01", "a_m_y_studioparty_01", function()
+        return "Studio Male"
+    end)
+    :case("cs_mrk", function()
+        return "Mr. K"
+    end)
+    :case("cs_russiandrunk", function()
+        return "Drunk Russian"
+    end)
+    :case("ig_ballas_leader", "csb_ballas_leader", function()
+        return "Ballas Leader"
+    end)
+    :case("ig_billionaire", "csb_billionaire", function()
+        return "Billionaire"
+    end)
+    :case("csb_car3guy1", function()
+        return "Car Guy"
+    end)
+    :case("csb_chin_goon", function()
+        return "Chin Goon"
+    end)
+    :case("ig_golfer_a", "csb_golfer_a", function()
+        return "Golfer"
+    end)
+    :case("ig_golfer_b", "csb_golfer_b", function()
+        return "Golfer 2"
+    end)
+    :case("ig_imani", "csb_imani", function()
+        return "Imani"
+    end)
+    :case("ig_johnny_guns", "csb_johnny_guns", function()
+        return "Johnny Guns"
+    end)
+    :case("ig_musician_00", "csb_musician_00", function()
+        return "Musician"
+    end)
+    :case("ig_party_promo", "csb_party_promo", function()
+        return "Party Promo"
+    end)
+    :case("csb_ramp_marine", function()
+        return "Marine"
+    end)
+    :case("ig_req_officer", "csb_req_officer", function()
+        return "Officer"
+    end)
+    :case("ig_security_a", "csb_security_a", function()
+        return "Security"
+    end)
+    :case("ig_soundeng_00", "csb_soundeng_00", function()
+        return "Sound"
+    end)
+    :case("ig_vagos_leader", "csb_vagos_leader", function()
+        return "Vagos Leader"
+    end)
+    :case("ig_vernon", "csb_vernon", function()
+        return "Vernon"
+    end)
+    :case("g_m_m_genthug_01", function()
+        return "Thug"
+    end)
+    :case("g_m_m_goons_01", function()
+        return "Goons"
+    end)
+    :case("g_m_y_korean_01", function()
+        return "Korean"
+    end)
+    :case("g_m_y_korean_02", function()
+        return "Korean 2"
+    end)
+    :case("ig_entourage_a", function()
+        return "Entourage"
+    end)
+    :case("ig_entourage_b", function()
+         return "Entourage 2"
+    end)
+    :case("ig_mason_duggan", function()
+        return "Mason Duggan"
+    end)
+    :case("ig_warehouseboss", function()
+        return "Warehouse Boss"
+    end)
+    :case("mp_headtargets", function()
+        return "Headtargets"
+    end)
+    :case("s_f_m_studioassist_01", function()
+        return "Studio Assistant Female"
+    end)
+    :case("s_m_m_studioassist_02", function()
+        return "Studio Assistant"
+    end)
+    :case("s_m_m_studioprod_01", function()
+        return "Studio Producer"
+    end)
+    :case("s_m_m_studiosoueng_02", function()
+        return "Studio Sound"
+    end)
+    :case("s_f_m_warehouse_01", function()
+        return "Warehouse Worker Female"
+    end)
+    :case("s_m_m_warehouse_01", function()
+        return "Warehouse Worker"
+    end)
+    :case("s_m_m_dockwork_01", function()
+        return "Dock Worker"
+    end)
+    :case("u_f_m_drowned_01", function()
+        return "Drowned Female"
+    end)
+
 
 ped.sorted = {}
 for i = 1, 13
@@ -768,6 +2509,13 @@ do
         insert(ped.sorted[12], line)
     else
         insert(ped.sorted[13], line)
+    end
+end
+
+for _, v in ipairs(ped.models)
+do
+    if not ped.GetPedName(v) then
+        system.log('debug', v)
     end
 end
 
@@ -873,15 +2621,12 @@ ped.scenario = {
     { "BBQ", "PROP_HUMAN_BBQ" },
 }
 
+
 function ped.get_table_names(tabl)
     local peds = {}
     for i, v in ipairs(tabl)
     do
-        if ped.names[utils.joaat(v)] then
-            peds[i] = ped.names[utils.joaat(v)]
-        else
-            peds[i] = v
-        end
+        peds[i] = ped.GetPedName(v) or v
     end
     return peds
 end
@@ -893,11 +2638,12 @@ function ped.is_ped_an_enemy(cped)
     end
 end
 
-function ped.calm_ped(cped)
+function ped.calm_ped(cped, toggle)
+    if ENTITY.IS_ENTITY_A_PED(cped) == 0 then return end 
     NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(cped)
-    PED.SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(cped, true)
-    PED.SET_PED_FLEE_ATTRIBUTES(cped, 0, false)
-    PED.SET_PED_COMBAT_ATTRIBUTES(cped, 17, true)
+    PED.SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(cped, toggle)
+    PED.SET_PED_FLEE_ATTRIBUTES(cped, 0, not toggle)
+    PED.SET_PED_COMBAT_ATTRIBUTES(cped, 17, toggle)
 end
 
 function ped.set_ped_god(cped)
@@ -927,6 +2673,40 @@ function ped.play_anim(ped, anim_dict, anim_name, blend_in_speed, blend_out_spee
     end
 end
 
+function ped.revive(ped)
+    local anim_dict = "get_up@directional@movement@from_knees@standard"
+    local anim_name = "getup_r_90"
+    local tick = 0
+    CreateRemoveThread(true, 'revive_'..ped, function()
+        if STREAMING.HAS_ANIM_DICT_LOADED(anim_dict) == 0 then
+            STREAMING.REQUEST_ANIM_DICT(anim_dict)
+            return
+        end
+        tick = tick + 1
+        if tick == 1 then
+            entities.request_control(ped, function()
+                ENTITY.SET_ENTITY_HEALTH(ped, 200, 0)
+                ENTITY.SET_ENTITY_MAX_HEALTH(ped, 400)
+                PED.RESURRECT_PED(ped)
+                PED.REVIVE_INJURED_PED(ped)
+                ENTITY.SET_ENTITY_HEALTH(ped, 200, 0)
+                PED.SET_PED_GENERATES_DEAD_BODY_EVENTS(ped, false)
+                PED.SET_PED_CONFIG_FLAG(ped, 166, false)
+                PED.SET_PED_CONFIG_FLAG(ped, 187, false)
+                TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
+                peds.play_anim(ped, anim_dict, anim_name, 8, -8, -1, enum.anim_flag.StopOnLastFrame, 0, false)
+            end)
+        end
+        if tick < 100 then return end
+        entities.request_control(ped, function()
+            TASK.TASK_WANDER_STANDARD(ped, 10, 10)
+        end)
+        STREAMING.REMOVE_ANIM_DICT(anim_dict)
+        return POP_THREAD
+    end)
+end
+
+
 function ped.create_ped(hash, pos, god, invisible, face_entity, ...)
     local flags = {...}
     if STREAMING.IS_MODEL_VALID(hash) == 0 then return end
@@ -948,6 +2728,47 @@ function ped.create_ped(hash, pos, god, invisible, face_entity, ...)
         end
     end
     return cped
+end
+
+function ped.get_weapons(ped)
+    local ped = ped or PLAYER.PLAYER_PED_ID()
+    local weapon = {}
+    for _, v in ipairs(weapons.data)
+    do
+        if WEAPON.HAS_PED_GOT_WEAPON(ped, v.Hash, false) == 1 then
+            local Components = {}
+            for _, e in ipairs(v.Components)
+            do
+                if WEAPON.HAS_PED_GOT_WEAPON_COMPONENT(ped, v.Hash, e.Hash) == 1 then
+                    insert(Components, e.Hash)
+                end
+            end
+            insert(weapon, {
+                Hash = v.Hash,
+                Tint = WEAPON.GET_PED_WEAPON_TINT_INDEX(ped, v.Hash),
+                Components = Components
+            })
+        end
+    end
+    return weapon
+end
+
+function ped.set_weapons(weapon, ped)
+    if not weapon then return end
+    local ped = ped or PLAYER.PLAYER_PED_ID()
+    WEAPON.REMOVE_ALL_PED_WEAPONS(ped, false)
+    for _, v in ipairs(weapon) do
+        if WEAPON.HAS_PED_GOT_WEAPON(ped, v.Hash, false) == 0 then
+            WEAPON.GIVE_WEAPON_TO_PED(ped, v.Hash, 9999, false, false)
+            for _, e in ipairs(v.Components)
+            do
+                if WEAPON.HAS_PED_GOT_WEAPON_COMPONENT(ped, v.Hash, e) == 0 then
+                    WEAPON.GIVE_WEAPON_COMPONENT_TO_PED(ped, v.Hash, e)
+                end
+            end
+            WEAPON.SET_PED_WEAPON_TINT_INDEX(ped, v.Hash, v.Tint)
+        end
+    end
 end
 
 function ped.get_outfit(ped)

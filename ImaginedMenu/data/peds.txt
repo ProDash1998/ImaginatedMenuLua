@@ -43,6 +43,7 @@ a_f_m_eastsa_02
 a_f_m_fatbla_01
 a_f_m_fatcult_01
 a_f_m_fatwhite_01
+a_f_m_genbiker_01
 a_f_m_ktown_01
 a_f_m_ktown_02
 a_f_m_prolhost_01
@@ -71,6 +72,7 @@ a_f_y_business_01
 a_f_y_business_02
 a_f_y_business_03
 a_f_y_business_04
+a_f_y_carclub_01
 a_f_y_clubcust_01
 a_f_y_clubcust_02
 a_f_y_clubcust_03
@@ -123,6 +125,7 @@ a_m_m_eastsa_01
 a_m_m_eastsa_02
 a_m_m_farmer_01
 a_m_m_fatlatin_01
+a_m_m_genbiker_01
 a_m_m_genfat_01
 a_m_m_genfat_02
 a_m_m_golfer_01
@@ -185,6 +188,7 @@ a_m_y_busicas_01
 a_m_y_business_01
 a_m_y_business_02
 a_m_y_business_03
+a_m_y_carclub_01
 a_m_y_clubcust_01
 a_m_y_clubcust_02
 a_m_y_clubcust_03
@@ -240,6 +244,7 @@ a_m_y_stwhi_01
 a_m_y_stwhi_02
 a_m_y_sunbathe_01
 a_m_y_surfer_01
+a_m_y_tattoocust_01
 a_m_y_vindouche_01
 a_m_y_vinewood_01
 a_m_y_vinewood_02
@@ -288,6 +293,7 @@ cs_lamardavis_02
 cs_lazlow
 cs_lazlow_2
 cs_lestercrest
+cs_lestercrest_2
 cs_lestercrest_3
 cs_lifeinvad_01
 cs_magenta
@@ -341,6 +347,7 @@ csb_anton
 csb_ary
 csb_ary_02
 csb_avery
+csb_avischwartzman_02
 csb_avon
 csb_ballas_leader
 csb_ballasog
@@ -362,6 +369,7 @@ csb_customer
 csb_denise_friend
 csb_dix
 csb_djblamadon
+csb_drugdealer
 csb_englishdave
 csb_englishdave_02
 csb_fos_rep
@@ -373,6 +381,7 @@ csb_groom
 csb_grove_str_dlr
 csb_gustavo
 csb_hao
+csb_hao_02
 csb_helmsmanpavel
 csb_huang
 csb_hugh
@@ -391,9 +400,11 @@ csb_johnny_guns
 csb_juanstrickler
 csb_maude
 csb_miguelmadrazo
+csb_mimi
 csb_mjo
 csb_mjo_02
 csb_money
+csb_moodyman_02
 csb_mp_agent14
 csb_mrs_r
 csb_musician_00
@@ -417,6 +428,7 @@ csb_req_officer
 csb_roccopelosi
 csb_screen_writer
 csb_security_a
+csb_sessanta
 csb_sol
 csb_soundeng_00
 csb_sss
@@ -453,10 +465,13 @@ g_m_m_chiboss_01
 g_m_m_chicold_01
 g_m_m_chigoon_01
 g_m_m_chigoon_02
+g_m_m_genthug_01
 g_m_m_goons_01
 g_m_m_korboss_01
 g_m_m_mexboss_01
 g_m_m_mexboss_02
+g_m_m_prisoners_01
+g_m_m_slasher_01
 g_m_y_armgoon_02
 g_m_y_azteca_01
 g_m_y_ballaeast_01
@@ -489,18 +504,21 @@ hc_hacker
 ig_abigail
 ig_agatha
 ig_agent
+ig_agent_02
 ig_amandatownley
 ig_andreas
 ig_ary
 ig_ary_02
 ig_ashley
 ig_avery
+ig_avischwartzman_02
 ig_avon
 ig_ballas_leader
 ig_ballasog
 ig_bankman
 ig_barry
 ig_benny
+ig_benny_02
 ig_bestmen
 ig_beverly
 ig_billionaire
@@ -539,6 +557,7 @@ ig_djtalignazio
 ig_dom
 ig_dreyfuss
 ig_drfriedlander
+ig_drugdealer
 ig_englishdave
 ig_englishdave_02
 ig_entourage_a
@@ -553,6 +572,7 @@ ig_golfer_b
 ig_groom
 ig_gustavo
 ig_hao
+ig_hao_02
 ig_helmsmanpavel
 ig_huang
 ig_hunter
@@ -595,19 +615,23 @@ ig_lestercrest_2
 ig_lestercrest_3
 ig_lifeinvad_01
 ig_lifeinvad_02
+ig_lildee
 ig_magenta
 ig_malc
 ig_manuel
 ig_marnie
 ig_maryann
+ig_mason_duggan
 ig_maude
 ig_michelle
 ig_miguelmadrazo
 ig_milton
+ig_mimi
 ig_mjo
 ig_mjo_02
 ig_molly
 ig_money
+ig_moodyman_02
 ig_mp_agent14
 ig_mrk
 ig_mrs_thornhill
@@ -643,6 +667,7 @@ ig_russiandrunk
 ig_sacha
 ig_screen_writer
 ig_security_a
+ig_sessanta
 ig_siemonyetarian
 ig_sol
 ig_solomon
@@ -676,6 +701,7 @@ ig_vincent
 ig_vincent_2
 ig_vincent_3
 ig_wade
+ig_warehouseboss
 ig_wendy
 ig_zimbor
 mp_f_bennymech_01
@@ -695,6 +721,7 @@ mp_f_misty_01
 mp_f_stripperlite
 mp_f_weed_01
 mp_g_m_pros_01
+mp_headtargets
 mp_m_avongoon
 mp_m_boatstaff_01
 mp_m_bogdangoon
@@ -722,11 +749,14 @@ p_franklin_02
 player_one
 player_two
 player_zero
+s_f_m_autoshop_01
 s_f_m_fembarber
 s_f_m_maid_01
+s_f_m_retailstaff_01
 s_f_m_shop_high
 s_f_m_studioassist_01
 s_f_m_sweatshop_01
+s_f_m_warehouse_01
 s_f_y_airhostess_01
 s_f_y_bartender_01
 s_f_y_baywatch_01
@@ -755,6 +785,7 @@ s_m_m_armoured_01
 s_m_m_armoured_02
 s_m_m_autoshop_01
 s_m_m_autoshop_02
+s_m_m_autoshop_03
 s_m_m_bouncer_01
 s_m_m_bouncer_02
 s_m_m_ccrew_01
@@ -795,6 +826,7 @@ s_m_m_pilot_02
 s_m_m_postal_01
 s_m_m_postal_02
 s_m_m_prisguard_01
+s_m_m_raceorg_01
 s_m_m_scientist_01
 s_m_m_security_01
 s_m_m_snowcop_01
@@ -804,9 +836,11 @@ s_m_m_strvend_01
 s_m_m_studioassist_02
 s_m_m_studioprod_01
 s_m_m_studiosoueng_02
+s_m_m_tattoo_01
 s_m_m_trucker_01
 s_m_m_ups_01
 s_m_m_ups_02
+s_m_m_warehouse_01
 s_m_o_busker_01
 s_m_y_airworker
 s_m_y_ammucity_01
@@ -937,6 +971,7 @@ u_m_y_gunvend_01
 u_m_y_hippie_01
 u_m_y_imporage
 u_m_y_juggernaut_01
+u_m_y_juggernaut_02
 u_m_y_justin
 u_m_y_mani
 u_m_y_militarybum

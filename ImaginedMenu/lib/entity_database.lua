@@ -24,21 +24,33 @@ EntityDb.spawned_options = {}
 
 local f = switch()
 	:case(1, function(hash)
+		local name = cache:get("Name: "..hash)
+		if name then return name end
 		for _, v in ipairs(peds.models)
 		do
 			if hash == utils.joaat(v) then
-				return v
+				local name = peds.GetPedName(v) or v
+				cache:set("Name: "..hash, name, 100000)
+				return name
 			end
 		end
 	end)
 	:case(2, function(hash)
-		return vehicles.get_label_name(hash)
+		local name = cache:get("Name: "..hash)
+		if name then return name end
+		local name = vehicles.get_label_name(hash)
+		cache:set("Name: "..hash, name, 100000)
+		return name
 	end)
 	:case(3, function(hash)
+		local name = cache:get("Name: "..hash)
+		if name then return name end
 		for _, v in ipairs(objects)
 		do
 			if hash == utils.joaat(v) then
-				return v
+				local name = v
+				cache:set("Name: "..hash, name, 100000)
+				return name
 			end
 		end
 	end)

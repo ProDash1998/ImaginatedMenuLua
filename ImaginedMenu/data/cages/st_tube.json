@@ -1,0 +1,97 @@
+[ {
+  "attached": false,
+  "collision": true,
+  "dynamic": true,
+  "freeze": true,
+  "godmode": true,
+  "gravity": true,
+  "handle_id": 97400,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 5000,
+  "model": 1125864094,
+  "opacity": 255,
+  "parent": true,
+  "position": {
+    "pitch": -5.0090397962776e-06,
+    "roll": -89.999946594238,
+    "x": 1473.7025146484,
+    "y": -1503.1862792969,
+    "yaw": -122.98065185547,
+    "z": 103.49414825439
+  },
+  "texture": 0,
+  "type": 3
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 97400,
+    "bone": 0,
+    "pitch": 1.0018082775787e-05,
+    "pos": {
+      "x": -11.500007629395,
+      "y": -1.0053793175757e-06,
+      "z": 1.0464580554981e-05
+    },
+    "roll": 9.918212890625e-05,
+    "yaw": 179.9999961853
+  },
+  "collision": true,
+  "dynamic": true,
+  "freeze": true,
+  "godmode": true,
+  "gravity": true,
+  "handle_id": 90221,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 5000,
+  "model": 779277682,
+  "opacity": 255,
+  "parent": false,
+  "position": {
+    "pitch": 8.3050656629613e-11,
+    "roll": 89.999946594238,
+    "x": 1473.7025146484,
+    "y": -1503.1862792969,
+    "yaw": 57.019340515137,
+    "z": 114.99415588379
+  },
+  "texture": 0,
+  "type": 3
+}, {
+  "attached": true,
+  "attachment": {
+    "attached_to": 97400,
+    "bone": 0,
+    "pitch": 0,
+    "pos": {
+      "x": 11.500007629395,
+      "y": 1.0053793175757e-06,
+      "z": -1.0464580554981e-05
+    },
+    "roll": 0,
+    "yaw": 0
+  },
+  "collision": true,
+  "dynamic": true,
+  "freeze": true,
+  "godmode": true,
+  "gravity": true,
+  "handle_id": 48507,
+  "health": 1000,
+  "invisible": false,
+  "lod_dist": 5000,
+  "model": 779277682,
+  "opacity": 255,
+  "parent": false,
+  "position": {
+    "pitch": -5.0090397962776e-06,
+    "roll": -89.999946594238,
+    "x": 1473.7025146484,
+    "y": -1503.1862792969,
+    "yaw": -122.98065185547,
+    "z": 91.994140625
+  },
+  "texture": 0,
+  "type": 3
+} ]

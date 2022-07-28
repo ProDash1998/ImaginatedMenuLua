@@ -69,6 +69,13 @@ function world_saver.get_properties(ent, first)
             end
             data.seat_index = seat_index
         end
+        data.can_ragdoll = PED.CAN_PED_RAGDOLL(ent) == 1
+        data.is_tiny = PED.GET_PED_CONFIG_FLAG(ent, 223, false) == 1
+        data.armor = PED.GET_PED_ARMOUR(ent)
+        data.noflee = EntityDb.entity_data[ent] and ui.get_value(EntityDb.spawned_options[ent].block_flee) or false
+        local weap = s_memory.alloc()
+        WEAPON.GET_CURRENT_PED_WEAPON(ent, weap, true)
+        data.current_weapon = memory.read_int(weap)
     elseif data.type == 2 then
         local primary, secondary, interior, dashboard = s_memory.allocate(4)
         data.light_mult = EntityDb.entity_data[ent] and ui.get_value(EntityDb.spawned_options[ent].light_mult) or 1,
@@ -258,16 +265,8 @@ end
 
 function world_saver.save_map(entities, path, refernce_pos)
     local data = {}
-    for _, v in ipairs(entities)
-    do
-        insert(data, world_saver.get_properties(v, true))
-        local attachments = features.get_all_attachments(v)
-        if #attachments ~= 0 then
-            for _, e in ipairs(attachments)
-            do
-                insert(data, world_saver.get_properties(e, false))
-            end
-        end
+    for _, v in ipairs(entities) do
+        insert(data, world_saver.get_properties(v))
     end
     system.notify(TRANSLATION["Imagined Menu"], string.format(TRANSLATION["Saved %i entities"], #data), 0, 255, 0, 255, true)
     insert(data, {reference = refernce_pos})

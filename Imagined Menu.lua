@@ -3,7 +3,16 @@
 --
 -- Copyright © 2022 Imagined Menu
 --
-VERSION = '1.1.5'
+VERSION = '1.1.6'
+
+local _insert = table.insert
+table.insert = function(t, pos, value)
+	if (value == nil) then
+		t[#t+1] = pos
+	else
+		_insert( t, pos, value )
+	end
+end
 
 -- Global to local
 local random = math.random
@@ -109,13 +118,18 @@ files = {
 	['FuelConfig'] = paths['Library']..[[\fuel_consumption.lua]],
 	['Json'] = paths['Library']..[[\JSON.lua]],
 	['Peds'] = paths['Library']..[[\peds.lua]],
+	['String'] = paths['Library']..[[\lua-string.lua]],
 	['ScriptMemory'] = paths['Library']..[[\script_memory.lua]],
 	['Switch'] = paths['Library']..[[\switch.lua]],
 	['Vector3'] = paths['Library']..[[\vector3.lua]],
 	['Vehicle'] = paths['Library']..[[\vehicle.lua]],
+	['Weapons'] = paths['Library']..[[\weapons.lua]],
 	['WorldSaver'] = paths['Library']..[[\world_saver.lua]],
 	['WorldSpawner'] = paths['Library']..[[\world_spawner.lua]],
 
+	["TrapStTube"] = paths['Data']..[[\cages\st_tube.json]],
+	["TrapStTubeInv"] = paths['Data']..[[\cages\st_tube_inv.json]],
+	["TrapCage"] = paths['Data']..[[\cages\cage.json]],
 	['Default'] = paths['Data']..[[\default.lua]],
 	['Enums'] = paths['Data']..[[\enums.lua]],
 	['Inputs'] = paths['Data']..[[\inputs.txt]],
@@ -123,6 +137,7 @@ files = {
 	['PedList'] = paths['Data']..[[\peds.txt]],
 	['VehData'] = paths['Data']..[[\vehicle_data.json]],
 	['Props'] = paths['Data']..[[\props.lua]],
+	['WeaponData'] = paths['Data']..[[\weapons.json]],
 
 	['Cache'] = paths['Cache']..[[\cache.lua]],
 	['Dump'] = paths['Cache']..[[\dump.lua]],
@@ -177,6 +192,7 @@ package.path = package.path..";"..paths['Data']..[[\?.lua]]
 package.path = package.path..";"..paths['Cache']..[[\?.lua]]
 
 local inmem = require('lib.inmem')
+require 'lua-string'
 cache = inmem.new(30)
 local cache = cache
 local json = require 'JSON'
@@ -195,6 +211,8 @@ local EntityDb = require 'entity_database'
 local world_spawner = require 'world_spawner'
 local world_saver = require 'world_saver'
 local fuelConsumption = require 'fuel_consumption'
+local weapons = require 'weapons'
+
 cache:set('Default config', settings, 1000000)
 
 local notify_og = system.notify
@@ -329,19 +347,19 @@ end
 local blockobjects = {}
 local function BlockArea(object, x, y, z, rotx, roty, rotz, invisible)
 	CreateRemoveThread(true, 'request_model_'..thread_count, function()
-  	if features.request_model(object) == 0 then return end
-    local obj = features.create_object(object, vector3(x, y, z))
-    if obj == 0 then return POP_THREAD end
-    ENTITY.SET_ENTITY_AS_MISSION_ENTITY(obj, false, true)
-    ENTITY._SET_ENTITY_CLEANUP_BY_ENGINE(obj, true)
-    ENTITY.SET_ENTITY_COORDS_NO_OFFSET(obj, x, y, z, false, false, false)
-    ENTITY.SET_ENTITY_ROTATION(obj, rotx, roty, rotz, 5, true)
-    ENTITY.FREEZE_ENTITY_POSITION(obj, true)
-    insert(blockobjects, obj)
-    STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(object)
-    if not invisible then return POP_THREAD end
-    ENTITY.SET_ENTITY_VISIBLE(obj, false, false)
-   	return POP_THREAD
+	  	if features.request_model(object) == 0 then return end
+	    local obj = features.create_object(object, vector3(x, y, z))
+	    if obj == 0 then return POP_THREAD end
+	    ENTITY.SET_ENTITY_AS_MISSION_ENTITY(obj, false, true)
+	    ENTITY._SET_ENTITY_CLEANUP_BY_ENGINE(obj, true)
+	    ENTITY.SET_ENTITY_COORDS_NO_OFFSET(obj, x, y, z, false, false, false)
+	    ENTITY.SET_ENTITY_ROTATION(obj, rotx, roty, rotz, 5, true)
+	    ENTITY.FREEZE_ENTITY_POSITION(obj, true)
+	    insert(blockobjects, obj)
+	    STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(object)
+	    if not invisible then return POP_THREAD end
+	    ENTITY.SET_ENTITY_VISIBLE(obj, false, false)
+	   	return POP_THREAD
 	end)
 end
 
@@ -357,43 +375,10 @@ local function StopSounds()
 	end
 end
 
-local function RevivePed(ped)
-	local anim_dict = "get_up@directional@movement@from_knees@standard"
-	local anim_name = "getup_r_90"
-	local tick = 0
-	CreateRemoveThread(true, 'revive_'..ped, function()
-		if STREAMING.HAS_ANIM_DICT_LOADED(anim_dict) == 0 then
-			STREAMING.REQUEST_ANIM_DICT(anim_dict)
-			return
-		end
-		tick = tick + 1
-		if tick == 1 then
-			entities.request_control(ped, function()
-				ENTITY.SET_ENTITY_HEALTH(ped, 200, 0)
-				ENTITY.SET_ENTITY_MAX_HEALTH(ped, 400)
-				PED.RESURRECT_PED(ped)
-				PED.REVIVE_INJURED_PED(ped)
-				ENTITY.SET_ENTITY_HEALTH(ped, 200, 0)
-				PED.SET_PED_GENERATES_DEAD_BODY_EVENTS(ped, false)
-				PED.SET_PED_CONFIG_FLAG(ped, 166, false)
-				PED.SET_PED_CONFIG_FLAG(ped, 187, false)
-				TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
-				peds.play_anim(ped, anim_dict, anim_name, 8, -8, -1, enum.anim_flag.StopOnLastFrame, 0, false)
-			end)
-		end
-		if tick < 100 then return end
-		entities.request_control(ped, function()
-			TASK.TASK_WANDER_STANDARD(ped, 10, 10)
-		end)
-		STREAMING.REMOVE_ANIM_DICT(anim_dict)
-		return POP_THREAD
-	end)
-end
-
 local function BlockPassive(type)
 	for i = 0, 31 do
 		if i ~= PLAYER.PLAYER_ID() and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) and not features.is_excluded(i) then
-			online.send_script_event(i, 1114091621, PLAYER.PLAYER_ID(), type)
+			online.send_script_event(i, 65268844, PLAYER.PLAYER_ID(), type)
 			-- system.log('debug', "Script event sent to "..online.get_name(i))
 		end
 	end
@@ -403,8 +388,8 @@ local function InfiniteInvite(type)
 	local found
 	for i = 0, 31 do
 		if i ~= PLAYER.PLAYER_ID() and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) and not features.is_excluded(i) then
-	      	online.send_script_event(i, 603406648, PLAYER.PLAYER_ID(), i, 4294967295, 1, 115, type, type, type)
-	      	local found = true
+	      	online.send_script_event(i, -1390976345, PLAYER.PLAYER_ID(), i, 4294967295, 1, 115, type, type, type)
+	      	found = true
 	      	-- system.log('debug', "Script event sent to "..online.get_name(i))
       	end
   	end
@@ -412,7 +397,7 @@ local function InfiniteInvite(type)
 end
 
 local function AskingForMoney(message)
-	local text = message:gsub(" +", ""):lower()
+	local text = message:strip():lower()
 	for _, v in ipairs(enum.begger_messages)
 	do
 		if text:find(v) then
@@ -431,9 +416,9 @@ local function HudSound(name)
 	end)
 end
 
-local commad_prefix = {[0]='nf!',[1]='%/', [2]='\\',[3]='%!',[4]='%$',[5]='%%',[6]='%&',[7]='%-',[8]='%+',[9]='%?',[10]='%*',[11]='%,',[12]='%.',[13]='%#',[14]='%€',[15]='%@'}
+local commad_prefix = {[0]='nf!','/','\\','!','$','%','&','-','+','?','*',',','.','#','€','@'}
 local function IsCommand(command)
-	if command:lower():find(format('^%s', commad_prefix[settings.Commands['CommandsPrefix']])) then return true end
+	if command:lower():find(format('^%s', commad_prefix[settings.Commands['CommandsPrefix']]:escpattern())) then return true end
 end
 
 -- commands
@@ -465,7 +450,7 @@ local cmd = {
 		local target = features.player_from_name(pl)
 		if not target then return end
 		if (target == PLAYER.PLAYER_ID()) or (settings.Commands["Don't Affect Friends"] and features.is_friend(target)) or (NETWORK.NETWORK_IS_PLAYER_CONNECTED(target) == 0) or features.is_excluded(target) then return end
-		if bool == 'off' then
+		if bool and bool:tobool() == false then
 			playerlist[target]["Freeze"] = false
 		else
 			playerlist[target]["Freeze"] = true
@@ -475,7 +460,7 @@ local cmd = {
 		local target = features.player_from_name(pl)
 		CreateRemoveThread(true, 'cmd_island_'..id, function()
 			if (not target) or (settings.Commands["Don't Affect Friends"] and features.is_friend(target)) or features.is_excluded(target) --[=[or (i == id)]=] then return POP_THREAD end
-			online.send_script_event(target, -621279188, PLAYER.PLAYER_ID(), 1)
+			online.send_script_event(target, 1361475530, PLAYER.PLAYER_ID(), 1)
 			return POP_THREAD
 		end)
 	end,
@@ -539,23 +524,23 @@ local cmd = {
 	clearwanted = function(id, bool) 
 		CreateRemoveThread(true, 'cmd_clearwanted_'..id, function(tick)
 			if tick%5~=0 then return end
-			if NETWORK.NETWORK_IS_PLAYER_CONNECTED(id) == 0 or bool == 'off' then return POP_THREAD end
-			online.send_script_event(id, -91354030, id, globals.get_int(1893551 + (1 + (id * 599) + 510)))
-			online.send_script_event(id, 1722873242, PLAYER.PLAYER_ID(), 0, 0, NETWORK.GET_NETWORK_TIME(), 0, globals.get_int(1893551 + (1 + (id * 599) + 510)))
+			if NETWORK.NETWORK_IS_PLAYER_CONNECTED(id) == 0 or (bool and bool:tobool() == false) then return POP_THREAD end
+			online.send_script_event(id, 1449852136, PLAYER.PLAYER_ID(), globals.get_int(1892703 + (1 + (id * 599) + 510)))
+			online.send_script_event(id, -1041523091, PLAYER.PLAYER_ID(), 0, 0, NETWORK.GET_NETWORK_TIME(), 0, globals.get_int(1892703 + (1 + (id * 599) + 510)))
 		end)
 	end,
 	offradar = function(id, bool) 
 		CreateRemoveThread(true, 'cmd_offradar_'..id, function(tick)
 			if tick%5~=0 then return end
-			if NETWORK.NETWORK_IS_PLAYER_CONNECTED(id) == 0 or bool == 'off' then return POP_THREAD end
-			online.send_script_event(id, -391633760, PLAYER.PLAYER_ID(), NETWORK.GET_NETWORK_TIME() - 60, NETWORK.GET_NETWORK_TIME(), 1, 1, globals.get_int(1893551 + (1 + (id * 599) + 510)))
+			if NETWORK.NETWORK_IS_PLAYER_CONNECTED(id) == 0 or (bool and bool:tobool()) then return POP_THREAD end
+			online.send_script_event(id, -1973627888, PLAYER.PLAYER_ID(), NETWORK.GET_NETWORK_TIME() - 60, NETWORK.GET_NETWORK_TIME(), 1, 1, globals.get_int(1892703 + (1 + (id * 599) + 510)))
 		end)
 	end,
 	vehiclegod = function(id, bool) 
 		CreateRemoveThread(true, 'cmd_vehiclegod_'..id, function()
 			local value = true
 			if bool then
-				if bool == 'off' then value = false end
+				if bool:tobool() == false then value = false end
 			end
 			local veh = vehicles.get_player_vehicle(id)
 			if veh == 0 then return POP_THREAD end
@@ -601,7 +586,7 @@ local cmd = {
 			local amount = (amount and tonumber(amount)) or 10000
 			for i = 0, 31
 			do
-				if not (settings.Commands["Don't Affect Friends"] and features.is_friend(i)) and (i ~= id) and (i ~= PLAYER.PLAYER_ID()) and not features.is_excluded(i) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 then
+				if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.Commands["Don't Affect Friends"] and features.is_friend(i)) and (i ~= id) and (i ~= PLAYER.PLAYER_ID()) and not features.is_excluded(i) then
 					features.set_bounty(i, amount)
 				end
 			end
@@ -613,7 +598,7 @@ local cmd = {
 		local apart = (apart and tonumber(apart) and tonumber(apart) > 0 and tonumber(apart) < 115) and floor(tonumber(apart)) or 1
 		CreateRemoveThread(true, 'cmd_explode_'..id, function()
 			if (not target) or (settings.Commands["Don't Affect Friends"] and features.is_friend(target)) or features.is_excluded(target) --[=[or (i == id)]=] then return POP_THREAD end
-			online.send_script_event(target, 603406648, PLAYER.PLAYER_ID(), target, 1, 0, apart, 1, 1, 1)
+			online.send_script_event(target, -1390976345, PLAYER.PLAYER_ID(), target, 1, 0, apart, 1, 1, 1)
 			return POP_THREAD
 		end)
 	end,
@@ -896,6 +881,12 @@ local BeggerPunishment = switch()
 		end)
 	end)
 
+function on_script_event(ply, event_id, args)
+	if __options.bool["DebugSELog"] and ui.get_value(__options.bool["DebugSELog"]) then
+		system.log("SE", string.format("Recived script event from: %s | args [%i]: %s", online.get_name(ply), #args, table.concat(args, ", ")))
+	end
+end
+
 function on_chat_message(...)
 	local id, is_team, text, spoofed_as_ply = ... 
 	if settings.Misc["LogChat"] then
@@ -908,9 +899,9 @@ function on_chat_message(...)
   end
 
   if spoofed_as_ply == -1 and IsCommand(text) then
-  	local text = text:lower():gsub(format('^%s', commad_prefix[settings.Commands['CommandsPrefix']]), '')
+  	local text = text:lower():gsub(format('^%s', commad_prefix[settings.Commands['CommandsPrefix']]:escpattern()), '')
   	if settings["Commands"]["Friends Only"] and not features.is_friend(id) and not playerlist[id].Commands then return true end
-  	local command = features.split(text, ' +')
+  	local command = text:split('%s+', true)
   	command[1] = SimplifiedCommand(command[1]) or command[1]
   	if not settings["Commands"]['cmd_'..command[1]] then return true end
   	if HandleCommand(command, id) then 
@@ -921,7 +912,7 @@ function on_chat_message(...)
   	local message = {}
   	for i = 1, len(text)
   	do
-  		local character = text:sub(i, i)
+  		local character = text[i]
   		message[i] = i%2 ~= 0 and character:lower() or character:upper()
   	end
   	local id = settings.Session["MockerSpoof"] and id or -1
@@ -933,28 +924,28 @@ local TRANSLATION_FILES = filesystem.scandir(paths['Translations'])
 
 for i, v in ipairs(TRANSLATION_FILES)
 do
-	if not v:find('%.json') then
+	if not v:endswith('.json') then
 		table_remove(TRANSLATION_FILES, i)
 	else
-		rename(paths['Translations']..[[\]]..v, paths['Translations']..[[\]]..v:lower())
+		rename(paths['Translations']:ensureend('\\')..v, paths['Translations']:ensureend('\\')..v:lower())
 	end
 end
 
 local function GetLanguage()
 	local languages = {
 		[0] = 'english.json',
-		[1] = 'french.json',
-		[2] = 'german.json',
-		[3] = 'italian.json',
-		[4] = 'spanish.json',
-		[5] = 'brazilian.json',
-		[6] = 'polish.json',
-		[7] = 'russian.json',
-		[8] = 'korean.json',
-		[9] = 'chinese.json',
-		[10] = 'japanese.json',
-		[11] = 'mexican.json',
-		[12] = 'simplified_chinese.json'
+		'french.json',
+		'german.json',
+		'italian.json',
+		'spanish.json',
+		'brazilian.json',
+		'polish.json',
+		'russian.json',
+		'korean.json',
+		'chinese.json',
+		'japanese.json',
+		'mexican.json',
+		'simplified_chinese.json'
 	}
 	local curr_lang = LOCALIZATION.GET_CURRENT_LANGUAGE()
 	if curr_lang and (curr_lang >= 0 and curr_lang <= 12) then
@@ -983,12 +974,12 @@ end
 --settings
 local function LoadConfig()
 	if settings.Dev.Enable then system.log('debug', 'loading config...') end
-  if settings.General.Translation == "" then
+  if settings.General.Translation:isempty() then
   	settings.General.Translation = GetLanguage()
   end
 	if not filesystem.exists(files['Config']) then return end
 	local new = json:decode(filesystem.read_all(files['Config']))
-  if new and new  ~= "" then
+  if new and new ~= '' then
 	  for k, v in pairs(new) do
 	  	for i, e in pairs(v) do
 	  		if settings[k] and settings[k][i] ~= nil then
@@ -1031,7 +1022,7 @@ local function LoadConfTog(conf)
 						ui.set_value(__options.bool["INPUT_"..e], true, true)
 					end
 				end
-			elseif i == 'Translation' and type(x) == 'string' and x ~= "" then
+			elseif i == 'Translation' and type(x) == 'string' and not x:isempty() then
 				for e, v in pairs(TRANSLATION_FILES) do
 					if v == x then
 						ui.set_value(__options.choose[i], e-1, true)
@@ -1048,21 +1039,21 @@ local function LoadConfTog(conf)
 end
 
 local function SaveTranslation()
-	filesystem.write(json:encode_pretty(TRANSLATION), paths['Translations']..[[\]]..settings.General.Translation)
+	filesystem.write(json:encode_pretty(TRANSLATION), paths['Translations']:ensureend('\\')..settings.General.Translation)
 end
 
 local function LoadTranslations()
 	local deftrans = settings.General.Translation
-	if not deftrans or deftrans == "" then settings.General.Translation = GetLanguage() end
-	if (#filesystem.scandir(paths['Translations']) == 0) or (not filesystem.exists(paths['Translations']..[[\]]..settings.General.Translation)) then
+	if not deftrans or deftrans:isempty() then settings.General.Translation = GetLanguage() end
+	if (#filesystem.scandir(paths['Translations']) == 0) or (not filesystem.exists(paths['Translations']:ensureend('\\')..settings.General.Translation)) then
 		system.notify(TRANSLATION["Imagined Menu"], format('No translation found for your language! You can translate the %s file if you want :)', settings.General.Translation), 255, 128, 0, 255)
 		system.log('Imagined Menu', format('Translation %s not found!', settings.General.Translation))
 		SaveTranslation()
 		return
 	end
 
-	local new = json:decode(filesystem.read_all(paths['Translations']..[[\]]..settings.General.Translation))
-    if new == "" or not new then return end
+	local new = json:decode(filesystem.read_all(paths['Translations']:ensureend('\\')..settings.General.Translation))
+    if not new then return end
     for k, v in pairs(new) do
     	if type(v) == 'table' then
     		if v.Credits then 
@@ -1077,7 +1068,7 @@ local function LoadTranslations()
     end
 
     SaveTranslation()
-    if TRANSLATION[1].Credits ~= "" then
+    if not TRANSLATION[1].Credits:isempty() then
     	system.log('Imagined Menu', TRANSLATION[1].Language..' translation loaded, made by '..TRANSLATION[1].Credits)
     end
 end
@@ -1100,7 +1091,7 @@ function check_for_updates()
 	local URL = [[https://raw.githubusercontent.com/ProDash1998/ImaginatedMenuLua/main/version]]
 	http.get(URL, function(content, header, response_code)
 		uc_finished = true
-		if not content or content == "" or type(content) ~= 'string' then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Failed to check for updates"], 255, 0, 0, 255, true) return end
+		if not content or content:isempty() or type(content) ~= 'string' then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Failed to check for updates"], 255, 0, 0, 255, true) return end
 		local success, char = content:find('\n')
 		if not success then return end
 		local content = content:sub(1, char-1)
@@ -1256,6 +1247,12 @@ local function LoadExcludes()
 end
 LoadExcludes()
 
+local Cages = {
+	[0] = json:decode(filesystem.read_all(files['TrapStTube'])),
+	json:decode(filesystem.read_all(files['TrapStTubeInv'])),
+	json:decode(filesystem.read_all(files['TrapCage']))
+}
+
 ---------------------------------------------------------------------------------------------------------------------------------
 -- Main Sub
 ---------------------------------------------------------------------------------------------------------------------------------
@@ -1358,10 +1355,11 @@ do
 
 	ui.add_click_option(TRANSLATION["All"], __submenus["Blame"], function()
 		if blame_delay > clock() then return end
-		features.patch_blame(true)
 		local target = online.get_selected_player()
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(target) == 0 then return HudSound("ERROR") end
 		local ped = features.player_ped(target)
 		local found
+		features.patch_blame(true)
 		for i = 0, 31 do
 			if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and i ~= PLAYER.PLAYER_ID() and not (settings.General["Exclude Friends"] and features.is_friend(i)) and not features.is_excluded(i) then
 				local pos = features.get_player_coords2(i)
@@ -1484,10 +1482,10 @@ do
 	
 	local models = {
 		[0] = {utils.joaat("ig_dom"), utils.joaat("minitank")},
-		[1] = {utils.joaat("ig_dom"), utils.joaat("rcbandito")},
-		[2] = {utils.joaat("ig_dom"), utils.joaat("rhino")},
-		[3] = {utils.joaat("ig_dom"), utils.joaat("lazer")},
-		[4] = {utils.joaat("ig_dom"), utils.joaat("buzzard")},
+		{utils.joaat("ig_dom"), utils.joaat("rcbandito")},
+		{utils.joaat("ig_dom"), utils.joaat("rhino")},
+		{utils.joaat("ig_dom"), utils.joaat("lazer")},
+		{utils.joaat("ig_dom"), utils.joaat("buzzard")},
 	}
 
 	local types = {HUD._GET_LABEL_TEXT("MINITANK"), HUD._GET_LABEL_TEXT("RCBANDITO"), HUD._GET_LABEL_TEXT("RHINO"), HUD._GET_LABEL_TEXT("LAZER"), HUD._GET_LABEL_TEXT("BUZZARD")}
@@ -1511,8 +1509,9 @@ do
 	end)
 	ui.set_value(_amount, amount, true)
 	ui.add_choose(TRANSLATION["Send enemies"], __submenus["SendEnemyVehicle"], false, types, function(int)
-		HudSound("YES")
 		pid = online.get_selected_player()
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+		HudSound("YES")
 		CreateRemoveThread(true, 'send_enemies_'..thread_count, function()
 			local loaded, hash1 = features.request_model(models[int][1])
 			if loaded == 0 then return end
@@ -1531,7 +1530,7 @@ do
 					peds.set_ped_god(ped)
 				end
 				insert(enemy_vehicles[pid], ped)
-				peds.calm_ped(ped)
+				peds.calm_ped(ped, true)
 				for _, v in ipairs({1,2,5,46,52}) do
 					PED.SET_PED_COMBAT_ATTRIBUTES(ped, v, true)
 				end
@@ -1594,8 +1593,10 @@ do
 	__options.bool["ExplodeInvisible"] = ui.add_bool_option(TRANSLATION["Invisible"], __submenus["CustomExplosion"], function(bool) HudSound("TOGGLE_ON") invisible = bool end)
 	__options.bool["ExplodeSilet"] = ui.add_bool_option(TRANSLATION["Silent"], __submenus["CustomExplosion"], function(bool) HudSound("TOGGLE_ON") silent = bool end)
 	__options.choose["Explode"] = ui.add_choose(TRANSLATION["Explode"], __submenus["CustomExplosion"], false, explosion_types, function(int)
+		local pid = online.get_selected_player()
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 		HudSound("YES")
-		local pos = features.get_player_coords2(online.get_selected_player())
+		local pos = features.get_player_coords2(pid)
 		if blamed then
 			FIRE.ADD_OWNED_EXPLOSION(features.player_ped(), pos.x, pos.y, pos.z, int, 1, not silent, invisible, 1)
 		else
@@ -1607,21 +1608,43 @@ end
 ui.add_click_option(TRANSLATION["Airstrike player"], __submenus["Imagined"], function()
 	HudSound("SELECT")
 	local target = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(target) == 0 then return HudSound("ERROR") end
 	local pos = features.get_player_coords2(target)
 	MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 100, pos.x, pos.y, pos.z, 5, true, utils.joaat("weapon_rpg"), features.player_ped(), true, true, 50000)
 end)
 
-ui.add_click_option(TRANSLATION["Trap in invisible tube"], __submenus["Imagined"], function()
+ui.add_click_option(TRANSLATION["Kidnap player"], __submenus["Imagined"], function()
+	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
-	local target = online.get_selected_player()
-	local pos = features.get_player_coords2(target)
-	BlockArea(1125864094, pos.x, pos.y, pos.z, 0, 90, 0, true)
+	CreateRemoveThread(true, 'crush_player_'..thread_count, function()
+		local loaded, hash = features.request_model(utils.joaat("ig_lestercrest_2"))
+		if loaded == 0 then return end
+		local loaded, hash2 = features.request_model(utils.joaat("stockade"))
+		if loaded == 0 then return end
+		TASK.CLEAR_PED_TASKS_IMMEDIATELY(features.player_ped(pid))
+		local pos = features.get_offset_from_player_coords(vector3(0, 2, -1), pid)
+		local veh = vehicles.spawn_vehicle(hash2, pos, features.get_player_heading(pid))
+		vehicles.set_godmode(veh, true)
+		ENTITY.SET_ENTITY_COORDS_NO_OFFSET(veh, pos.x, pos.y, pos.z, false, false, false)
+		ENTITY.SET_ENTITY_HEADING(veh, features.get_player_heading(pid))
+		local ped = peds.create_ped(hash, pos, true)
+		peds.calm_ped(ped)
+		PED.SET_PED_INTO_VEHICLE(ped, veh, -1)
+		TASK.TASK_VEHICLE_DRIVE_WANDER(ped, veh, 200, 786603)
+		VEHICLE.SET_VEHICLE_DOORS_LOCKED(veh, 6)
+		VEHICLE.SET_VEHICLE_DOORS_LOCKED(veh, 2)
+		features.unload_models(hash, hash2)
+		return POP_THREAD
+	end)
 end)
 
 ui.add_click_option(TRANSLATION["Crush player"], __submenus["Imagined"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
 	CreateRemoveThread(true, 'crush_player_'..thread_count, function()
+		TASK.CLEAR_PED_TASKS_IMMEDIATELY(features.player_ped(pid))
 		local loaded, hash = features.request_model(utils.joaat("rhino"))
 		if loaded == 0 then return end
 		local pos = features.get_offset_from_player_coords(vector3.up(15), pid)
@@ -1642,15 +1665,39 @@ end)
 
 ui.add_click_option(TRANSLATION["Send IP in chat"], __submenus["Imagined"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	if pid == PLAYER.PLAYER_ID() then return HudSound("ERROR") end
 	HudSound("SELECT")
 	online.send_chat(format("My IP adress is: %s", online.get_ip(pid)), false, pid)
 end)
 
-ui.add_choose(TRANSLATION["Infinite invite"], __submenus["Imagined"], false, {TRANSLATION['v1'], TRANSLATION['v2']}, function(int)
-	HudSound("YES")
+ui.add_choose(TRANSLATION["Trap"], __submenus["Imagined"], false, {TRANSLATION["Stunt tube"], TRANSLATION["Invisible tube"], TRANSLATION["Cage"]}, function(int)
 	local pid = online.get_selected_player()
-	online.send_script_event(pid, 603406648, PLAYER.PLAYER_ID(), pid, 4294967295, 1, 115, int, int, int)
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+	HudSound("YES")
+	local type = Cages[int] 
+	CreateRemoveThread(true, 'trap_'..thread_count, function()
+		local ped = features.player_ped(pid)
+		TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
+		local result = world_spawner.request(type)
+        if result == -1 then return 0 end -- invalid model
+        if result == 0 then return end -- not loaded
+        local pos = features.get_player_coords2(pid)
+        local heading = features.get_entity_rot(ped).z
+        type[1].position.x = pos.x
+        type[1].position.y = pos.y
+        type[1].position.z = pos.z
+        type[1].position.yaw = heading
+        world_spawner.spawn_map(type, true)
+        return POP_THREAD
+	end)
+end)
+
+ui.add_choose(TRANSLATION["Infinite invite"], __submenus["Imagined"], false, {TRANSLATION['v1'], TRANSLATION['v2']}, function(int)
+	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+	HudSound("YES")
+	online.send_script_event(pid, -1390976345, PLAYER.PLAYER_ID(), pid, 4294967295, 1, 115, int, int, int)
 end)
 
 local GetType = switch()
@@ -1667,18 +1714,25 @@ local GetType = switch()
 do
 	local types = {HUD._GET_LABEL_TEXT("WT_SNIP_HVY2"), HUD._GET_LABEL_TEXT("WT_STUN"), HUD._GET_LABEL_TEXT("WT_RAYPISTOL")}
 	__options.choose["ShootWithBullet"] = ui.add_choose(TRANSLATION["Shoot with bullet"], __submenus["Imagined"], false, types, function(int)
+		local pid = online.get_selected_player()
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 		HudSound("YES")
 		local hash = GetType(int)
-		local pos = features.get_player_coords2(online.get_selected_player())
-		local pos2 = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(features.player_ped(online.get_selected_player()), 0xe0fd)
+		local pos = features.get_player_coords2(pid)
+		local pos2 = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(features.player_ped(pid), 0xe0fd)
+		if WEAPON.HAS_WEAPON_ASSET_LOADED(hash) == 0 then
+			WEAPON.REQUEST_WEAPON_ASSET(hash, 31, 0)
+		end
 		MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 2, pos.x, pos.y, pos.z - 2, 5, true, hash, features.player_ped(), true, true, 24000)
 		MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 2, pos.x, pos.y, pos.z - 2, 5, true, hash, features.player_ped(), true, true, 24000)
 	end)
 end
 
 __options.players["Freeze"] = ui.add_bool_option(TRANSLATION["Freeze"], __submenus["Imagined"], function(bool)
+	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	HudSound("TOGGLE_ON")
-	playerlist[online.get_selected_player()]["Freeze"] = bool
+	playerlist[pid]["Freeze"] = bool
 end)
 
 do
@@ -1695,7 +1749,7 @@ do
 	local class = 0
 	local classes = {}
 	local curr_class
-	for i = 0, 22
+	for i = 0, 61
 	do
 		insert(classes, enum.vehicle_class[i])
 	end
@@ -1733,11 +1787,12 @@ do
 	end
 
 	ui.add_input_string(TRANSLATION["Input model"], __submenus["SpawnVehicle"], function(text)
-		if not text or text == '' then return HudSound("ERROR") end
+		local pid = online.get_selected_player()
+		if not text or text == '' or NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) then return HudSound("ERROR") end
 		local text = text:lower()
 		local hash = utils.joaat(text)
 		if STREAMING.IS_MODEL_VALID(hash) == 1 and STREAMING.IS_MODEL_A_VEHICLE(hash) == 1 then
-			spawn(hash, online.get_selected_player())
+			spawn(hash, pid)
 		else
 			for _, v in ipairs(vehicles.data)
 			do
@@ -1747,7 +1802,7 @@ do
 				end
 			end
 			if STREAMING.IS_MODEL_VALID(hash) == 1 and STREAMING.IS_MODEL_A_VEHICLE(hash) == 1 then
-				spawn(hash, online.get_selected_player())
+				spawn(hash, pid)
 			else
 				system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Sorry I couldn't find any matching model"], 225, 0, 0, 225)
 				HudSound("ERROR")
@@ -1765,13 +1820,20 @@ do
 	ui.set_value(sel_class, class, true)
 	CreateRemoveThread(true, 'selected_class_'..thread_count, function()
 		if not curr_class then
-			curr_class = ui.add_choose(TRANSLATION["Select vehicle"], __submenus["SpawnVehicle"], false, settings.Vehicle["VehManufacturer"] and vehicles.class_manufacturer[class] or vehicles.class[class], function(int) HudSound("YES") selected_vehicle = int + 1;spawn(vehicles.models[vehicles.get_veh_index(selected_vehicle, class)][2], online.get_selected_player()) end)
+			curr_class = ui.add_choose(TRANSLATION["Select vehicle"], __submenus["SpawnVehicle"], false, settings.Vehicle["VehManufacturer"] and vehicles.class_manufacturer[class] or vehicles.class[class], function(int)
+				local pid = online.get_selected_player()
+				if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+				HudSound("YES")
+				selected_vehicle = int + 1
+				spawn(vehicles.models[vehicles.get_veh_index(selected_vehicle, class)][2], pid)
+			end)
 		end
 	end)
 end
 
 ui.add_click_option(TRANSLATION["Gift vehicle"], __submenus["PlayerlistVehicle"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
@@ -1809,6 +1871,7 @@ end)
 
 ui.add_click_option(TRANSLATION["Lester takes the wheel"], __submenus["PlayerlistVehicle"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
@@ -1826,7 +1889,7 @@ ui.add_click_option(TRANSLATION["Lester takes the wheel"], __submenus["Playerlis
 		STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
 		entities.request_control(veh, function()
 			PED.SET_PED_INTO_VEHICLE(lester, veh, -1)
-			peds.calm_ped(lester)
+			peds.calm_ped(lester, true)
 			TASK.TASK_VEHICLE_DRIVE_WANDER(lester, veh, 200, 786603)
 			VEHICLE.SET_VEHICLE_DOORS_LOCKED(veh, 6)
 			VEHICLE.SET_VEHICLE_DOORS_LOCKED(veh, 2)
@@ -1837,6 +1900,7 @@ end)
 
 ui.add_click_option(TRANSLATION["Blow up vehicle"], __submenus["PlayerlistVehicle"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
@@ -1853,6 +1917,7 @@ end)
 
 ui.add_click_option(TRANSLATION["Pop tires"], __submenus["PlayerlistVehicle"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
@@ -1871,6 +1936,7 @@ end)
 
 ui.add_click_option(TRANSLATION["Rotate vehicle"], __submenus["PlayerlistVehicle"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
@@ -1887,6 +1953,7 @@ end)
 
 ui.add_click_option(TRANSLATION["Flip vehicle"], __submenus["PlayerlistVehicle"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
@@ -1903,6 +1970,7 @@ end)
 
 ui.add_click_option(TRANSLATION["Boost forward"], __submenus["PlayerlistVehicle"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
@@ -1918,6 +1986,7 @@ end)
 
 ui.add_click_option(TRANSLATION["Boost backward"], __submenus["PlayerlistVehicle"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
@@ -1933,6 +2002,7 @@ end)
 
 ui.add_click_option(TRANSLATION["Launch up vehicle"], __submenus["PlayerlistVehicle"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
@@ -1949,6 +2019,7 @@ end)
 
 ui.add_click_option(TRANSLATION["Launch down vehicle"], __submenus["PlayerlistVehicle"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
@@ -1965,6 +2036,7 @@ end)
 
 ui.add_click_option(TRANSLATION["Hijack vehicle"], __submenus["PlayerlistVehicle"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
@@ -1973,8 +2045,8 @@ ui.add_click_option(TRANSLATION["Hijack vehicle"], __submenus["PlayerlistVehicle
 		entities.request_control(veh, function()
 			local ped = VEHICLE.GET_PED_IN_VEHICLE_SEAT(veh, -1, true)
 			if ped and ped ~= features.player_ped() then
-				online.send_script_event(pid, -1026787486, PLAYER.PLAYER_ID(), pid)
-       			online.send_script_event(pid, 578856274, PLAYER.PLAYER_ID(), 0, 0, 0, 0, 1, pid, random(0, 2147483647))
+				online.send_script_event(pid, -2126830022, PLAYER.PLAYER_ID(), pid)
+       			online.send_script_event(pid, -714268990, PLAYER.PLAYER_ID(), 0, 0, 0, 0, 1, pid, random(0, 2147483647))
 				TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
 			end
 			PED.SET_PED_INTO_VEHICLE(features.player_ped(), veh, -1)
@@ -1985,13 +2057,15 @@ ui.add_click_option(TRANSLATION["Hijack vehicle"], __submenus["PlayerlistVehicle
 end)
 
 ui.add_click_option(TRANSLATION["Disable ability to drive"], __submenus["PlayerlistVehicle"], function()
-	HudSound("SELECT")
 	local pid = online.get_selected_player()
-	online.send_script_event(pid, 603406648, PLAYER.PLAYER_ID(), 2, 4294967295, 1, 115, 0, 0, 0)
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+	HudSound("SELECT")
+	online.send_script_event(pid, -1390976345, PLAYER.PLAYER_ID(), 2, 4294967295, 1, 115, 0, 0, 0)
 end)
 
 __options.players["VehicleGod"] = ui.add_bool_option(TRANSLATION["Set vehicle godmode"], __submenus["PlayerlistVehicle"], function(bool)
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then ui.set_value(__options.players["VehicleGod"], (ui.get_value(__options.players["VehicleGod"])==1), true) HudSound("ERROR") return end
 	HudSound("TOGGLE_ON")
@@ -2007,6 +2081,7 @@ end)
 
 __options.players["VehicleHorn"] = ui.add_bool_option(TRANSLATION["Start vehicle horn"], __submenus["PlayerlistVehicle"], function(bool)
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	playerlist[pid]["VehicleHorn"] = bool
 	HudSound("TOGGLE_ON")
 	CreateRemoveThread(bool, 'horn_vehicle_'..pid, function(tick)
@@ -2020,13 +2095,15 @@ __options.players["VehicleHorn"] = ui.add_bool_option(TRANSLATION["Start vehicle
 end)
 
 __options.players["HonkBoosting"] = ui.add_bool_option(TRANSLATION["Honk boosting"], __submenus["PlayerlistVehicle"], function(bool)
-	HudSound("TOGGLE_ON")
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+	HudSound("TOGGLE_ON")
 	playerlist[pid]["HonkBoosting"] = bool
 end)
 
 __options.players["LockVehicle"] = ui.add_bool_option(TRANSLATION["Lock vehicle"], __submenus["PlayerlistVehicle"], function(bool)
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then ui.set_value(__options.players["LockVehicle"], (ui.get_value(__options.players["LockVehicle"])==1), true) HudSound("ERROR") return end
 	HudSound("TOGGLE_ON")
@@ -2047,6 +2124,7 @@ end)
 
 __options.players["ChildLocks"] = ui.add_bool_option(TRANSLATION["Child locks"], __submenus["PlayerlistVehicle"], function(bool)
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then ui.set_value(__options.players["ChildLocks"], (ui.get_value(__options.players["ChildLocks"])==1), true) HudSound("ERROR") return end
 	HudSound("TOGGLE_ON")
@@ -2073,6 +2151,7 @@ do
 	ui.add_num_option(TRANSLATION["Change max speed"], __submenus["PlayerlistVehicle"], 0, 1000, 1, function(int) HudSound("YES") topspeed[online.get_selected_player()] = int end)
 	ui.add_click_option(TRANSLATION["Set max speed"], __submenus["PlayerlistVehicle"], function()
 		local pid = online.get_selected_player()
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 		local veh = vehicles.get_player_vehicle(pid)
 		if veh == 0 then HudSound("ERROR") return end
 		HudSound("SELECT")
@@ -2091,11 +2170,13 @@ end
 do
 	local change
 	ui.add_click_option(TRANSLATION["Copy outfit"], __submenus["PlayerlistOther"], function()
-		HudSound("SELECT")
 		local pid = online.get_selected_player()
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+		HudSound("SELECT")
 		local ped = features.player_ped(pid)
 		local model = ENTITY.GET_ENTITY_MODEL(ped)
 		local outfit = peds.get_outfit(ped)
+		local weapon = peds.get_weapons()
 		if model ~= ENTITY.GET_ENTITY_MODEL(features.player_ped()) then
 			if change == pid then
 				CreateRemoveThread(true, 'change_model', function()
@@ -2108,8 +2189,8 @@ do
 					do
 						PED.SET_PED_HEAD_OVERLAY(my_ped, i, PED._GET_PED_HEAD_OVERLAY_VALUE(ped, i), 1)
 					end
-
 					peds.apply_outfit(outfit.components, outfit.props)
+					peds.set_weapons(weapon)
 					return POP_THREAD
 				end)
 				change = nil
@@ -2132,6 +2213,7 @@ end
 
 ui.add_click_option(TRANSLATION["Clone vehicle"], __submenus["PlayerlistOther"], function()
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	local veh = vehicles.get_player_vehicle(pid)
 	if veh == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
@@ -2139,14 +2221,16 @@ ui.add_click_option(TRANSLATION["Clone vehicle"], __submenus["PlayerlistOther"],
 end)
 
 __options.players["ChatMock"] = ui.add_bool_option(TRANSLATION["Chat mOcK"], __submenus["PlayerlistOther"], function(bool)
-	HudSound("TOGGLE_ON")
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+	HudSound("TOGGLE_ON")
 	playerlist[pid]["ChatMock"] = bool
 end)
 
 __options.players["Commands"] = ui.add_bool_option(TRANSLATION["Allow commands"], __submenus["PlayerlistOther"], function(bool)
-	HudSound("TOGGLE_ON")
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+	HudSound("TOGGLE_ON")
 	playerlist[pid]["Commands"] = bool
 end)
 
@@ -2166,8 +2250,9 @@ __options.players["Exclude"] = ui.add_bool_option(TRANSLATION["Exclude player"],
 end)
 
 __options.players["Waypoint"] = ui.add_bool_option(TRANSLATION["Add waypoint"], __submenus["PlayerlistOther"], function(bool)
-	HudSound("TOGGLE_ON")
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+	HudSound("TOGGLE_ON")
 	for i = 0, 31
 	do
 		playerlist[i]["Waypoint"] = false
@@ -2184,10 +2269,11 @@ do
 	local tp
 	ui.add_click_option(TRANSLATION["To me"], __submenus["PlayerlistTeleport"], function()
 		local pid = online.get_selected_player()
-		if tp or pid == PLAYER.PLAYER_ID() then return HudSound("ERROR") end
+		if tp or pid == PLAYER.PLAYER_ID() or NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 		local veh = vehicles.get_player_vehicle(pid)
 		local ped = features.player_ped(pid)
 		local pos_to = features.get_offset_from_player_coords(vector3.forward(5))
+		local my_pos = features.get_player_coords()
 		if veh ~= 0 then
 			entities.request_control(veh, function()
 				features.teleport(veh, pos_to.x, pos_to.y, pos_to.z)
@@ -2199,6 +2285,7 @@ do
 		local function BailCheck()
 			if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 or bail < clock() then
 				NETWORK.NETWORK_SET_IN_SPECTATOR_MODE(false, ped)
+				features.teleport(features.player_ped(), my_pos.x, my_pos.y, my_pos.z)
 				tp = false
 				system.notify(TRANSLATION["Imagined Menu"], TRANSLATION['Failed to teleport'], 255, 0, 0, 255, true)
 				return POP_THREAD
@@ -2225,12 +2312,13 @@ do
 					TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
 					features.delete_entity(veh)
 					NETWORK.NETWORK_SET_IN_SPECTATOR_MODE(false, ped)
+					features.teleport(features.player_ped(), my_pos.x, my_pos.y, my_pos.z)
 					tp = false
 					return POP_THREAD
 				end
 			elseif pos.z ~= -50 and not se then
 				se = true
-				online.send_script_event(pid, 962740265, PLAYER.PLAYER_ID(), 1, 32, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+				online.send_script_event(pid, -555356783, PLAYER.PLAYER_ID(), 1, 32, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 			end
 			if inveh and veh == 0 then
 				inveh = false
@@ -2241,13 +2329,13 @@ do
 
 	ui.add_click_option(TRANSLATION["To waypoint"], __submenus["PlayerlistTeleport"], function()
 		local pid = online.get_selected_player()
-		if tp or pid == PLAYER.PLAYER_ID() then return HudSound("ERROR") end
+		if tp or pid == PLAYER.PLAYER_ID() or NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 		if HUD.IS_WAYPOINT_ACTIVE() == 0 then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["No waypoint has been set"], 255, 128, 0, 255) HudSound("ERROR") return end
 		HudSound("SELECT")
 		local w_pos = features.get_waypoint_coord()
 		local success, groundZ
+		local b_pos = features.get_blip_for_coord(w_pos)
 		CreateRemoveThread(true, 'get_waypoint_Z', function(tick)
-			local b_pos = features.get_blip_for_coord(w_pos)
 			if not b_pos then
 				system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Preparing teleport"], 0, 128, 255, 255)
 				local Z = (tick+1) * 100
@@ -2298,44 +2386,47 @@ do
 						TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
 						features.delete_entity(veh)
 						NETWORK.NETWORK_SET_IN_SPECTATOR_MODE(false, ped)
+						features.teleport(features.player_ped(), my_pos.x, my_pos.y, my_pos.z)
 						tp = false
 						return POP_THREAD
 					end
 				elseif pos.z ~= -50 and not se then
 					se = true
-					online.send_script_event(pid, 962740265, PLAYER.PLAYER_ID(), 1, 32, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+					online.send_script_event(pid, -555356783, PLAYER.PLAYER_ID(), 1, 32, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 				end
 				if inveh and veh == 0 then
 					inveh = false
 					se = false
 				end
 			end)
+			return POP_THREAD
 		end)
 	end)
 end
 
 ui.add_click_option(TRANSLATION["Near me"], __submenus["PlayerlistTeleport"], function() 
 	local pid = online.get_selected_player()
-	if pid == PLAYER.PLAYER_ID() then return HudSound("ERROR") end
+	if pid == PLAYER.PLAYER_ID() or NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	HudSound("SELECT")
 	local my_pos = features.get_player_coords()
 	local apartment = features.get_closest_apartment_to_coord(my_pos)
-	online.send_script_event(pid, 603406648, PLAYER.PLAYER_ID(), pid, 1, 0, apartment, 1, 1, 1)
+	online.send_script_event(pid, -1390976345, PLAYER.PLAYER_ID(), pid, 1, 0, apartment, 1, 1, 1)
 end)
 
 ui.add_click_option(TRANSLATION["Near waypoint"], __submenus["PlayerlistTeleport"], function()
 	local pid = online.get_selected_player()
-	if pid == PLAYER.PLAYER_ID() then return HudSound("ERROR") end
+	if pid == PLAYER.PLAYER_ID() or NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
 	if HUD.IS_WAYPOINT_ACTIVE() == 0 then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["No waypoint has been set"], 255, 128, 0, 255) HudSound("ERROR") return end
 	HudSound("SELECT")
 	local my_pos = features.get_waypoint_coord()
 	local apartment = features.get_closest_apartment_to_coord(my_pos)
-	online.send_script_event(pid, 603406648, PLAYER.PLAYER_ID(), pid, 1, 0, apartment, 1, 1, 1)
+	online.send_script_event(pid, -1390976345, PLAYER.PLAYER_ID(), pid, 1, 0, apartment, 1, 1, 1)
 end)
 
 ui.add_click_option(TRANSLATION["Send to cutscene"], __submenus["PlayerlistTeleport"], function() 
-	HudSound("SELECT")
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+	HudSound("SELECT")
 	local time = clock() + 1.5
 	local f_pos = features.get_player_coords()
 	local veh = vehicles.get_player_vehicle()
@@ -2350,12 +2441,12 @@ ui.add_click_option(TRANSLATION["Send to cutscene"], __submenus["PlayerlistTelep
 			return POP_THREAD 
 		end
 		local my_pos = features.get_player_coords()
-		local pl_pos = features.get_player_coords(pid)
+		local pl_pos = features.get_player_coords2(pid)
 		if my_pos:sqrlen(pl_pos) > 2500 then
 			features.teleport(features.player_ped(), pl_pos.x, pl_pos.y + 50, pl_pos.z == -50 and 1000 or pl_pos.z)
 			teleported = true
 		end
-		online.send_script_event(pid, 1068259786, PLAYER.PLAYER_ID())
+		online.send_script_event(pid, 2131601101, PLAYER.PLAYER_ID())
 		if pl_pos.z == -50 then time = clock() + 1.5 return end 
 		if time > clock() then return end 
 		if not teleported then return POP_THREAD end
@@ -2368,33 +2459,54 @@ ui.add_click_option(TRANSLATION["Send to cutscene"], __submenus["PlayerlistTelep
 end)
 
 __options.choose["PlayerWarehouse"] = ui.add_choose(TRANSLATION["Send to warehouse"], __submenus["PlayerlistTeleport"], false, {TRANSLATION["Random"], "Pacific Bait Storage", "White Widow Garage", "Celltowa Unit", "Convenience Store Lockup", "Foreclosed Garage", "Xero Gas Factory", "Derriere Lingerie Backlot", "Bilgeco Warehouse", "Pier 400 Utility Building", "GEE Warehouse", "LS Marine Building 3", "Railyard Warehouse", "Fridgit Annexe", "Disused Factory Outlet", "Discount Retail Unit", "Logistics Depot", "Darnel Bros Warehouse", "Wholesale Furniture", "Cypress Warehouses", "West Vinewood Backlot", "Old Power Station", "Walker & Sons Warehouse"}, function(int)
-	HudSound("YES")
-	local pid = online.get_selected_player()
-	online.send_script_event(pid, 3848692214, PLAYER.PLAYER_ID(), 0, 1, int == 0 and random(1, 22) or int)
+	system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["This feature is currently not available"], 255, 0, 0, 255)
+	return HudSound("ERROR")
+	-- local pid = online.get_selected_player()
+	-- if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+	-- HudSound("YES")
+	-- online.send_script_event(pid, 3848692214, PLAYER.PLAYER_ID(), 0, 1, int == 0 and random(1, 22) or int)
 end)
 
 __options.choose["PlayerTpCayo"] = ui.add_choose(TRANSLATION["Send to island"], __submenus["PlayerlistTeleport"], false, {TRANSLATION["Normal"], TRANSLATION["Instant"], TRANSLATION["LSIA"], TRANSLATION["Beach"]}, function(int)
-	HudSound("YES")
 	local pid = online.get_selected_player()
+	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+	HudSound("YES")
 	if int == 0 then
-		online.send_script_event(pid, -621279188, PLAYER.PLAYER_ID(), 1)
+		online.send_script_event(pid, 1361475530, PLAYER.PLAYER_ID(), 1)
 	elseif int == 1 then
-		online.send_script_event(pid, 1463943751, PLAYER.PLAYER_ID(), pid, pid, 4, 1)
+		online.send_script_event(pid, 1214823473, PLAYER.PLAYER_ID(), pid, pid, 4, 1)
 	elseif int == 2 then
-		online.send_script_event(pid, 1463943751, PLAYER.PLAYER_ID(), pid, pid, 3, 0)
+		online.send_script_event(pid, 1214823473, PLAYER.PLAYER_ID(), pid, pid, 3, 0)
 	elseif int == 3 then
-		online.send_script_event(pid, 1463943751, PLAYER.PLAYER_ID(), pid, pid, 4, 0)
+		online.send_script_event(pid, 1214823473, PLAYER.PLAYER_ID(), pid, pid, 4, 0)
 	end
 end)
 
 do
 	local types = {TRANSLATION["Severe Weather Patterns"], TRANSLATION["Half-truck Bully"], TRANSLATION["Exit Strategy"], TRANSLATION["Offshore Assets"], TRANSLATION["Cover Blown"], TRANSLATION["Mole Hunt"], TRANSLATION["Data Breach"], TRANSLATION["Work Dispute"]}
 	__options.choose["SendMission"] = ui.add_choose(TRANSLATION["Send to job"], __submenus["PlayerlistTeleport"], false, types, function(int)
-		HudSound("YES")
 		local pid = online.get_selected_player()
-		online.send_script_event(pid, 2020588206, PLAYER.PLAYER_ID(), int)
+		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 then return HudSound("ERROR") end
+		HudSound("YES")
+		online.send_script_event(pid, -283041276, PLAYER.PLAYER_ID(), int)
 	end)
 end
+
+ui.add_separator(TRANSLATION["Kicks and crashes"], __submenus["Imagined"])
+
+ui.add_click_option(TRANSLATION["Kick"], __submenus["Imagined"], function()
+	local player = online.get_selected_player()
+	if player == PLAYER.PLAYER_ID() or NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) == 0 then return HudSound("ERROR") end
+	HudSound("SELECT")
+	features.kick_player(player)
+end)
+
+ui.add_click_option(TRANSLATION["SE Crash"], __submenus["Imagined"], function()
+	local player = online.get_selected_player()
+	if player == PLAYER.PLAYER_ID() or NETWORK.NETWORK_IS_PLAYER_CONNECTED(player) == 0 then return HudSound("ERROR") end
+	HudSound("SELECT")
+	features.crash_player(player)
+end)
 
 CreateRemoveThread(true, 'playerlist', function()
 	local pid = online.get_selected_player()
@@ -2442,7 +2554,7 @@ CreateRemoveThread(true, 'playerlist', function()
 	for i = 0, 31
 	do
 		if playerlist[i]["Freeze"] then
-			online.send_script_event(i, -446275082, PLAYER.PLAYER_ID(), 0, 1, 0, globals.get_int(1893551 + (1 + (i * 599) + 510)))
+			online.send_script_event(i, 1280542040, PLAYER.PLAYER_ID(), 0, 1, 0, globals.get_int(1892703 + (1 + (i * 599) + 510)))
 			TASK.CLEAR_PED_TASKS_IMMEDIATELY(features.player_ped(i))
 		end
 		if playerlist[i]["HonkBoosting"] then
@@ -2455,22 +2567,6 @@ CreateRemoveThread(true, 'playerlist', function()
 			end
 		end
 	end
-end)
-
-ui.add_separator(TRANSLATION["Kicks and crashes"], __submenus["Imagined"])
-
-ui.add_click_option(TRANSLATION["Kick"], __submenus["Imagined"], function()
-	local player = online.get_selected_player()
-	if player == PLAYER.PLAYER_ID() then return HudSound("ERROR") end
-	HudSound("SELECT")
-	features.kick_player(player)
-end)
-
-ui.add_click_option(TRANSLATION["SE Crash"], __submenus["Imagined"], function()
-	local player = online.get_selected_player()
-	if player == PLAYER.PLAYER_ID() then return HudSound("ERROR") end
-	HudSound("SELECT")
-	features.crash_player(player)
 end)
 
 ---------------------------------------------------------------------------------------------------------------------------------
@@ -2509,33 +2605,33 @@ do
 		male = {
 			components = {
 				[0] = {24, 0},
-				[1] = {2, 2},
-				[2] = {22, 3},
-				[3] = {33, 0},
-				[4] = {4, 0},
-				[5] = {0, 0},
-				[6] = {12, 6},
-				[7] = {0, 0},
-				[8] = {2, 2},
-				[9] = {0, 0},
-				[10] = {0, 0},
-				[11] = {64, 0},
+				{2, 2},
+				{22, 3},
+				{33, 0},
+				{4, 0},
+				{0, 0},
+				{12, 6},
+				{0, 0},
+				{2, 2},
+				{0, 0},
+				{0, 0},
+				{64, 0},
 			},
 		},
 		female = {
 			components = {
 				[0] = {24, 0},
-				[1] = {2, 2},
-				[2] = {22, 3},
-				[3] = {36, 0},
-				[4] = {27, 0},
-				[5] = {0, 0},
-				[6] = {24, 0},
-				[7] = {0, 0},
-				[8] = {1, 0},
-				[9] = {0, 0},
-				[10] = {0, 0},
-				[11] = {55, 0},
+				{2, 2},
+				{22, 3},
+				{36, 0},
+				{27, 0},
+				{0, 0},
+				{24, 0},
+				{0, 0},
+				{1, 0},
+				{0, 0},
+				{0, 0},
+				{55, 0},
 			},
 		}
 	}
@@ -2555,7 +2651,7 @@ do
 		local ped = features.player_ped()
 		local model = ENTITY.GET_ENTITY_MODEL(ped)
 		if model ~= utils.joaat("mp_f_freemode_01") and model ~= utils.joaat("mp_m_freemode_01") then
-			system.notify("Imagined Menu", TRANSLATION["Ghost rider outfit works only on mp male and female"], 255, 0, 0, 255)
+			system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Ghost rider outfit works only on mp male and female"], 255, 0, 0, 255)
 			ui.set_value(__options.bool["GhostRiderOutfit"], false, true)
 			return HudSound("ERROR")
 		end
@@ -2592,7 +2688,7 @@ do
 				PED.CLEAR_ALL_PED_PROPS(features.player_ped())
 				peds.apply_outfit(ghostRider.male.components, {})
 			else
-				system.notify("Imagined Menu", TRANSLATION["Ghost rider outfit works only on mp male and female"], 255, 0, 0, 255, true)
+				system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Ghost rider outfit works only on mp male and female"], 255, 0, 0, 255, true)
 				ui.set_value(__options.bool["GhostRiderOutfit"], false, true)
 				return POP_THREAD
 			end
@@ -2737,7 +2833,7 @@ do
 						entities.request_control(v, function()
 							PED.SET_PED_CAN_RAGDOLL(v, false)
 							PED.SET_PED_CAN_RAGDOLL_FROM_PLAYER_IMPACT(v, false)
-							peds.calm_ped(v)
+							peds.calm_ped(v, true)
 							TASK.CLEAR_PED_TASKS_IMMEDIATELY(v)
 							peds.play_anim(v, anim_dict, anim_name, blend_in_speed, blend_out_speed, duration, flag, playback_rate, lock)
 						end)
@@ -2766,7 +2862,7 @@ do
 					entities.request_control(v, function()
 						PED.SET_PED_CAN_RAGDOLL(v, false)
 						PED.SET_PED_CAN_RAGDOLL_FROM_PLAYER_IMPACT(v, false)
-						peds.calm_ped(v)
+						peds.calm_ped(v, true)
 						TASK.CLEAR_PED_TASKS_IMMEDIATELY(v)
 						peds.play_scenario(v, peds.scenario[int + 1][2])
 					end)
@@ -3153,7 +3249,7 @@ __options.bool["PedsIgnorePlayer"] = ui.add_bool_option(TRANSLATION["Peds ignore
 		if tick%10~=0 then return end
 		for _, ped in ipairs(entities.get_peds())
 		do
-			peds.calm_ped(ped)
+			peds.calm_ped(ped, true)
 		end
 		PLAYER.SET_POLICE_IGNORE_PLAYER(PLAYER.PLAYER_ID(), true)
 		PLAYER.SET_EVERYONE_IGNORE_PLAYER(PLAYER.PLAYER_ID(), true)
@@ -3166,6 +3262,10 @@ __options.bool["PedsIgnorePlayer"] = ui.add_bool_option(TRANSLATION["Peds ignore
 		PLAYER.SET_EVERYONE_IGNORE_PLAYER(PLAYER.PLAYER_ID(), false)
 		PLAYER.SET_PLAYER_CAN_BE_HASSLED_BY_GANGS(PLAYER.PLAYER_ID(), true)
 		PLAYER.SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(PLAYER.PLAYER_ID(), false)
+		for _, ped in ipairs(entities.get_peds())
+		do
+			peds.calm_ped(ped, false)
+		end
 	end
 
 end)
@@ -3184,6 +3284,15 @@ __options.bool["PoliceMode"] = ui.add_bool_option(TRANSLATION["Police mode"], __
 				end
 			end
 		end
+	end)
+end)
+
+__options.bool["LinkHeading"] = ui.add_bool_option(TRANSLATION["Link heading with camera"], __submenus["Self"], function(bool) HudSound("TOGGLE_ON")
+	settings.Self['LinkHeading'] = bool
+	CreateRemoveThread(bool, 'self_link_heading',
+	function()
+		if vehicles.get_player_vehicle() ~= 0 then return end
+		ENTITY.SET_ENTITY_HEADING(features.player_ped(), CAM.GET_GAMEPLAY_CAM_ROT(2).z)
 	end)
 end)
 
@@ -3374,8 +3483,9 @@ __options.bool["VehicleBlacklist"] = ui.add_bool_option(TRANSLATION["Vehicle bla
 						end)
 					end
 					if tabl.vehicle_kick then
-						online.send_script_event(i, -1026787486, PLAYER.PLAYER_ID(), i)
-        		online.send_script_event(i, 578856274, PLAYER.PLAYER_ID(), 0, 0, 0, 0, 1, i, random(0, 2147483647))
+						online.send_script_event(i, -2126830022, PLAYER.PLAYER_ID(), i)
+
+        				online.send_script_event(i, -714268990, PLAYER.PLAYER_ID(), 0, 0, 0, 0, 1, i, random(0, 2147483647))
 						TASK.CLEAR_PED_TASKS_IMMEDIATELY(ped)
 					end
 					if tabl.vehicle_explode then
@@ -3423,7 +3533,7 @@ do
 	local class = 0
 	local classes = {}
 	local curr_class
-	for i = 0, 22
+	for i = 0, 61
 	do
 		insert(classes, enum.vehicle_class[i])
 	end
@@ -3639,7 +3749,7 @@ do
 				end
 			elseif pos.z ~= -50 and not se then
 				se = true
-				online.send_script_event(pid, 962740265, PLAYER.PLAYER_ID(), 1, 32, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+				online.send_script_event(pid, -555356783, PLAYER.PLAYER_ID(), 1, 32, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 			end
 			if inveh and veh == 0 then
 				inveh = false
@@ -3671,9 +3781,9 @@ do
 		local inveh
 		local bail
 		local waypoint
+		local b_pos = features.get_blip_for_coord(w_pos)
 		CreateRemoveThread(true, 'session_teleport_to_waypoint', function(tick)
 			if not waypoint then
-				local b_pos = features.get_blip_for_coord(w_pos)
 				if b_pos then
 					my_pos = features.get_player_coords()
 					pos_to = b_pos
@@ -3741,7 +3851,7 @@ do
 				end
 			elseif pos.z ~= -50 and not se then
 				se = true
-				online.send_script_event(pid, 962740265, PLAYER.PLAYER_ID(), 1, 32, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+				online.send_script_event(pid, -555356783, PLAYER.PLAYER_ID(), 1, 32, NETWORK.NETWORK_HASH_FROM_PLAYER_HANDLE(pid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 			end
 			if inveh and veh == 0 then
 				inveh = false
@@ -3759,7 +3869,7 @@ ui.add_click_option(TRANSLATION["Near me"], __submenus["SessionTeleport"], funct
 	do
 		if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) and not features.is_excluded(i) then
 			found = true
-			online.send_script_event(i, 603406648, PLAYER.PLAYER_ID(), i, 1, 0, apartment, 1, 1, 1)
+			online.send_script_event(i, -1390976345, PLAYER.PLAYER_ID(), i, 1, 0, apartment, 1, 1, 1)
 		end
 	end
 	if found then HudSound("YES") else HudSound("ERROR") end
@@ -3774,7 +3884,7 @@ ui.add_click_option(TRANSLATION["Near waypoint"], __submenus["SessionTeleport"],
 	do
 		if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) and not features.is_excluded(i) then
 			found = true
-			online.send_script_event(i, 603406648, PLAYER.PLAYER_ID(), i, 1, 0, apartment, 1, 1, 1)
+			online.send_script_event(i, -1390976345, PLAYER.PLAYER_ID(), i, 1, 0, apartment, 1, 1, 1)
 		end
 	end
 	if found then HudSound("YES") else HudSound("ERROR") end
@@ -3816,7 +3926,7 @@ do
 				return POP_THREAD 
 			end
 			if pid == 32 then active = false return POP_THREAD end
-			if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 or (pid == PLAYER.PLAYER_ID()) or (settings.Commands["Don't Affect Friends"] and features.is_friend(pid)) or features.is_excluded(pid) then
+			if NETWORK.NETWORK_IS_PLAYER_CONNECTED(pid) == 0 or (pid == PLAYER.PLAYER_ID()) or (settings.Commands["Don't Affect Friends"] and features.is_friend(pid)) or features.is_excluded(pid) or INTERIOR.GET_INTERIOR_FROM_ENTITY(features.player_ped(pid)) ~= 0 then
 				if not teleported then time = clock() + 1.5; pid = pid + 1 return end
 				if veh ~= 0 then
 					PED.SET_PED_INTO_VEHICLE(features.player_ped(), veh, -1)
@@ -3827,12 +3937,12 @@ do
 				return
 			end
 			local my_pos = features.get_player_coords()
-			local pl_pos = features.get_player_coords(pid)
+			local pl_pos = features.get_player_coords2(pid)
 			if my_pos:sqrlen(pl_pos) > 2500 then
 				features.teleport(features.player_ped(), pl_pos.x, pl_pos.y + 50, pl_pos.z == -50 and 1000 or pl_pos.z)
 				teleported = true
 			end
-			online.send_script_event(pid, 1068259786, PLAYER.PLAYER_ID())
+			online.send_script_event(pid, 2131601101, PLAYER.PLAYER_ID())
 			if pl_pos.z == -50 then time = clock() + 1.5 return end 
 			if time > clock() then return end
 			if not teleported then time = clock() + 5; pid = pid + 1 return end
@@ -3848,18 +3958,20 @@ do
 end
 
 __options.choose["SessionWarehouse"] = ui.add_choose(TRANSLATION["Send to warehouse"], __submenus["SessionTeleport"], false, {TRANSLATION["Random"], "Pacific Bait Storage", "White Widow Garage", "Celltowa Unit", "Convenience Store Lockup", "Foreclosed Garage", "Xero Gas Factory", "Derriere Lingerie Backlot", "Bilgeco Warehouse", "Pier 400 Utility Building", "GEE Warehouse", "LS Marine Building 3", "Railyard Warehouse", "Fridgit Annexe", "Disused Factory Outlet", "Discount Retail Unit", "Logistics Depot", "Darnel Bros Warehouse", "Wholesale Furniture", "Cypress Warehouses", "West Vinewood Backlot", "Old Power Station", "Walker & Sons Warehouse"}, function(int)
-	HudSound("YES")
-	local pid = online.get_selected_player()
-	local id = int == 0 and random(1, 22) or int
-	local found
-	for i = 0, 31 
-	do
-		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and not (settings.Commands["Don't Affect Friends"] and features.is_friend(i)) and not features.is_excluded(i) then
-			online.send_script_event(i, 3848692214, PLAYER.PLAYER_ID(), 0, 1, id)
-			found = true
-		end
-	end
-	if found then HudSound("YES") else return HudSound("ERROR") end
+	system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["This feature is currently not available"], 255, 0, 0, 255)
+	return HudSound("ERROR")
+	-- HudSound("YES")
+	-- local pid = online.get_selected_player()
+	-- local id = int == 0 and random(1, 22) or int
+	-- local found
+	-- for i = 0, 31 
+	-- do
+	-- 	if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and not (settings.Commands["Don't Affect Friends"] and features.is_friend(i)) and not features.is_excluded(i) then
+	-- 		online.send_script_event(i, 3848692214, PLAYER.PLAYER_ID(), 0, 1, id)
+	-- 		found = true
+	-- 	end
+	-- end
+	-- if found then HudSound("YES") else return HudSound("ERROR") end
 end)
 
 
@@ -3869,13 +3981,13 @@ __options.choose["SessionTpCayo"] = ui.add_choose(TRANSLATION["Send to island"],
 	do
 		if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and not (settings.Commands["Don't Affect Friends"] and features.is_friend(i)) and not features.is_excluded(i) then
 			if int == 0 then
-				online.send_script_event(i, -621279188, PLAYER.PLAYER_ID(), 1)
+				online.send_script_event(i, 1361475530, PLAYER.PLAYER_ID(), 1)
 			elseif int == 1 then
-				online.send_script_event(i, 1463943751, PLAYER.PLAYER_ID(), i, i, 4, 1)
+				online.send_script_event(i, 1214823473, PLAYER.PLAYER_ID(), i, i, 4, 1)
 			elseif int == 2 then
-				online.send_script_event(i, 1463943751, PLAYER.PLAYER_ID(), i, i, 3, 0)
+				online.send_script_event(i, 1214823473, PLAYER.PLAYER_ID(), i, i, 3, 0)
 			elseif int == 3 then
-				online.send_script_event(i, 1463943751, PLAYER.PLAYER_ID(), i, i, 4, 0)
+				online.send_script_event(i, 1214823473, PLAYER.PLAYER_ID(), i, i, 4, 0)
 			end
 			found = true
 		end
@@ -3890,7 +4002,7 @@ do
 		for i = 0, 31
 		do
 			if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) and not features.is_excluded(i) then
-				online.send_script_event(i, 2020588206, PLAYER.PLAYER_ID(), int)
+				online.send_script_event(i, -283041276, PLAYER.PLAYER_ID(), int)
 				found = true
 			end
 		end
@@ -3988,7 +4100,7 @@ do
 	local blame_delay = 0
 	__options.choose["RandomPlayer"] = ui.add_choose(TRANSLATION['Random player'], __submenus["Session"], false, {TRANSLATION["Kill"], TRANSLATION["Blame"], TRANSLATION['Kick'], TRANSLATION['Crash']}, function(int) 
 		local target = features.get_random_player(settings.General["Exclude Friends"])
-		if target == PLAYER.PLAYER_ID() then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["No players found"], 255, 0, 0, 255, true) return HudSound("ERROR") end
+		if target == PLAYER.PLAYER_ID() then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["No players found"], 255, 0, 0, 255) return HudSound("ERROR") end
 		HudSound("YES")
 		if int == 0 then
 			local pos = features.get_player_coords2(target)
@@ -4021,12 +4133,35 @@ __options.choose["InfiniteInviteAll"] = ui.add_choose(TRANSLATION['Infinite invi
 	end
 end)
 
+__options.choose["TrapSession"] = ui.add_choose(TRANSLATION["Trap"], __submenus["Session"], false, {TRANSLATION["Stunt tube"], TRANSLATION["Invisible tube"], TRANSLATION["Cage"]}, function(int)
+	HudSound("YES")
+	local type = Cages[int] 
+ 	CreateRemoveThread(true, 'trap_'..thread_count, function()
+ 		local result = world_spawner.request(type)
+        if result == -1 then return 0 end -- invalid model
+        if result == 0 then return end -- not loaded
+		for i = 0, 31
+		do
+			if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) and not features.is_excluded(i) then
+				local pos = features.get_player_coords2(i)
+		        local heading = features.get_player_heading(i)
+		        type[1].position.x = pos.x
+		        type[1].position.y = pos.y
+		        type[1].position.z = pos.z
+		        type[1].position.yaw = heading
+		        world_spawner.spawn_map(type, true)
+			end
+		end
+		return POP_THREAD
+	end)
+end)
+
 __options.click["NoDrivingAll"] = ui.add_click_option(TRANSLATION['Disable ability to drive'], __submenus["Session"], function() 
 	local found 
 	for i = 0, 31
 	do
 		if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) and not features.is_excluded(i) then
-			online.send_script_event(i, 603406648, PLAYER.PLAYER_ID(), 2, 4294967295, 1, 115, 0, 0, 0)
+			online.send_script_event(i, -1390976345, PLAYER.PLAYER_ID(), 2, 4294967295, 1, 115, 0, 0, 0)
 			found = true
 		end
 	end
@@ -4191,7 +4326,7 @@ end)
 
 __options.bool["DisableChat"] = ui.add_bool_option(TRANSLATION['Disable Chat'], __submenus["Session"], function(bool) HudSound("TOGGLE_ON")
 	settings.Session["DisableChat"] = bool
-	local spam_mes = string.rep('\n', 200)
+	local spam_mes = '\n' * 200
 	CreateRemoveThread(bool, 'session_disable_chat', 
 	function(tick)
 		if tick%6~=0 then return end
@@ -4252,8 +4387,8 @@ __options.bool["SoundSpam"] = ui.add_bool_option(TRANSLATION['Sound spam'], __su
 	    for i = 0, 31
 	    do
     		if i ~= PLAYER.PLAYER_ID() and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) and not features.is_excluded(i) then
-        	online.send_script_event(i, 1132878564, PLAYER.PLAYER_ID(), random(1, 6))
-        end
+        		online.send_script_event(i, 1111927333, PLAYER.PLAYER_ID(), random(1, 6))
+       		end
 	    end
 	end)
 end)
@@ -4265,7 +4400,7 @@ __options.bool["OffRadarAll"] = ui.add_bool_option(TRANSLATION['Off radar'], __s
 		for i = 0, 31
 		do
 			if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) and not features.is_excluded(i) then
-				online.send_script_event(i, -391633760, PLAYER.PLAYER_ID(), NETWORK.GET_NETWORK_TIME() - 60, NETWORK.GET_NETWORK_TIME(), 1, 1, globals.get_int((1893551 + (1 + (i * 599) + 510))))
+				online.send_script_event(i, -1973627888, PLAYER.PLAYER_ID(), NETWORK.GET_NETWORK_TIME() - 60, NETWORK.GET_NETWORK_TIME(), 1, 1, globals.get_int((1892703 + (1 + (i * 599) + 510))))
 			end
 		end
 	end)
@@ -4277,7 +4412,7 @@ __options.bool["RemoveWantedAll"] = ui.add_bool_option(TRANSLATION['Remove wante
 		for i = 0, 31
 		do
 			if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) and not features.is_excluded(i) then
-				online.send_script_event(i, -91354030, PLAYER.PLAYER_ID(), globals.get_int(1893551 + (1 + (i * 599) + 510)))
+				online.send_script_event(i, 1449852136, PLAYER.PLAYER_ID(), globals.get_int(1892703 + (1 + (i * 599) + 510)))
 			end
 		end
 	end)
@@ -4290,7 +4425,7 @@ __options.bool["BribeAuthoritiesAll"] = ui.add_bool_option(TRANSLATION['Bribe au
 		for i = 0, 31
 		do
 			if not (i == PLAYER.PLAYER_ID() and settings.General["Exclude Self"]) and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) and not features.is_excluded(i) then
-				online.send_script_event(i, 1722873242, PLAYER.PLAYER_ID(), 0, 0, NETWORK.GET_NETWORK_TIME(), 0, globals.get_int(1893551 + (1 + (i * 599) + 510)))
+				online.send_script_event(i, -1041523091, PLAYER.PLAYER_ID(), 0, 0, NETWORK.GET_NETWORK_TIME(), 0, globals.get_int(1892703 + (1 + (i * 599) + 510)))
 			end
 		end
 	end)
@@ -4312,7 +4447,7 @@ __options.bool["TransactionError"] = ui.add_bool_option(TRANSLATION['Transaction
 		for i = 0, 31
 		do
 			if i ~= PLAYER.PLAYER_ID() and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 and not (settings.General['Exclude Friends'] and features.is_friend(i)) and not features.is_excluded(i) then
-				online.send_script_event(i, -1704141512, PLAYER.PLAYER_ID(), 50000, 0, 1, globals.get_int(1893551 + (1 + (i * 599) + 510)), globals.get_int(1921039 + 9), globals.get_int(1921039 + 10), 1)
+				online.send_script_event(i, -768108950, PLAYER.PLAYER_ID(), 50000, 0, 1, globals.get_int(1892703 + (1 + (i * 599) + 510)), globals.get_int(1920255 + 9), globals.get_int(1920255 + 10), 1)
 			end
 		end
 	end)
@@ -4353,8 +4488,8 @@ do
 		local files = filesystem.scandir(paths['SavedVehicles'])
 		for _, v in ipairs(files)
 		do
-			if v:sub(-5, -1) == '.json' then
-				local name = v:gsub('%.json', '')
+			if v:endswith('.json') then
+				local name = v:gsub('.json$', '')
 				saved[name] = true
 				if not options[name] then
 					options[name] = ui.add_click_option(name, __submenus["SavedVehicles"], function()
@@ -4363,9 +4498,9 @@ do
 							if delete_mode then
 								ui.remove(options[name])
 								options[name] = nil
-								os.remove(paths['SavedVehicles']..[[\]]..name..[[.json]])
+								os.remove(paths['SavedVehicles']:ensureend('\\')..name..'.json')
 							else
-								local file = paths['SavedVehicles']..[[\]]..v
+								local file = paths['SavedVehicles']:ensureend('\\')..v
 								if not filesystem.exists(file) then HudSound("ERROR");system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["File doesn't exist"], 255, 0, 0, 255) return POP_THREAD end 
 								local tabl = json:decode(filesystem.read_all(file))
 								world_spawner.create_vehicle(tabl, true)
@@ -4415,7 +4550,7 @@ do
 				name = format("%s (%d)", name, repeats)
 			end
 			-- vehicle.version = '1.0'
-			filesystem.write(json:encode_pretty(vehicle), paths['SavedVehicles']..[[\]]..name..[[.json]])
+			filesystem.write(json:encode_pretty(vehicle), paths['SavedVehicles']:ensureend('\\')..name..[[.json]])
 			system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Vehicle saved, you can rename the file later"], 0, 128, 255, 255, true)
 			RefreshSavedVehicles()
 			return POP_THREAD
@@ -4452,13 +4587,13 @@ __options.bool["RealFuelUsage"] = ui.add_bool_option(TRANSLATION["Realistic fuel
 		for _, v in ipairs(fuelConsumption.gas_pumps)
 		do
 			if pos:sqrlen(v) <= 25 then
-				PAD.DISABLE_CONTROL_ACTION(0, enum.input.INPUT_FRONTEND_ACCEPT, true)
-				if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.INPUT_FRONTEND_ACCEPT) == 1 then
+				PAD.DISABLE_CONTROL_ACTION(0, enum.input.FRONTEND_ACCEPT, true)
+				if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.FRONTEND_ACCEPT) == 1 then
 					local add = fuelConsumption.tankVolume[veh].fill + (fuelConsumption.IsElectric(veh) and .1 or 1)
 					fuelConsumption.tankVolume[veh].fill = add < fuelConsumption.tankVolume[veh].capacity and add or fuelConsumption.tankVolume[veh].capacity
 				end
 				if Instructional:New() then
-					Instructional.AddButton(enum.input.INPUT_FRONTEND_ACCEPT, TRANSLATION["Refuel"])
+					Instructional.AddButton(enum.input.FRONTEND_ACCEPT, TRANSLATION["Refuel"])
 					Instructional:BackgroundColor(0, 0, 0, 80)
 					Instructional:Draw()
 				end
@@ -4493,7 +4628,7 @@ do
 	local classes = {}
 	local curr_class
 	local display_preview
-	for i = 0, 22
+	for i = 0, 61
 	do
 		insert(classes, enum.vehicle_class[i])
 	end
@@ -4585,7 +4720,7 @@ do
 	__options.bool["SpawnerGod"] = ui.add_bool_option(TRANSLATION["Spawn in godmode"], __submenus["SpawnSettings"], function(bool) HudSound("TOGGLE_ON") settings.Vehicle["SpawnerGod"] = bool end)
 	__options.choose["SpawnerPerformancePreset"] = ui.add_choose(TRANSLATION["Upgrade preset"], __submenus["SpawnSettings"], true, {TRANSLATION["Stock"], TRANSLATION["Max upgrade"], TRANSLATION["Max without livery"], TRANSLATION["Performance"], TRANSLATION["Performance with spoiler"]}, function(int) HudSound("YES") settings.Vehicle["SpawnerPerformancePreset"] = int end)
 	__options.choose["SpawnerLicence"] = ui.add_choose(TRANSLATION["Licence plate"], __submenus["SpawnSettings"], true, enum.plate_index, function(int) HudSound("YES") settings.Vehicle["SpawnerLicence"] = int end)
-	__options.string["SpawnerLicenceText"] = ui.add_input_string(TRANSLATION["Plate text"], __submenus["SpawnSettings"], function(text) settings.Vehicle["SpawnerLicenceText"] = text:sub(1, 8):upper() ui.set_value(__options.string["SpawnerLicenceText"], settings.Vehicle["SpawnerLicenceText"], true) end)
+	__options.string["SpawnerLicenceText"] = ui.add_input_string(TRANSLATION["Plate text"], __submenus["SpawnSettings"], function(text) settings.Vehicle["SpawnerLicenceText"] = text:truncate(8):upper() ui.set_value(__options.string["SpawnerLicenceText"], settings.Vehicle["SpawnerLicenceText"], true) end)
 	__options.bool["SpawnerKeepSpeed"] = ui.add_bool_option(TRANSLATION["Keep speed"], __submenus["SpawnSettings"], function(bool) HudSound("TOGGLE_ON") settings.Vehicle["SpawnerKeepSpeed"] = bool end)
 	__options.bool["SpawnerInside"] = ui.add_bool_option(TRANSLATION["Spawn inside"], __submenus["SpawnSettings"], function(bool) HudSound("TOGGLE_ON") settings.Vehicle["SpawnerInside"] = bool end)
 	__options.bool["SpawnerInAir"] = ui.add_bool_option(TRANSLATION["Spawn in air"], __submenus["SpawnSettings"], function(bool) HudSound("TOGGLE_ON") settings.Vehicle["SpawnerInAir"] = bool end)
@@ -4728,7 +4863,7 @@ do
 	local class = 0
 	local classes = {}
 	local curr_class
-	for i = 0, 22
+	for i = 0, 61
 	do
 		insert(classes, enum.vehicle_class[i])
 	end
@@ -4800,7 +4935,7 @@ end
 
 __options.choose["PersonalVehicle"] = ui.add_choose(TRANSLATION["Personal vehicle"], __submenus["Vehicle"], false, {TRANSLATION["Drive"], TRANSLATION["Teleport me to..."], TRANSLATION["Teleport to me"], TRANSLATION["Teleport to me and drive"]}, function(int)
 	local last_veh = vehicles.get_personal_vehicle()
-	if last_veh == vehicles.get_player_vehicle() then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Aren't you already in?"], 255, 0, 0, 255) return HudSound("ERROR") end
+	if last_veh ~= 0 and last_veh == vehicles.get_player_vehicle() then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Aren't you already in?"], 255, 0, 0, 255) return HudSound("ERROR") end
 	if last_veh == 0 or HUD.GET_BLIP_FROM_ENTITY(last_veh) == 0 then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Personal vehicle not found"], 255, 0, 0, 255) return HudSound("ERROR") end
 	HudSound("YES")
 	LastVehicleAction(last_veh, int)
@@ -4814,17 +4949,32 @@ __options.choose["LasetVehicle"] = ui.add_choose(TRANSLATION["Last vehicle"], __
 	LastVehicleAction(last_veh, int)
 end)
 
-ui.add_separator(TRANSLATION["Horn boost"], __submenus["Vehicle"])
+ui.add_separator(TRANSLATION["Other"], __submenus["Vehicle"])
 
-__options.bool["BoostEffect"] = ui.add_bool_option(TRANSLATION["With effect"], __submenus["Vehicle"], function(bool) HudSound("TOGGLE_ON") settings.Vehicle["BoostEffect"] = bool end)
+__submenus["VehicleWeapons"] = ui.add_submenu(TRANSLATION["Vehicle weapons"])
+__suboptions["VehicleWeapons"] = ui.add_sub_option(TRANSLATION["Vehicle weapons"], __submenus["Vehicle"],__submenus["VehicleWeapons"])
+
+__submenus["VehicleDoors"] = ui.add_submenu(HUD._GET_LABEL_TEXT("PIM_TDPV"))
+__suboptions["VehicleDoors"] = ui.add_sub_option(HUD._GET_LABEL_TEXT("PIM_TDPV"), __submenus["Vehicle"],__submenus["VehicleDoors"])
+
+__submenus["HornBoost"] = ui.add_submenu(TRANSLATION["Horn boost"])
+__suboptions["HornBoost"] = ui.add_sub_option(TRANSLATION["Horn boost"], __submenus["Vehicle"], __submenus["HornBoost"])
+
+__submenus["EnterExitVeh"] = ui.add_submenu(TRANSLATION["Enter/exit"])
+__suboptions["EnterExitVeh"] = ui.add_sub_option(TRANSLATION["Enter/exit"], __submenus["Vehicle"], __submenus["EnterExitVeh"])
+
+__submenus["VehMultipliers"] = ui.add_submenu(TRANSLATION["Multipliers"])
+__suboptions["VehMultipliers"] = ui.add_sub_option(TRANSLATION["Multipliers"], __submenus["Vehicle"], __submenus["VehMultipliers"])
+
+__options.bool["BoostEffect"] = ui.add_bool_option(TRANSLATION["With effect"], __submenus["HornBoost"], function(bool) HudSound("TOGGLE_ON") settings.Vehicle["BoostEffect"] = bool end)
 
 do
 	local types = {TRANSLATION['Constant'] ,TRANSLATION['Non constant']}
-	__options.choose["AccelerationType"] = ui.add_choose(TRANSLATION["Acceleration type"], __submenus["Vehicle"], true, types, function(int) HudSound("YES") settings.Vehicle["AccelerationType"] = int end)
-	__options.num["HornBoostPower"] = ui.add_num_option(TRANSLATION["Horn boost power"], __submenus["Vehicle"], 1, 20, 1, function(int) HudSound("YES") settings.Vehicle["HornBoostPower"] = int end)
+	__options.choose["AccelerationType"] = ui.add_choose(TRANSLATION["Acceleration type"], __submenus["HornBoost"], true, types, function(int) HudSound("YES") settings.Vehicle["AccelerationType"] = int end)
+	__options.num["HornBoostPower"] = ui.add_num_option(TRANSLATION["Horn boost power"], __submenus["HornBoost"], 1, 20, 1, function(int) HudSound("YES") settings.Vehicle["HornBoostPower"] = int end)
 end
 
-__options.bool["HornBoost"] = ui.add_bool_option(TRANSLATION["Horn boost"], __submenus["Vehicle"], function(bool) HudSound("TOGGLE_ON")
+__options.bool["HornBoost"] = ui.add_bool_option(TRANSLATION["Horn boost"], __submenus["HornBoost"], function(bool) HudSound("TOGGLE_ON")
 	settings.Vehicle['HornBoost'] = bool
 	CreateRemoveThread(bool, 'vehicle_horn_boost',
 	function()
@@ -4846,9 +4996,7 @@ __options.bool["HornBoost"] = ui.add_bool_option(TRANSLATION["Horn boost"], __su
 	
 end)
 
-ui.add_separator(TRANSLATION["Enter/exit"], __submenus["Vehicle"])
-
-__options.bool["InstaEnter/ExitVehicle"] = ui.add_bool_option(TRANSLATION["Instant enter/exit vehicle"], __submenus["Vehicle"], function(bool) HudSound("TOGGLE_ON")
+__options.bool["InstaEnter/ExitVehicle"] = ui.add_bool_option(TRANSLATION["Instant enter/exit vehicle"], __submenus["EnterExitVeh"], function(bool) HudSound("TOGGLE_ON")
 	settings.Vehicle['InstaEnter/ExitVehicle'] = bool
 	CreateRemoveThread(bool, 'vehicle_insta_exit',
 	function()
@@ -4882,8 +5030,8 @@ __options.bool["InstaEnter/ExitVehicle"] = ui.add_bool_option(TRANSLATION["Insta
 	end)
 end)
 
-__options.bool["InstaEnter/ExitVehicleFroceDriver"] = ui.add_bool_option(TRANSLATION["Force driver seat"], __submenus["Vehicle"], function(bool) HudSound("TOGGLE_ON") settings.Vehicle["InstaEnter/ExitVehicleFroceDriver"] = bool end)
-__options.bool["StopVehWhenExit"] = ui.add_bool_option(TRANSLATION["Stop vehicle when exiting"], __submenus["Vehicle"], function(bool) HudSound("TOGGLE_ON")
+__options.bool["InstaEnter/ExitVehicleFroceDriver"] = ui.add_bool_option(TRANSLATION["Force driver seat"], __submenus["EnterExitVeh"], function(bool) HudSound("TOGGLE_ON") settings.Vehicle["InstaEnter/ExitVehicleFroceDriver"] = bool end)
+__options.bool["StopVehWhenExit"] = ui.add_bool_option(TRANSLATION["Stop vehicle when exiting"], __submenus["EnterExitVeh"], function(bool) HudSound("TOGGLE_ON")
 	settings.Vehicle["StopVehWhenExit"] = bool 
 	local veh
 	CreateRemoveThread(bool, 'veh_stop', function()
@@ -4891,21 +5039,13 @@ __options.bool["StopVehWhenExit"] = ui.add_bool_option(TRANSLATION["Stop vehicle
 			if vehicles.get_player_vehicle() == 0 then return end
 			veh = vehicles.get_player_vehicle()
 		end
-		if PAD.IS_CONTROL_JUST_PRESSED(0, enum.input.VEH_EXIT) == 1 or PAD.IS_DISABLED_CONTROL_JUST_PRESSED(0, enum.input.VEH_EXIT) == 1 then
+		if PAD.IS_DISABLED_CONTROL_JUST_PRESSED(0, enum.input.VEH_EXIT) == 1 then
 			features.request_control_once(veh)
 			VEHICLE.SET_VEHICLE_FORWARD_SPEED(veh, 0)
 			veh = nil
 		end
 	end)
 end)
-
-ui.add_separator(TRANSLATION["Other"], __submenus["Vehicle"])
-
-__submenus["VehicleWeapons"] = ui.add_submenu(TRANSLATION["Vehicle weapons"])
-__suboptions["VehicleWeapons"] = ui.add_sub_option(TRANSLATION["Vehicle weapons"], __submenus["Vehicle"],__submenus["VehicleWeapons"])
-
-__submenus["VehicleDoors"] = ui.add_submenu(HUD._GET_LABEL_TEXT("PIM_TDPV"))
-__suboptions["VehicleDoors"] = ui.add_sub_option(HUD._GET_LABEL_TEXT("PIM_TDPV"), __submenus["Vehicle"],__submenus["VehicleDoors"])
 
 do
 	ui.add_separator(TRANSLATION["Open/close"], __submenus["VehicleDoors"])
@@ -5240,6 +5380,41 @@ do
 end
 
 do
+	__options.num["VehicleAccelMult"] = ui.add_float_option(TRANSLATION["Acceleration multiplier"], __submenus["VehMultipliers"], 0, 200, .1, 2, function(float) HudSound("YES") settings.Vehicle["VehicleAccelMult"] = features.round(float, 1) end)
+	__options.num["VehicleBrakeMult"] = ui.add_float_option(TRANSLATION["Brake multiplier"], __submenus["VehMultipliers"], 0, 200, .1, 2, function(float) HudSound("YES") settings.Vehicle["VehicleBrakeMult"] = features.round(float, 1) end)
+	__options.num["VehicleHandlingMult"] = ui.add_float_option(TRANSLATION["Handling multiplier"], __submenus["VehMultipliers"], 0, 100, .1, 2, function(float) HudSound("YES") settings.Vehicle["VehicleHandlingMult"] = features.round(float, 1) end)
+
+	CreateRemoveThread(true, 'veh_multipliers', function()
+		local veh = vehicles.get_player_vehicle()
+		if veh == 0 then return end
+		local model = ENTITY.GET_ENTITY_MODEL(veh)
+		if VEHICLE.IS_THIS_MODEL_A_HELI(model) == 0 and (VEHICLE.IS_THIS_MODEL_A_PLANE(model) == 1 or VEHICLE.IS_VEHICLE_ON_ALL_WHEELS(veh) == 1) then 
+			if settings.Vehicle["VehicleAccelMult"] ~= 0 and PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_ACCELERATE) == 1 then
+				features.apply_force_to_entity(veh, 1, 0, settings.Vehicle["VehicleAccelMult"] / 69, 0, 0, 0, 0, 0, true, true, true, false, true)
+			end
+			if settings.Vehicle["VehicleBrakeMult"] ~= 0 and PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_BRAKE) == 1 then
+				features.apply_force_to_entity(veh, 0, 0, 0 - settings.Vehicle["VehicleAccelMult"], 0, 0, 0, 0, 0, true, true, true, false, true)
+			end
+			if settings.Vehicle["VehicleHandlingMult"] ~= 0 and ENTITY.GET_ENTITY_SPEED_VECTOR(veh, true).y > 2 then
+				if PAD._IS_USING_KEYBOARD(0) == 1 then
+					if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.SCRIPT_PAD_RIGHT) == 1 then
+						features.apply_force_to_entity(veh, 1, settings.Vehicle["VehicleHandlingMult"] / 220, 0, 0, 0, 0, 0, 0, true, true, true, false, true)
+					end
+					if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.SCRIPT_PAD_LEFT) == 1 then
+						features.apply_force_to_entity(veh, 1, (0 - settings.Vehicle["VehicleHandlingMult"]) / 220, 0, 0, 0, 0, 0, 0, true, true, true, false, true)
+					end
+				else
+					local normal = PAD.GET_CONTROL_NORMAL(2, enum.input.SCRIPT_LEFT_AXIS_X)
+					if normal > .5 or normal < -0.5 then
+						features.apply_force_to_entity(veh, 1, (settings.Vehicle["VehicleHandlingMult"] * normal) / 220, 0, 0, 0, 0, 0, 0, true, true, true, false, true)
+					end
+				end
+			end
+		end
+	end)
+end
+
+do
 	local types = {TRANSLATION['None'], TRANSLATION['Keyboard'], TRANSLATION['Cam fly'], TRANSLATION['Glide fly']}
 	local type = 0
 	__options.choose["VehicleFly"] = ui.add_choose(TRANSLATION["Vehicle fly"], __submenus["Vehicle"], false, types, function(int) HudSound("YES") type = int 
@@ -5360,7 +5535,7 @@ do
 	__options.bool["VehicleWeaponsShowLasers"] = ui.add_bool_option(TRANSLATION["Show lasers"], __submenus["VehicleWeapons"], function(bool) HudSound("TOGGLE_ON") settings.Vehicle["VehicleWeaponsShowLasers"] = bool end)
 	__options.bool["VehicleWeaponsAimCamera"] = ui.add_bool_option(TRANSLATION["Aim with camera"], __submenus["VehicleWeapons"], function(bool) HudSound("TOGGLE_ON") settings.Vehicle["VehicleWeaponsAimCamera"] = bool end)
 	__options.num["VehicleWeaponsDelay"] = ui.add_float_option(TRANSLATION["Delay between shots"], __submenus["VehicleWeapons"], 0, 5, .1, 3, function(float) HudSound("YES") settings.Vehicle["VehicleWeaponsDelay"] = features.round(float, 3) end)
-	local types = {TRANSLATION['None'], HUD._GET_LABEL_TEXT("WT_SNIP_HVY2"), HUD._GET_LABEL_TEXT("WT_RPG"), HUD._GET_LABEL_TEXT("BCK_WEAPON_5"), HUD._GET_LABEL_TEXT("WT_SNWBALL"), HUD._GET_LABEL_TEXT("WT_RAYPISTOL"), HUD._GET_LABEL_TEXT("WT_FIREWRK"), HUD._GET_LABEL_TEXT("WT_EMPL"), HUD._GET_LABEL_TEXT("WT_V_KHA_CA"), HUD._GET_LABEL_TEXT("LAZER")}
+	local types = {TRANSLATION['None'], HUD._GET_LABEL_TEXT("WT_SNIP_HVY2"), HUD._GET_LABEL_TEXT("WT_RPG"), HUD._GET_LABEL_TEXT("WT_MOLOTOV"), HUD._GET_LABEL_TEXT("WT_SNWBALL"), HUD._GET_LABEL_TEXT("WT_RAYPISTOL"), HUD._GET_LABEL_TEXT("WT_FIREWRK"), HUD._GET_LABEL_TEXT("WT_EMPL"), HUD._GET_LABEL_TEXT("WT_V_KHA_CA"), HUD._GET_LABEL_TEXT("LAZER")}
 	local weapons = {
 		177293209,
 		-1312131151,
@@ -5414,11 +5589,12 @@ do
 	end)
 end
 
-__options.num["VehicleLightMultiplier"] = ui.add_float_option(TRANSLATION["Lights intensity"], __submenus["Vehicle"], 0, 1000, .1, 1, function(float) HudSound("YES")
+__options.num["VehicleLightMultiplier"] = ui.add_float_option(TRANSLATION["Lights intensity"], __submenus["VehMultipliers"], 0, 1000, .1, 1, function(float) HudSound("YES")
 	local veh = vehicles.get_player_vehicle()
 	if veh == 0 then return end
 	VEHICLE.SET_VEHICLE_LIGHT_MULTIPLIER(veh, float)
 end)
+
 ui.set_value(__options.num["VehicleLightMultiplier"], 1, true)
 __options.num["VehicleAlpha"] = ui.add_num_option(TRANSLATION["Set alpha"], __submenus["Vehicle"], 0, 255, 1, function(int)
 	HudSound("YES")
@@ -5529,9 +5705,9 @@ do
 	        	local pearl, wheel = s_memory.allocate(2)
 	            VEHICLE.GET_VEHICLE_EXTRA_COLOURS(veh, pearl, wheel)
 	        	ui.set_num_max(veh_customs.wheels, VEHICLE.GET_NUM_VEHICLE_MODS(veh, 23))
-	            ui.set_value(veh_customs.custom_wheels, VEHICLE.GET_VEHICLE_MOD_VARIATION(veh, 23) == 1, true)
+	            ui.set_value(veh_customs.custom_wheels, VEHICLE.GET_VEHICLE_MOD_VARIATION(veh, 23) == 1 or VEHICLE.GET_VEHICLE_MOD_VARIATION(veh, 24) == 1, true)
 	            if VEHICLE.IS_THIS_MODEL_A_BIKE(ENTITY.GET_ENTITY_MODEL(veh)) == 1 then
-	                ui.set_value(veh_customs.wheels_front, VEHICLE.GET_VEHICLE_MOD(veh, 23) + 1, true)
+	                ui.set_value(veh_customs.wheels_front, VEHICLE.GET_VEHICLE_MOD(veh, 23), true)
 	                ui.set_value(veh_customs.wheels_back, VEHICLE.GET_VEHICLE_MOD(veh, 24) + 1, true)
 	            else
 	            	local wheel_type = VEHICLE.GET_VEHICLE_WHEEL_TYPE(veh)
@@ -5552,9 +5728,9 @@ do
 			if is_custom then
 				for k, v in pairs(veh_customs)
 				do
-					if k == 'sub_mods' or k == 'subopt_mods' then
+					if k == 'subopt_mods' then
 						ui.hide(v, true)
-					else
+					elseif k ~= 'sub_mods' then
 						ui.remove(v)
 					end
 				end
@@ -5580,6 +5756,9 @@ __suboptions["WorldEditorSpawned"] = ui.add_sub_option(TRANSLATION["Spawned"], _
 __submenus["WorldEditorMaps"] = ui.add_submenu(TRANSLATION["Maps"])
 __suboptions["WorldEditorMaps"] = ui.add_sub_option(TRANSLATION["Maps"], __submenus["WorldEditor"] , __submenus["WorldEditorMaps"])
 
+__submenus["WorldEditorSettings"] = ui.add_submenu(TRANSLATION["Settings"])
+__suboptions["WorldEditorSettings"] = ui.add_sub_option(TRANSLATION["Settings"], __submenus["WorldEditor"] , __submenus["WorldEditorSettings"])
+
 __submenus["WorldEditorSaveMap"] = ui.add_submenu(TRANSLATION["Save"])
 __suboptions["WorldEditorSaveMap"] = ui.add_sub_option(TRANSLATION["Save"], __submenus["WorldEditorMaps"] , __submenus["WorldEditorSaveMap"])
 ui.add_click_option(TRANSLATION["Open folder"], __submenus["WorldEditorMaps"], function(bool) HudSound("SELECT") if not filesystem.isdir(paths["SavedMaps"]) then filesystem.make_dir(paths["SavedMaps"]) end filesystem.open(paths["SavedMaps"]) end)
@@ -5601,15 +5780,15 @@ do
 	ui.add_separator(TRANSLATION["Database"], __submenus["WorldEditorSaveMap"])
 
 	ui.add_click_option(TRANSLATION["Save entities in database"], __submenus["WorldEditorSaveMap"], function()
-		if not name or name == "" then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Please enter name"], 255, 0, 0, 255) return HudSound("ERROR") end
-		local entities = EntityDb.GetEntitiesInDb(true)
+		if not name or name:isblank() then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Please enter name"], 255, 0, 0, 255) return HudSound("ERROR") end
+		local entities = EntityDb.GetEntitiesInDb()
 		if #entities == 0 then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["No entities in database"], 255, 0, 0, 255) return HudSound("ERROR") end
 		HudSound("SELECT")
 		if not filesystem.isdir(paths["SavedMaps"]) then
 			filesystem.make_dir(paths["SavedMaps"])
 		end
 		local refernce_pos = vector3(ui.get_value(x), ui.get_value(y), ui.get_value(z))
-		world_saver.save_map(entities, paths["SavedMaps"]..[[\]]..name..[[.json]], refernce_pos)
+		world_saver.save_map(entities, paths["SavedMaps"]:ensureend('\\')..name..[[.json]], refernce_pos)
 	end)
 
 	ui.add_separator(TRANSLATION["Nearby"], __submenus["WorldEditorSaveMap"])
@@ -5624,13 +5803,13 @@ do
 	end)
 
 	ui.add_click_option(TRANSLATION["Save nearby entities"], __submenus["WorldEditorSaveMap"], function()
-		if not name or name == "" then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Please enter name"], 255, 0, 0, 255) return HudSound("ERROR") end
+		if not name or name:isblank() then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Please enter name"], 255, 0, 0, 255) return HudSound("ERROR") end
 		local entities = {}
 		local distance = ui.get_value(__options.num["EntitySaveDistance"]) ^ 2
 		local pos = features.get_player_coords()
 		for _, v in ipairs(features.get_entities())
 		do
-			if ENTITY.IS_ENTITY_ATTACHED(v) == 0 and distance >= features.get_entity_coords(v):sqrlen(pos) then
+			if distance >= features.get_entity_coords(v):sqrlen(pos) then
 				insert(entities, v)
 			end
 		end
@@ -5640,7 +5819,7 @@ do
 			filesystem.make_dir(paths["SavedMaps"])
 		end
 		local refernce_pos = vector3(ui.get_value(x), ui.get_value(y), ui.get_value(z))
-		world_saver.save_map(entities, paths["SavedMaps"]..[[\]]..name..[[.json]], refernce_pos)
+		world_saver.save_map(entities, paths["SavedMaps"]:ensureend('\\')..name..[[.json]], refernce_pos)
 	end)
 
 	local repeats = 0
@@ -5654,8 +5833,8 @@ do
 		repeats = 0
 		for _, v in ipairs(files)
 		do
-			if v:sub(-5, -1) == '.json' then
-				local name = v:gsub('%.json', '')
+			if v:endswith('.json') then
+				local name = v:gsub('.json$', '')
 
 				local n = name:match("[^%s]*$"):gsub('%D', '')
 				if name:gsub(' %('..n..'%)', '') == TRANSLATION["My new map"] and name:sub(-len(' ('..n..')'), -1) == ' ('..n..')' then
@@ -5670,16 +5849,25 @@ do
 						sub_opt = ui.add_sub_option(name, __submenus["WorldEditorMaps"], sub),
 						spawn = ui.add_click_option(TRANSLATION["Spawn"], sub, function()
 							CreateRemoveThread(true, 'spawn_map', function()
-								local file = paths['SavedMaps']..[[\]]..v
+								local file = paths['SavedMaps']:ensureend('\\')..v
 								if not filesystem.exists(file) then HudSound("ERROR");system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["File doesn't exist"], 255, 0, 0, 255) return POP_THREAD end 
 								local data = json:decode(filesystem.read_all(file))
 								world_spawner.spawn_map(data)
+								if settings.World["WorldEditorTpToReference"] then
+									for _, v in ipairs(data)
+									do
+										if v.reference then
+											features.teleport(features.player_ped(), v.reference.x, v.reference.y, v.reference.z)
+											break
+										end
+									end
+								end
 								return POP_THREAD
 							end)
 						end),
 						teleport_to = ui.add_click_option(TRANSLATION["Teleport to reference"], sub, function()
 							CreateRemoveThread(true, 'tp_to_reference', function()
-								local file = paths['SavedMaps']..[[\]]..v
+								local file = paths['SavedMaps']:ensureend('\\')..v
 								if not filesystem.exists(file) then HudSound("ERROR");system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["File doesn't exist"], 255, 0, 0, 255) return POP_THREAD end 
 								local data = json:decode(filesystem.read_all(file))
 								local found
@@ -5697,14 +5885,14 @@ do
 							end)
 						end),
 						rename = ui.add_input_string(TRANSLATION["Rename"], sub, function(text)
-							if text == "" then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Please enter name"], 255, 0, 0, 255) return HudSound("ERROR") end
+							if text:isblank() then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Please enter name"], 255, 0, 0, 255) return HudSound("ERROR") end
 							if maps[text] then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Name already taken"], 255, 0, 0, 255) return HudSound("ERROR") end
-							os.rename(paths['SavedMaps']..[[\]]..v, paths['SavedMaps']..[[\]]..text..[[.json]])
+							os.rename(paths['SavedMaps']:ensureend('\\')..v, paths['SavedMaps']:ensureend('\\')..text..[[.json]])
 							RefreshMaps()
 						end),
 						delete = ui.add_click_option(TRANSLATION["Delete"], sub, function()
 							HudSound("SELECT")
-							os.remove(paths['SavedMaps']..[[\]]..v)
+							os.remove(paths['SavedMaps']:ensureend('\\')..v)
 							for _, e in pairs(maps[name])
 							do
 								ui.remove(e)
@@ -5780,6 +5968,168 @@ ui.add_click_option(TRANSLATION["Delete all entities"], __submenus["WorldEditorS
 	end
 end)
 
+do
+	local selected = {}
+	local options = {}
+
+	__submenus["WorldEditorEditEntities"] = ui.add_submenu(TRANSLATION["Edit entities"])
+	__suboptions["WorldEditorEditEntities"] = ui.add_sub_option(TRANSLATION["Edit entities"], __submenus["WorldEditorSpawned"], __submenus["WorldEditorEditEntities"])
+
+	__submenus["WorldEditorSelectEntities"] = ui.add_submenu(TRANSLATION["Select"])
+	__suboptions["WorldEditorSelectEntities"] = ui.add_sub_option(TRANSLATION["Select"], __submenus["WorldEditorEditEntities"], __submenus["WorldEditorSelectEntities"])
+
+	ui.add_click_option(TRANSLATION["Select all"],  __submenus["WorldEditorSelectEntities"], function()
+		local found
+		dont_play_tog = true
+		for _, v in pairs(options)
+		do
+			ui.set_value(v, true, false)
+			found = true
+		end
+		if found then HudSound("SELECT") else HudSound("ERROR") end
+	end)
+	ui.add_click_option(TRANSLATION["Unselect all"],  __submenus["WorldEditorSelectEntities"], function()
+		local found
+		dont_play_tog = true
+		for _, v in pairs(options)
+		do
+			ui.set_value(v, false, false)
+			found = true
+		end
+		if found then HudSound("SELECT") else HudSound("ERROR") end
+	end)
+	ui.add_separator(TRANSLATION["Entities"], __submenus["WorldEditorSelectEntities"])
+	CreateRemoveThread(true, 'entities_in_db', function()
+		if ui.is_sub_open(__submenus["WorldEditorEditEntities"]) or ui.is_sub_open(__submenus["WorldEditorSelectEntities"]) then
+			for k, v in pairs(EntityDb.entity_data)
+			do
+				if not options[k] and v.valid == 1 then
+					options[k] = ui.add_bool_option(v.name, __submenus["WorldEditorSelectEntities"], function(bool)
+						HudSound("TOGGLE_ON")
+						selected[k] = bool			
+					end)
+				end
+			end
+			for k, v in pairs(options)
+			do
+				if not EntityDb.entity_data[k] or EntityDb.entity_data[k].valid == 0 then
+					ui.remove(v)
+					selected[k] = nil
+					options[k] = nil
+				end
+			end
+		else
+			for _, v in pairs(options)
+			do
+				ui.remove(v)
+			end
+			selected = {}
+			options = {}
+		end
+	end)
+
+	local position = {}
+	local step_val = {'0.0001','0.001', '0.01', '0.1', '1.0', '10.0', '100.0'}
+	local step = ui.add_choose(TRANSLATION["Step"], __submenus["WorldEditorEditEntities"], true, step_val, function(type)
+		HudSound("YES")
+		local value = tonumber(step_val[type + 1])
+		for _, v in pairs(position)
+		do
+			ui.set_step(v, value)
+		end
+	end)
+	dont_play_tog = true
+	ui.set_value(step, 3, false)
+	position.x = ui.add_float_option("X", __submenus["WorldEditorEditEntities"], -10000, 10000, .1, 4, function(float)
+		local found
+		for k in pairs(selected)
+		do
+			local pos = features.get_entity_coords(k)
+			features.teleport(k, pos.x + float, pos.y, pos.z)
+			found = true
+		end
+		if found then HudSound("SELECT") else HudSound("ERROR") end
+		ui.set_value(position.x, 0, true)
+	end)
+	position.y = ui.add_float_option("Y", __submenus["WorldEditorEditEntities"], -10000, 10000, .1, 4, function(float)
+		local found
+		for k in pairs(selected)
+		do
+			local pos = features.get_entity_coords(k)
+			features.teleport(k, pos.x, pos.y + float, pos.z)
+			found = true
+		end
+		if found then HudSound("SELECT") else HudSound("ERROR") end
+		ui.set_value(position.y, 0, true)
+	end)
+	position.z = ui.add_float_option("Z", __submenus["WorldEditorEditEntities"], -10000, 10000, .1, 4, function(float)
+		local found
+		for k in pairs(selected)
+		do
+			local pos = features.get_entity_coords(k)
+			features.teleport(k, pos.x, pos.y, pos.z + float)
+			found = true
+		end
+		if found then HudSound("SELECT") else HudSound("ERROR") end
+		ui.set_value(position.z, 0, true)
+	end)
+
+	position.pitch = ui.add_float_option(TRANSLATION["Pitch"], __submenus["WorldEditorEditEntities"], -10000, 10000, .1, 4, function(float)
+		local found
+		for k in pairs(selected)
+		do
+			local rot = features.get_entity_rot(k)
+			ENTITY.SET_ENTITY_ROTATION(k, rot.x + float, rot.y, rot.z, 2, true)
+			found = true
+		end
+		if found then HudSound("SELECT") else HudSound("ERROR") end
+		ui.set_value(position.pitch, 0, true)
+	end)
+	position.roll = ui.add_float_option(TRANSLATION["Roll"], __submenus["WorldEditorEditEntities"], -10000, 10000, .1, 4, function(float)
+		local found
+		for k in pairs(selected)
+		do
+			local rot = features.get_entity_rot(k)
+			ENTITY.SET_ENTITY_ROTATION(k, rot.x, rot.y + float, rot.z, 2, true)
+			found = true
+		end
+		if found then HudSound("SELECT") else HudSound("ERROR") end
+		ui.set_value(position.roll, 0, true)
+	end)
+	position.yaw = ui.add_float_option(TRANSLATION["Yaw"], __submenus["WorldEditorEditEntities"], -10000, 10000, .1, 4, function(float)
+		local found
+		for k in pairs(selected)
+		do
+			local rot = features.get_entity_rot(k)
+			ENTITY.SET_ENTITY_ROTATION(k, rot.x, rot.y, rot.z + float, 2, true)
+			found = true
+		end
+		if found then HudSound("SELECT") else HudSound("ERROR") end
+		ui.set_value(position.yaw, 0, true)
+	end)
+
+	ui.add_click_option(TRANSLATION["Copy"], __submenus["WorldEditorEditEntities"], function()
+		local found
+		for k in pairs(selected)
+		do
+			world_spawner.copy_entity(k, false)
+			found = true
+		end
+		if found then HudSound("SELECT") else HudSound("ERROR") end
+	end)
+
+	ui.add_click_option(TRANSLATION["Delete"], __submenus["WorldEditorEditEntities"], function()
+		local found
+		for k in pairs(selected)
+		do
+			features.delete_entity(k)
+			EntityDb.RemoveFromDatabase(k)
+			found = true
+		end
+		if found then HudSound("SELECT") else HudSound("ERROR") end
+	end)
+end
+
 ui.add_separator(TRANSLATION["Entities"], __submenus["WorldEditorSpawned"])
 do
 	local wait = 0
@@ -5790,7 +6140,8 @@ do
 	  	:case(1, function(IsPointingAtEntity)
 			if IsPointingAtEntity then
 				Instructional.AddButton(enum.input.ATTACK2, TRANSLATION["Grab entity"])
-				Instructional.AddButton(enum.input.INPUT_FRONTEND_DELETE, TRANSLATION["Delete"])
+				Instructional.AddButton(enum.input.FRONTEND_DELETE, TRANSLATION["Delete"])
+				Instructional.AddButton(enum.input.VEH_LOOK_BEHIND, TRANSLATION["Copy"])
 			end
 		  	Instructional.AddButton(enum.input.VEH_SUB_ASCEND, TRANSLATION["Faster"])
 		  	Instructional.AddButton(enum.input.VEH_FLY_THROTTLE_UP, TRANSLATION["Forward"])
@@ -5810,13 +6161,16 @@ do
 		  	Instructional.AddButton(enum.input.VEH_RADIO_WHEEL, TRANSLATION["Yaw"])
 		end)
 
-	__options.num["FreeCamSens"] = ui.add_num_option(TRANSLATION["Free cam sensitivity"], __submenus["WorldEditor"], 1, 100, 5, function(int) HudSound("YES") settings.World["FreeCamSens"] = int end)
+	__options.num["FreeCamSens"] = ui.add_num_option(TRANSLATION["Free cam sensitivity"], __submenus["WorldEditorSettings"], 1, 100, 5, function(int) HudSound("YES") settings.World["FreeCamSens"] = int end)
+	__options.num["FreeCamMovement"] = ui.add_float_option(TRANSLATION["Free cam movement speed"], __submenus["WorldEditorSettings"], 0, 10, .1, 1, function(float) HudSound("YES") settings.World["FreeCamMovement"] = features.round(float, 1) end)
+
 	__options.bool["FreeCam"] = ui.add_bool_option(TRANSLATION["Free cam"], __submenus["WorldEditor"], function(bool) HudSound("TOGGLE_ON")
 		HUD.DISPLAY_RADAR(not bool)
 		if not bool then
 			CAM.RENDER_SCRIPT_CAMS(false, false, 0, true, false, 0)
 			CAM.SET_CAM_ACTIVE(cam, false)
 			CAM.DESTROY_CAM(cam, false)
+			globals.set_int(20266 + 1, 0)
 			cam = 0
 		elseif ui.get_value(__options.choose["NoClip"] ~= 0) then
 			dont_play_tog = true
@@ -5824,7 +6178,7 @@ do
 		end
 		ENTITY.FREEZE_ENTITY_POSITION(features.player_ped(), bool)
 		local Entity
-		CreateRemoveThread(bool, 'free_cam', function()
+		CreateRemoveThread(bool, 'free_cam', function(tick)
 			ENTITY.FREEZE_ENTITY_POSITION(features.player_ped(), true)
 			local add_to_db = nil
 			if CAM.DOES_CAM_EXIST(cam) == 0 then
@@ -5842,12 +6196,11 @@ do
 				local IsPointingAtEntity
 				local instructional_type = 1
 				PAD.DISABLE_ALL_CONTROL_ACTIONS(0)
-				globals.set_int(19937, 1) -- disable phone
+				globals.set_int(20266 + 1, 1) -- disable phone
 				local color = {r = 255, g = 255, b = 255}
-				local rot = vector3(CAM.GET_CAM_ROT(cam, 2))
-				local start = vector3(CAM.GET_CAM_COORD(cam))
-				local end_pos = start + (rot:rot_to_direction() * 50)
-				local result = features.get_raycast_result(start, end_pos, 0, 2+4+8+16)
+				local rot = cam_rot
+				local end_pos = cam_pos + (rot:rot_to_direction() * 50)
+				local result = features.get_raycast_result(cam_pos, end_pos, 0, 2+4+8+16)
 				if result.hitEntity ~= 0 and not Entity then
 					entity = result.hitEntity
 					color = {r = 0, g = 255, b = 0}
@@ -5863,96 +6216,124 @@ do
 							EntityDb.RemoveFromDatabase(entity)
 						end
 					end
-					if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.INPUT_FRONTEND_DELETE) == 1 then
+					if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.FRONTEND_DELETE) == 1 then
 						features.delete_entity(entity)
 						EntityDb.RemoveFromDatabase(entity)
 					end
+					if PAD.IS_DISABLED_CONTROL_JUST_PRESSED(0, enum.input.VEH_LOOK_BEHIND) == 1 then
+						CreateRemoveThread(true, 'copy_entity', function(tick)
+							if tick < 2 then return end
+							world_spawner.copy_entity(entity, false)
+							return POP_THREAD
+						end)
+					end
+				end
+				local X = -PAD.GET_DISABLED_CONTROL_NORMAL(0, enum.input.LOOK_LR) * (settings.World["FreeCamSens"] / 10)
+				local Y = -PAD.GET_DISABLED_CONTROL_NORMAL(0, enum.input.LOOK_UD) * (settings.World["FreeCamSens"] / 10)
+				cam_rot = vector3((rot.x + Y > -89 and rot.x + Y < 89) and rot.x + Y or rot.x, 0, rot.z + X)
+				CAM.SET_CAM_ROT(cam, cam_rot.x, cam_rot.y, cam_rot.z, 2)
+				local mult = .3 * settings.World["FreeCamMovement"]
+				if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_SUB_ASCEND) == 1 then
+			    	mult = 1 * settings.World["FreeCamMovement"]
+			    end
+				local pos = vector3.zero()
+			    if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_FLY_THROTTLE_UP) == 1 then
+			    	pos = pos + vector3.forward(mult)
+			    end
+			    if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_FLY_THROTTLE_DOWN) == 1 then
+			      pos = pos + vector3.back(mult)
+			    end
+			    if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_FLY_YAW_LEFT) == 1 then
+			      pos = pos + vector3.left(mult)
+			    end
+			    if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_FLY_YAW_RIGHT) == 1 then
+			       pos = pos + vector3.right(mult)
+			    end
+			    if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_PUSHBIKE_SPRINT) == 1 then
+			      pos = pos + vector3.up(mult)
+			    end
+			    if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_SUB_DESCEND) == 1 then
+			      pos = pos + vector3.down(mult)
+			    end
+			    if wait < clock() then
+					local _cam_pos = features.get_offset_cam_coords(cam, pos)
+					local my_coord = features.get_player_coords()
+					if _cam_pos:sqrlen(my_coord) > 160000 then
+						if tick%20==0 then AUDIO.PLAY_SOUND_FRONTEND(-1, "ERROR", "HUD_FRONTEND_TATTOO_SHOP_SOUNDSET", true) end
+						GRAPHICS._DRAW_SPHERE(my_coord.x, my_coord.y, my_coord.z, 400, 255, 0, 0, .2)
+					else
+						cam_pos = _cam_pos
+					end
+					if _cam_pos:sqrlen(my_coord) > 2500 then
+						GRAPHICS.DRAW_LINE(my_coord.x, my_coord.y, -1000, my_coord.x, my_coord.y, 6000, 0, 255, 0, 255)
+					end
+					CAM.SET_CAM_COORD(cam, cam_pos.x, cam_pos.y, cam_pos.z)
 				end
 				if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.ATTACK2) == 1 then
 					if not Entity and entity then
 						Entity = entity
 					elseif Entity then
 						instructional_type = 2
-						entities.request_control(Entity, function()
-							local pos = start + (rot:rot_to_direction() * 20)
-							features.teleport(Entity, pos.x, pos.y, pos.z)
-							erot = features.get_entity_rot(Entity)
-							local mult = 1
-							if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_SUB_ASCEND) == 1 then
-								mult = 10
-					    end
-							if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.CELLPHONE_UP) == 1 then
-								erot = erot + vector3.right() / mult
-							end
-							if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.CELLPHONE_DOWN) == 1 then
-								erot = erot + vector3.left() / mult
-							end
-							if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_LOOK_BEHIND) == 1 then
-								erot = erot + vector3.forward() / mult
-							end
-							if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.MULTIPLAYER_INFO) == 1 then
-								erot = erot + vector3.back() / mult
-							end
-							if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_HORN) == 1 then
-								erot = erot + vector3.up() / mult
-							end
-							if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_RADIO_WHEEL) == 1 then
-								erot = erot + vector3.down() / mult
-							end
-							rot = erot
-							ENTITY.SET_ENTITY_ROTATION(Entity, erot.x, erot.y, erot.z, 2, true)
-						end)	
-						color = {r = 255, g = 100, b = 0}					
+						features.request_control_once(Entity)
+						local pos = cam_pos + (cam_rot:rot_to_direction() * 20)
+						erot = features.get_entity_rot(Entity)
+						local mult = 1
+						if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_SUB_ASCEND) == 1 then
+							mult = 10
+				    	end
+						if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.CELLPHONE_UP) == 1 then
+							erot = erot + vector3.right() / mult
+						end
+						if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.CELLPHONE_DOWN) == 1 then
+							erot = erot + vector3.left() / mult
+						end
+						if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_LOOK_BEHIND) == 1 then
+							erot = erot + vector3.forward() / mult
+						end
+						if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.MULTIPLAYER_INFO) == 1 then
+							erot = erot + vector3.back() / mult
+						end
+						if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_HORN) == 1 then
+							erot = erot + vector3.up() / mult
+						end
+						if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_RADIO_WHEEL) == 1 then
+							erot = erot + vector3.down() / mult
+						end
+						rot = erot
+						ENTITY.SET_ENTITY_ROTATION(Entity, erot.x, erot.y, erot.z, 2, true)
+						local endCoords = cam_pos + (cam_rot:rot_to_direction() * 100)
+						local result2 = features.get_raycast_result(cam_pos, endCoords, Entity, -1)
+						if result2.didHit and settings.World["WorldEditorPlacementAssist"] then
+							local dim = features.get_model_dimentions(ENTITY.GET_ENTITY_MODEL(Entity))
+							pos = vector3(result2.endCoords.x, result2.endCoords.y, result2.endCoords.z + abs(dim.z))
+						end
+						ENTITY.SET_ENTITY_COORDS_NO_OFFSET(Entity, pos.x, pos.y, pos.z, false, false, false)
+						color = {r = 255, g = 100, b = 0}
 					end
 				else
 					Entity = nil
 				end
 				features.draw_crosshair(20, 20, 0, 2, color.r, color.g, color.b, 255, true, true, true, true, 0, 0, 0, 0, 0, false)
-				local X = -PAD.GET_DISABLED_CONTROL_NORMAL(0, enum.input.LOOK_LR) * (settings.World["FreeCamSens"] / 10)
-				local Y = -PAD.GET_DISABLED_CONTROL_NORMAL(0, enum.input.LOOK_UD) * (settings.World["FreeCamSens"] / 10)
-				cam_rot = vector3((rot.x + Y > -89 and rot.x + Y < 89) and rot.x + Y or rot.x, 0, rot.z + X)
-				CAM.SET_CAM_ROT(cam, cam_rot.x, cam_rot.y, cam_rot.z, 2)
-				local mult = .3
-				if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_SUB_ASCEND) == 1 then
-		    	mult = 1
-		    end
-				local pos = vector3.zero()
-		    if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_FLY_THROTTLE_UP) == 1 then
-		    	pos = pos + vector3.forward(mult)
-		    end
-		    if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_FLY_THROTTLE_DOWN) == 1 then
-		      pos = pos + vector3.back(mult)
-		    end
-		    if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_FLY_YAW_LEFT) == 1 then
-		      pos = pos + vector3.left(mult)
-		    end
-		    if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_FLY_YAW_RIGHT) == 1 then
-		       pos = pos + vector3.right(mult)
-		    end
-		    if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_PUSHBIKE_SPRINT) == 1 then
-		      pos = pos + vector3.up(mult)
-		    end
-		    if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.VEH_SUB_DESCEND) == 1 then
-		      pos = pos + vector3.down(mult)
-		    end
-		    if wait < clock() then
-			    cam_pos = features.get_offset_cam_coords(cam, pos)
-			    CAM.SET_CAM_COORD(cam, cam_pos.x, cam_pos.y, cam_pos.z)
-			  end
-			  if settings.General["ShowControls"] and Instructional:New() then
-				 DrawInstructions(instructional_type, IsPointingAtEntity)
-			    if add_to_db then
-			    	Instructional.AddButton(enum.input.SPECIAL_ABILITY_SECONDARY, TRANSLATION["Add to database"])
-			    elseif add_to_db == false then
-			    	Instructional.AddButton(enum.input.SPECIAL_ABILITY_SECONDARY, TRANSLATION["Remove from db"])
-			    end
-
-			    Instructional:BackgroundColor(0, 0, 0, 80)
-		    	Instructional:Draw()
-		    end
-		  end
+				if settings.General["ShowControls"] and Instructional:New() then
+					DrawInstructions(instructional_type, IsPointingAtEntity)
+				    if add_to_db then
+				    	Instructional.AddButton(enum.input.SPECIAL_ABILITY_SECONDARY, TRANSLATION["Add to database"])
+				    elseif add_to_db == false then
+				    	Instructional.AddButton(enum.input.SPECIAL_ABILITY_SECONDARY, TRANSLATION["Remove from db"])
+				    end
+				    Instructional:BackgroundColor(0, 0, 0, 80)
+			    	Instructional:Draw()
+		    	end
+		  	end
 		end)
 	end)
+	__options.bool["WorldEditorPlacementAssist"] = ui.add_bool_option(TRANSLATION["Easy placement"], __submenus["WorldEditorSettings"], function(bool) HudSound("TOGGLE_ON") settings.World["WorldEditorPlacementAssist"] = bool end)
+	__options.bool["WorldEditorTpToReference"] = ui.add_bool_option(TRANSLATION["Auto teleport to reference"], __submenus["WorldEditorSettings"], function(bool) HudSound("TOGGLE_ON") settings.World["WorldEditorTpToReference"] = bool end)
+	ui.add_separator(TRANSLATION["Spawn settings"], __submenus["WorldEditorSettings"])
+	__options.bool["WorldEditorSpawnInvincible"] = ui.add_bool_option(TRANSLATION["Spawn invincible"], __submenus["WorldEditorSettings"], function(bool) HudSound("TOGGLE_ON") settings.World["WorldEditorSpawnInvincible"] = bool end)
+	__options.bool["WorldEditorBlockFleeing"] = ui.add_bool_option(TRANSLATION["Block fleeing"], __submenus["WorldEditorSettings"], function(bool) HudSound("TOGGLE_ON") settings.World["WorldEditorBlockFleeing"] = bool end)
+	__options.bool["WorldEditorSpawnFrozen"] = ui.add_bool_option(TRANSLATION["Spawn frozen in place"], __submenus["WorldEditorSettings"], function(bool) HudSound("TOGGLE_ON") settings.World["WorldEditorSpawnFrozen"] = bool end)
+
 	local preview_obj = 1
 	local preview_ped = 1
 	local preview_veh = 1 
@@ -5964,8 +6345,14 @@ do
 			if loaded == 0 then return end
 			local pos = CAM.DOES_CAM_EXIST(cam) == 1 and cam_pos or features.gameplay_cam_pos()
 			local crot = CAM.DOES_CAM_EXIST(cam) == 1 and cam_rot or features.gameplay_cam_rot()
-			local dir = crot:rot_to_direction() * 10
-			pos = pos + dir
+			local endCoords = pos + (crot:rot_to_direction() * 100)
+			local result = features.get_raycast_result(pos, endCoords, created_preview2, -1)
+			if result.didHit and settings.World["WorldEditorPlacementAssist"] then
+				local dim = features.get_model_dimentions(ENTITY.GET_ENTITY_MODEL(created_preview2))
+				pos = vector3(result.endCoords.x, result.endCoords.y, result.endCoords.z + abs(dim.z))
+			else
+				pos = pos + crot:rot_to_direction() * 10
+			end
 			local entity
 			if STREAMING.IS_MODEL_A_PED(ihash) == 1 then
 				entity = peds.create_ped(ihash, pos)
@@ -5976,37 +6363,69 @@ do
 				entity = features.create_object(ihash, pos)
 			end
 			STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(ihash)
+			if settings.World["WorldEditorSpawnInvincible"] then
+				if ENTITY.IS_ENTITY_A_VEHICLE(entity) == 1 then
+					vehicles.set_godmode(entity, true)
+				else
+					features.set_godmode(entity, true)
+				end
+			end
 			ENTITY.FREEZE_ENTITY_POSITION(entity, true)
 			if created_preview2 then
 				ENTITY.SET_ENTITY_ROTATION(entity, rot.x, rot.y, rot.z, 2, true)
 			end
 			ENTITY.SET_ENTITY_COORDS(entity, pos.x, pos.y, pos.z, false, false, false, false)
 			EntityDb.AddEntityToDatabase(entity)
+			if settings.World["WorldEditorBlockFleeing"] then
+				EntityDb.entity_data[entity].noflee = true
+				peds.calm_ped(entity, true)
+			end
+			if settings.World["WorldEditorSpawnFrozen"] then
+				EntityDb.entity_data[entity].freeze_position = true
+			end
 			return POP_THREAD
 		end)
 	end
-	local step_val = {'0.001', '0.01', '0.1', '1.0', '10.0', '100.0'}
+	local step_val = {'0.0001','0.001', '0.01', '0.1', '1.0', '10.0', '100.0'}
 	ui.add_input_string(TRANSLATION["Input model"], __submenus["WorldEditor"], function(text)
 		if not text or text == '' then return HudSound("ERROR") end
 		local text = text:lower()
+		local data = cache:get("Input: "..text)
+		if data then
+			if data == 'none' then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Sorry I couldn't find any matching model"], 225, 0, 0, 225) return HudSound("ERROR") end
+			Spawn(data)
+			return
+		end
 		local hash = tonumber(text) and tonumber(text) or utils.joaat(text)
 		if STREAMING.IS_MODEL_VALID(hash) == 1 then
+			cache:set("Input: "..text, hash, 100000)
 			Spawn(hash)
-		else
-			for _, v in ipairs(vehicles.data)
-			do
-				if v.Name:find(text) or (v.DisplayName and v.DisplayName:lower():find(text)) or vehicles.get_label_name(v.Hash):lower():find(text) then
-					hash = v.Hash
-					break
-				end
-			end
-			if STREAMING.IS_MODEL_VALID(hash) == 1 and STREAMING.IS_MODEL_A_VEHICLE(hash) == 1 then
-				Spawn(hash)
-			else
-				system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Sorry I couldn't find any matching model"], 225, 0, 0, 225)
-				HudSound("ERROR")
+			return
+		end
+		for _, v in ipairs(vehicles.data)
+		do
+			if v.Name:find(text) or (v.DisplayName and v.DisplayName:lower():find(text)) or vehicles.get_label_name(v.Hash):lower():find(text) then
+				hash = v.Hash
+				break
 			end
 		end
+		if STREAMING.IS_MODEL_VALID(hash) == 1 and STREAMING.IS_MODEL_A_VEHICLE(hash) == 1 then
+			cache:set("Input: "..text, hash, 100000)
+			Spawn(hash)
+			return
+		end
+		for _, v in ipairs(peds.models)
+		do
+			local name = peds.GetPedName(v)
+			if v:find(text) or (name and name:lower():find(text)) then
+				cache:set("Input: "..text, v, 100000)
+				Spawn(v)
+				return
+			end
+		end
+		cache:set("Input: "..text, 'none', 100000)
+		system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Sorry I couldn't find any matching model"], 225, 0, 0, 225)
+		HudSound("ERROR")
 	end)
 
 	__submenus["WorldPeds"] = ui.add_submenu(TRANSLATION["Spawn ped"])
@@ -6027,7 +6446,7 @@ do
 	    "Story",
 	    "Story scenario female",
 	    "Story scenario male",
-	    "Unsorted",
+	    "Other",
 	}	
 	local sel_ped = ui.add_choose(TRANSLATION["Select type"], __submenus["WorldPeds"], true, pedtypes, function(int) HudSound("YES") ped_type = int + 1
 		if curr_type then 
@@ -6038,7 +6457,7 @@ do
 	ui.set_value(sel_class, class, true)
 	CreateRemoveThread(true, 'selected_ped_'..thread_count, function()
 		if not curr_type then
-			curr_type = ui.add_choose(TRANSLATION["Select ped"], __submenus["WorldPeds"], false, peds.sorted[ped_type], function(int) HudSound("YES") Spawn(peds.sorted[ped_type][int + 1]) end)
+			curr_type = ui.add_choose(TRANSLATION["Select ped"], __submenus["WorldPeds"], false, peds.get_table_names(peds.sorted[ped_type]), function(int) HudSound("YES") Spawn(peds.sorted[ped_type][int + 1]) end)
 		end
 	end)
 
@@ -6048,7 +6467,7 @@ do
 	local selected = 0
 	local classes = {}
 	local curr_class
-	for i = 0, 22
+	for i = 0, 61
 	do
 		insert(classes, enum.vehicle_class[i])
 	end
@@ -6191,14 +6610,21 @@ do
 			rot = vector3.zero()
 		else
 			if ENTITY.DOES_ENTITY_EXIST(created_preview2) == 0 then created_preview2 = nil return end
-			local pos = CAM.DOES_CAM_EXIST(cam) == 1 and cam_pos or features.gameplay_cam_pos()
-			local crot = CAM.DOES_CAM_EXIST(cam) == 1 and cam_rot or features.gameplay_cam_rot()
-			local dir = crot:rot_to_direction() * 10
-			pos = pos + dir
-			features.draw_box_on_entity2(created_preview2, pos)
+			peds.calm_ped(created_preview2, true)
 			features.set_godmode(created_preview2, true)
 			ENTITY.FREEZE_ENTITY_POSITION(created_preview2, true)
+			local pos = CAM.DOES_CAM_EXIST(cam) == 1 and cam_pos or features.gameplay_cam_pos()
+			local crot = CAM.DOES_CAM_EXIST(cam) == 1 and cam_rot or features.gameplay_cam_rot()
+			local endCoords = pos + (crot:rot_to_direction() * 100)
+			local result = features.get_raycast_result(pos, endCoords, created_preview2, -1)
+			if result.didHit and settings.World["WorldEditorPlacementAssist"] then
+				local dim = features.get_model_dimentions(ENTITY.GET_ENTITY_MODEL(created_preview2))
+				pos = vector3(result.endCoords.x, result.endCoords.y, result.endCoords.z + abs(dim.z))
+			else
+				pos = pos + crot:rot_to_direction() * 10
+			end
 			ENTITY.SET_ENTITY_COORDS_NO_OFFSET(created_preview2, pos.x, pos.y, pos.z, false, false, false)
+			features.draw_box_on_entity2(created_preview2, pos)
 			ENTITY.SET_ENTITY_ALPHA(created_preview2, 160, false)
 			ENTITY.SET_ENTITY_COLLISION(created_preview2, false, false)
 			erot = features.get_entity_rot(created_preview2)
@@ -6285,7 +6711,7 @@ do
 	end
 
 	local classes = {}
-	for i = 0, 22
+	for i = 0, 61
 	do
 		insert(classes, enum.vehicle_class[i])
 	end
@@ -6299,6 +6725,49 @@ do
 	end
 
 	local function AddMenuPed(ped, sub, parent, v)
+		parent.block_flee = ui.add_bool_option(TRANSLATION["Block fleeing"], sub, function(bool)
+			if v.valid == 0 then return HudSound("ERROR") end
+			HudSound("TOGGLE_ON")
+			peds.calm_ped(ped, bool)
+			v.noflee = bool
+		end)
+		parent.can_ragdoll = ui.add_bool_option(TRANSLATION["Can ragdoll"], sub, function(bool)
+			if v.valid == 0 then return HudSound("ERROR") end
+			HudSound("TOGGLE_ON")
+			entities.request_control(ped, function()
+				PED.SET_PED_CAN_RAGDOLL(ped, bool)
+				PED.SET_PED_CAN_RAGDOLL_FROM_PLAYER_IMPACT(ped, bool)
+			end)
+		end)
+		parent.is_tiny = ui.add_bool_option(TRANSLATION["Tiny"], sub, function(bool)
+			if v.valid == 0 then return HudSound("ERROR") end
+			HudSound("TOGGLE_ON")
+			entities.request_control(ped, function()
+				PED.SET_PED_CONFIG_FLAG(ped, 223, bool)
+			end)
+		end)
+		parent.ped_health = ui.add_num_option(TRANSLATION["Health"], sub, 0, PED.GET_PED_MAX_HEALTH(ped), 1, function(int)
+			if v.valid == 0 then return HudSound("ERROR") end
+			HudSound("YES")
+			entities.request_control(ped, function()
+				ENTITY.SET_ENTITY_HEALTH(ped, int, 0)
+			end)
+		end)
+		parent.ped_armor = ui.add_num_option(TRANSLATION["Armour"], sub, 0, 100, 1, function(int)
+			if v.valid == 0 then return HudSound("ERROR") end
+			HudSound("YES")
+			entities.request_control(ped, function()
+				PED.SET_PED_ARMOUR(ped, int)
+			end)
+		end)
+		parent.weapons_choose = ui.add_choose(TRANSLATION["Give weapon"], sub, false, weapons.names, function(int)
+			if v.valid == 0 then return HudSound("ERROR") end
+			HudSound("YES")
+			if WEAPON.HAS_PED_GOT_WEAPON(ped, weapons.hashes[int+1], false) == 0 then
+				WEAPON.GIVE_WEAPON_TO_PED(ped, weapons.hashes[int+1], 9999, false, true)
+			end
+			WEAPON.SET_CURRENT_PED_WEAPON(ped, weapons.hashes[int+1], true)
+		end)
 		parent.wardobe_sub = ui.add_submenu(TRANSLATION["Wardrobe"])
 		parent.wardobe_subopt = ui.add_sub_option(TRANSLATION["Wardrobe"], sub, parent.wardobe_sub)
 		parent.wardobe_default = ui.add_click_option(TRANSLATION["Default"], parent.wardobe_sub, function()
@@ -6352,39 +6821,41 @@ do
 
 		EntityDb.entity_data[ped].props = {}
 		local props_names = {}
-		for i = 0, 7 do
+		for i = 0, 9 do
 			if PED.GET_NUMBER_OF_PED_PROP_DRAWABLE_VARIATIONS(ped, i) ~= 0 then
 				insert(EntityDb.entity_data[ped].props, i)
 				insert(props_names, TRANSLATION[enum.props[i+1]] or enum.props[i+1])
 			end
 		end
-		parent.prop_choose = ui.add_choose(TRANSLATION["Prop"], parent.wardobe_sub, true, props_names, function(int)
-			if v.valid == 0 then return HudSound("ERROR") end
-			HudSound("YES")
-			ui.set_num_max(parent.prop_id, PED.GET_NUMBER_OF_PED_PROP_DRAWABLE_VARIATIONS(ped, EntityDb.entity_data[ped].props[int+1]) - 1)
-		end)
-		parent.prop_id = ui.add_num_option(TRANSLATION["Variation"], parent.wardobe_sub, -1, 0, 1, function(int)
-			if v.valid == 0 then return HudSound("ERROR") end
-			HudSound("YES")
-			entities.request_control(ped, function()
-				local id = EntityDb.entity_data[ped].props[ui.get_value(parent.prop_choose)+1]
-				if int == - 1 then
-					PED.CLEAR_PED_PROP(ped, id)
-				else
-					PED.SET_PED_PROP_INDEX(ped, id, int, 0, true)
-				end
+		if #props_names ~= 0 then
+			parent.prop_choose = ui.add_choose(TRANSLATION["Prop"], parent.wardobe_sub, true, props_names, function(int)
+				if v.valid == 0 then return HudSound("ERROR") end
+				HudSound("YES")
+				ui.set_num_max(parent.prop_id, PED.GET_NUMBER_OF_PED_PROP_DRAWABLE_VARIATIONS(ped, EntityDb.entity_data[ped].props[int+1]) - 1)
 			end)
-		end)
-		parent.proptexture_id = ui.add_num_option(TRANSLATION["Texture"], parent.wardobe_sub, 0, 0, 1, function(int)
-			if v.valid == 0 then return HudSound("ERROR") end
-			HudSound("YES")
-			entities.request_control(ped, function()
-				local id = EntityDb.entity_data[ped].props[ui.get_value(parent.prop_choose)+1]
-				local prop = PED.GET_PED_PROP_INDEX(ped, id)
-				if prop == -1 then return end
-				PED.SET_PED_COMPONENT_VARIATION(ped, id, prop, int, true)
+			parent.prop_id = ui.add_num_option(TRANSLATION["Variation"], parent.wardobe_sub, -1, 0, 1, function(int)
+				if v.valid == 0 then return HudSound("ERROR") end
+				HudSound("YES")
+				entities.request_control(ped, function()
+					local id = EntityDb.entity_data[ped].props[ui.get_value(parent.prop_choose)+1]
+					if int == - 1 then
+						PED.CLEAR_PED_PROP(ped, id)
+					else
+						PED.SET_PED_PROP_INDEX(ped, id, int, 0, true)
+					end
+				end)
 			end)
-		end)
+			parent.proptexture_id = ui.add_num_option(TRANSLATION["Texture"], parent.wardobe_sub, 0, 0, 1, function(int)
+				if v.valid == 0 then return HudSound("ERROR") end
+				HudSound("YES")
+				entities.request_control(ped, function()
+					local id = EntityDb.entity_data[ped].props[ui.get_value(parent.prop_choose)+1]
+					local prop = PED.GET_PED_PROP_INDEX(ped, id)
+					if prop == -1 then return end
+					PED.SET_PED_COMPONENT_VARIATION(ped, id, prop, int, true)
+				end)
+			end)
+		end
 	end
 
 	local function AddMenuVehicle(veh, sub, parent, v)
@@ -6587,13 +7058,29 @@ do
 					v.collision = ENTITY.GET_ENTITY_COLLISION_DISABLED(k) == 0
 					v.visible = ENTITY.IS_ENTITY_VISIBLE(k) == 1
 					v.is_attached = ENTITY.IS_ENTITY_ATTACHED(k) == 1
+					local attpos = vector3.zero()
+					local pitch, roll, yaw = vector3.zero():get()
+					if v.is_attached and not v.attach_bone then
+						local offset = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(k, 0, 0, VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(k) ~= -1 and VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(k) or 0))
+			            local offpos1 = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(k, offset.x, offset.y, offset.z))
+			            local offset = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(k), 0, 0, VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ENTITY.GET_ENTITY_ATTACHED_TO(k)) ~= -1 and VEHICLE._GET_VEHICLE_SUSPENSION_HEIGHT(ENTITY.GET_ENTITY_ATTACHED_TO(k)) or 0))
+			            local offpos2 = vector3(ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(k), offset.x, offset.y, offset.z))
+			            local pos = features.get_entity_coords(k) + offpos1 + offpos2
+			          	attpos.x = ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(k), pos.x, pos.y, pos.z).x
+	                    attpos.y = ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(k), pos.x, pos.y, pos.z).y
+	                    attpos.z = ENTITY.GET_OFFSET_FROM_ENTITY_GIVEN_WORLD_COORDS(ENTITY.GET_ENTITY_ATTACHED_TO(k), pos.x, pos.y, pos.z).z
+			            local rot1 = features.get_entity_rot(ENTITY.GET_ENTITY_ATTACHED_TO(k))
+			            local rot2 = features.get_entity_rot(k)
+			            pitch, roll, yaw = (rot2 - rot1):get()
+					end
 					v.attach_bone = (v.is_attached and not v.attach_bone) and 0 or v.attach_bone
-					v.attachx = (v.is_attached and not v.attachx) and 0 or v.attachx
-					v.attachy = (v.is_attached and not v.attachy) and 0 or v.attachy
-					v.attachz = (v.is_attached and not v.attachz) and 0 or v.attachz
-					v.attachpitch = (v.is_attached and not v.attachpitch) and 0 or v.attachpitch
-					v.attachroll = (v.is_attached and not v.attachroll) and 0 or v.attachroll
-					v.attachyaw = (v.is_attached and not v.attachyaw) and 0 or v.attachyaw
+					v.attachx = (v.is_attached and not v.attachx) and attpos.x or v.attachx
+					v.attachy = (v.is_attached and not v.attachy) and attpos.y or v.attachy
+					v.attachz = (v.is_attached and not v.attachz) and attpos.z or v.attachz
+					v.attachpitch = (v.is_attached and not v.attachpitch) and pitch or v.attachpitch
+					v.attachroll = (v.is_attached and not v.attachroll) and roll or v.attachroll
+					v.attachyaw = (v.is_attached and not v.attachyaw) and yaw or v.attachyaw
+					v.noflee = v.noflee ~= nil and v.noflee or false
 					if v.type == 3 then
 						v.texture = OBJECT._GET_OBJECT_TEXTURE_VARIATION(k)
 					end
@@ -6620,7 +7107,7 @@ do
 						ui.set_step(EntityDb.spawned_options[k].rotz, value)
 					end),
 					separator_pos = ui.add_separator(TRANSLATION["Position"], sub),
-					posx = ui.add_float_option("X", sub, -10000, 10000, 1, 3, function(float)
+					posx = ui.add_float_option("X", sub, -10000, 10000, .1, 4, function(float)
 						if v.valid == 0 then return HudSound("ERROR") end
 						HudSound("YES")
 						entities.request_control(k, function()
@@ -6628,7 +7115,7 @@ do
 							ENTITY.SET_ENTITY_COORDS_NO_OFFSET(k, float, pos.y, pos.z, false, false, false)
 						end)
 					end),
-					posy = ui.add_float_option("Y", sub, -10000, 10000, 1, 3, function(float)
+					posy = ui.add_float_option("Y", sub, -10000, 10000, .1, 4, function(float)
 						if v.valid == 0 then return HudSound("ERROR") end
 						HudSound("YES")
 						entities.request_control(k, function()
@@ -6636,7 +7123,7 @@ do
 							ENTITY.SET_ENTITY_COORDS_NO_OFFSET(k, pos.x, float, pos.z, false, false, false)
 						end)
 					end),
-					posz = ui.add_float_option("Z", sub, -10000, 10000, 1, 3, function(float)
+					posz = ui.add_float_option("Z", sub, -10000, 10000, .1, 4, function(float)
 						if v.valid == 0 then return HudSound("ERROR") end
 						HudSound("YES")
 						entities.request_control(k, function()
@@ -6645,7 +7132,7 @@ do
 						end)
 					end),
 					separator_rot = ui.add_separator(TRANSLATION["Rotation"], sub),
-					rotx = ui.add_float_option(TRANSLATION["Pitch"], sub, -90, 90, 1, 3, function(float)
+					rotx = ui.add_float_option(TRANSLATION["Pitch"], sub, -90, 90, .1, 4, function(float)
 						if v.valid == 0 then return HudSound("ERROR") end
 						HudSound("YES")
 						entities.request_control(k, function()
@@ -6653,7 +7140,7 @@ do
 							ENTITY.SET_ENTITY_ROTATION(k, float, rot.y, rot.z, 2, true)
 						end)
 					end),
-					roty = ui.add_float_option(TRANSLATION["Roll"], sub, -180, 180, 1, 3, function(float)
+					roty = ui.add_float_option(TRANSLATION["Roll"], sub, -180, 180, .1, 4, function(float)
 						if v.valid == 0 then return HudSound("ERROR") end
 						HudSound("YES")
 						entities.request_control(k, function()
@@ -6661,7 +7148,7 @@ do
 							ENTITY.SET_ENTITY_ROTATION(k, rot.x, float, rot.z, 2, true)
 						end)
 					end),
-					rotz = ui.add_float_option(TRANSLATION["Yaw"], sub, -180, 180, 1, 3, function(float)
+					rotz = ui.add_float_option(TRANSLATION["Yaw"], sub, -180, 180, .1, 4, function(float)
 						if v.valid == 0 then return HudSound("ERROR") end
 						HudSound("YES")
 						entities.request_control(k, function()
@@ -6760,7 +7247,10 @@ do
 						if not success then return end
 						local min = features.get_model_dimentions(ENTITY.GET_ENTITY_MODEL(k))
 						entities.request_control(k, function()
-							ENTITY.SET_ENTITY_COORDS(k, pos.x, pos.y, z + abs(min.z), false, false, false, false)
+							ENTITY.SET_ENTITY_COORDS_NO_OFFSET(k, pos.x, pos.y, z + abs(min.z), false, false, false)
+							if v.type == 2 then
+								VEHICLE.SET_VEHICLE_ON_GROUND_PROPERLY(k, v)
+							end
 						end)
 					end),
 					tp_to = ui.add_click_option(TRANSLATION["Teleport to entity"], sub, function()
@@ -6860,12 +7350,12 @@ do
 						ui.set_step(EntityDb.spawned_options[k].roll, value)
 						ui.set_step(EntityDb.spawned_options[k].yaw, value)
 					end),
-					attachx = ui.add_float_option(TRANSLATION["Offset x"], sub_attached, -10000, 10000, .1, 3, update_attachment),
-					attachy = ui.add_float_option(TRANSLATION["Offset y"], sub_attached, -10000, 10000, .1, 3, update_attachment),
-					attachz = ui.add_float_option(TRANSLATION["Offset z"], sub_attached, -10000, 10000, .1, 3, update_attachment),
-					pitch = ui.add_float_option(TRANSLATION["Pitch"], sub_attached, -10000, 10000, .1, 3, update_attachment),
-					roll = ui.add_float_option(TRANSLATION["Roll"], sub_attached, -10000, 10000, .1, 3, update_attachment),
-					yaw = ui.add_float_option(TRANSLATION["Yaw"], sub_attached, -10000, 10000, .1, 3, update_attachment),
+					attachx = ui.add_float_option(TRANSLATION["Offset x"], sub_attached, -10000, 10000, .1, 4, update_attachment),
+					attachy = ui.add_float_option(TRANSLATION["Offset y"], sub_attached, -10000, 10000, .1, 4, update_attachment),
+					attachz = ui.add_float_option(TRANSLATION["Offset z"], sub_attached, -10000, 10000, .1, 4, update_attachment),
+					pitch = ui.add_float_option(TRANSLATION["Pitch"], sub_attached, -10000, 10000, .1, 4, update_attachment),
+					roll = ui.add_float_option(TRANSLATION["Roll"], sub_attached, -10000, 10000, .1, 4, update_attachment),
+					yaw = ui.add_float_option(TRANSLATION["Yaw"], sub_attached, -10000, 10000, .1, 4, update_attachment),
 					attach_bone = ui.add_num_option(TRANSLATION["Bone"], sub_attached, 0, 100, 1,  update_attachment),
 					detach = ui.add_click_option(TRANSLATION["Detach"], sub_attached, function()
 						HudSound("SELECT")
@@ -6880,6 +7370,11 @@ do
 								ENTITY.DETACH_ENTITY(k, ui.get_value(EntityDb.spawned_options[k].dynamic), v.collision)
 							end)
 						end)
+					end),
+					copy = ui.add_choose(TRANSLATION["Copy"], sub, false, {TRANSLATION["Only entity"], TRANSLATION["With attachments"]}, function(int)
+						if v.valid == 0 then return HudSound("ERROR") end
+						HudSound("YES")
+						world_spawner.copy_entity(k, int == 1)
 					end),
 					delete = ui.add_click_option(TRANSLATION["Delete"], sub, function()
 						HudSound("SELECT")
@@ -6978,7 +7473,7 @@ do
                     VEHICLE.GET_VEHICLE_CUSTOM_SECONDARY_COLOUR(k, r, g, b)
                     ui.set_value(parent.paint_secondary_rgb, memory.read_int(r), memory.read_int(g), memory.read_int(b), 255, true)
                     local pearl, wheel = s_memory.allocate(2)
-                    VEHICLE.GET_VEHICLE_EXTRA_COLOURS(veh, pearl, wheel)
+                    VEHICLE.GET_VEHICLE_EXTRA_COLOURS(k, pearl, wheel)
                     ui.set_value(parent.paint_pearlescent_select, memory.read_int(pearl), true)
                     for i = 0, 48
 				    do
@@ -7012,15 +7507,15 @@ do
 				    end
 				    VEHICLE._GET_VEHICLE_NEON_LIGHTS_COLOUR(k, r, g, b)
 				    ui.set_value(parent.neon_rgb, memory.read_int(r), memory.read_int(g), memory.read_int(b), 255, true)
-				    VEHICLE.GET_VEHICLE_TYRE_SMOKE_COLOR(veh, r, g, b)
+				    VEHICLE.GET_VEHICLE_TYRE_SMOKE_COLOR(k, r, g, b)
 				    ui.set_value(parent.tyre_smoke_color, memory.read_int(r), memory.read_int(g), memory.read_int(b), 255, true)
 				elseif v.type == 2 and ui.is_sub_open(parent.wheel_sub) then 
 					local pearl, wheel = s_memory.allocate(2)
 	            	VEHICLE.GET_VEHICLE_EXTRA_COLOURS(k, pearl, wheel)
-					ui.set_num_max(parent.wheels, VEHICLE.GET_NUM_VEHICLE_MODS(veh, 23))
-				    ui.set_value(parent.custom_wheels, VEHICLE.GET_VEHICLE_MOD_VARIATION(k, 23) == 1, true)
+					ui.set_num_max(parent.wheels, VEHICLE.GET_NUM_VEHICLE_MODS(k, 23))
+				    ui.set_value(parent.custom_wheels, VEHICLE.GET_VEHICLE_MOD_VARIATION(k, 23) == 1 or VEHICLE.GET_VEHICLE_MOD_VARIATION(k, 24) == 1, true)
 				    if VEHICLE.IS_THIS_MODEL_A_BIKE(ENTITY.GET_ENTITY_MODEL(k)) == 1 then
-				    	ui.set_value(parent.wheels_front, VEHICLE.GET_VEHICLE_MOD(k, 23) + 1, true)
+				    	ui.set_value(parent.wheels_front, VEHICLE.GET_VEHICLE_MOD(k, 23), true)
 				    	ui.set_value(parent.wheels_back, VEHICLE.GET_VEHICLE_MOD(k, 24) + 1, true)
 				    else
 				    	local wheel_type = VEHICLE.GET_VEHICLE_WHEEL_TYPE(k)
@@ -7035,6 +7530,12 @@ do
 				   	ui.set_value(parent.lock_vehicle, VEHICLE.GET_VEHICLE_DOOR_LOCK_STATUS(k) == 2, true) 
 				   	ui.set_value(parent.child_locks, VEHICLE.GET_VEHICLE_DOOR_LOCK_STATUS(k) == 4, true)
 				    ui.set_value(parent.siren, VEHICLE.IS_VEHICLE_SIREN_ON(k) == 1, true)
+				elseif v.type == 1 and ui.is_sub_open(parent.sub_ped_prop) then
+					ui.set_value(parent.block_flee, v.noflee, true)
+					ui.set_value(parent.can_ragdoll, PED.CAN_PED_RAGDOLL(k) == 1, true)
+					ui.set_value(parent.is_tiny, PED.GET_PED_CONFIG_FLAG(k, 223, false) == 1, true)
+					ui.set_value(parent.ped_health, ENTITY.GET_ENTITY_HEALTH(k), true)
+					ui.set_value(parent.ped_armor, PED.GET_PED_ARMOUR(k), true)
 				elseif v.type == 1 and ui.is_sub_open(parent.wardobe_sub) then
 					local component_id = EntityDb.entity_data[k].drawables[ui.get_value(parent.component_choose)+1]
 					ui.set_value(parent.component_id, PED.GET_PED_DRAWABLE_VARIATION(k, component_id), true)
@@ -7189,7 +7690,7 @@ do
 				clearing_area = nil
 				system.notify(TRANSLATION["Imagined Menu"], TRANSLATION['Clear area finished'], 0, 255, 0, 255)
 				return POP_THREAD
-			end, true, true)
+			end)
 		end
 	end)
 
@@ -7211,10 +7712,11 @@ do
 	local on_peds
 	local on_obj
 	local force_types = {TRANSLATION['Low'], TRANSLATION['Medium']..'*', TRANSLATION['High']}
-	local force = {}
-	force[0] = 10
-	force[1] = 50
-	force[2] = 1000
+	local force = {
+		[0] = 10,
+		50,
+		1000,
+	}
 	local blackhole_force = force[1]
 
 	__options.bool["BlackHoleOnVehicles"] = ui.add_bool_option(TRANSLATION['On vehicles'], __submenus["BlackHole"], function(bool) HudSound("TOGGLE_ON") on_vehs = bool
@@ -7318,7 +7820,7 @@ ui.add_click_option(TRANSLATION["Resurrect peds"], __submenus["Peds"], function(
 	for _, v in ipairs(entities.get_peds())
 	do
 		if ENTITY.IS_ENTITY_DEAD(v, false) == 1 and v ~= features.player_ped() and PED.IS_PED_A_PLAYER(v) == 0 then
-			RevivePed(v)
+			peds.revive(v)
 		end
 	end
 end)
@@ -7809,7 +8311,7 @@ do
 					features.teleport(features.player_ped(), v.x, v.y, v.z, v.heading)
 				end),
 				rename = ui.add_input_string(TRANSLATION["Rename"], sub, function(text) 
-					if not text or text == "" then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Please enter name"], 255, 0, 0, 255) return HudSound("ERROR") end
+					if not text or text:isblank() then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Please enter name"], 255, 0, 0, 255) return HudSound("ERROR") end
 					saved_locations[i].name = text
 					ui.set_name(locations[i].submenu, text)
 					ui.set_name(locations[i].sub_option, text)
@@ -7829,7 +8331,7 @@ do
 				locations[i].add_to_folder = ui.add_submenu(TRANSLATION["Add to folder"])
 				locations[i].add_to_folder_s = ui.add_sub_option(TRANSLATION["Add to folder"], locations[i].submenu, locations[i].add_to_folder) 
 				locations[i].string = ui.add_input_string(TRANSLATION["Create folder"], locations[i].add_to_folder, function(text)
-					if not text or text == "" or folders[text] then return end
+					if not text or text:isblank() or folders[text] then return end
 					CreateRemoveThread(true, 'ui_refresh_'..thread_count, function()
 						saved_locations[i].folder = text
 						RefreshLocations()
@@ -7860,7 +8362,7 @@ do
 	__suboptions["TeleportFolders"] = ui.add_sub_option(TRANSLATION["Select folder"], __submenus["SaveLocation"], __submenus["TeleportFolders"])
 	ui.add_input_string(TRANSLATION["Create folder"], __submenus["TeleportFolders"], function(text)
 		CreateRemoveThread(true, 'ui_refresh_'..thread_count, function()
-			if text == "" then folder = nil return POP_THREAD end
+			if text:isblank() then folder = nil return POP_THREAD end
 			if text and not folders[text] then
 				folder = text
 			end
@@ -7891,7 +8393,7 @@ do
 	end)
 
 	ui.add_click_option(TRANSLATION["Save"], __submenus["SaveLocation"], function()
-		if not name or name == "" then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Please enter name"], 255, 0, 0, 255) return HudSound("ERROR") end
+		if not name or name:isblank() then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Please enter name"], 255, 0, 0, 255) return HudSound("ERROR") end
 		HudSound("SELECT")
 		CreateRemoveThread(true, 'ui_refresh_'..thread_count, function()
 			local pos = features.get_player_coords()
@@ -8082,7 +8584,7 @@ end)
 
 ui.add_click_option(TRANSLATION['Teleport from clipboard'], __submenus["Teleport"], function()
 	if system.is_safe_mode_enabled() then system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["This feature requires Safe mode to be disabled"], 255, 0, 0, 255) return HudSound("ERROR") end
-	local data = features.split(system.from_clipboard(), '%,')
+	local data = system.from_clipboard():split('%,', true)
 	for i, v in ipairs(data)
 	do
 		local num = v:gsub('[^%-%d%.]', '')
@@ -8164,9 +8666,9 @@ __options.bool["TargetCops"] = ui.add_bool_option(TRANSLATION['Target cops'], __
 do
 	local bone_id = {
 		[0] = 0x796e,
-		[1] = 0x9995,
-		[2] = 0xe0fd,
-		[3] = 0x3fcf
+		0x9995,
+		0xe0fd,
+		0x3fcf
 	}
 	__options.choose["AimBone"] = ui.add_choose(TRANSLATION['Bone'], __submenus["AimAssist"], true, {TRANSLATION["Head"]..'*', TRANSLATION["Neck"], TRANSLATION["Spine"], TRANSLATION["Knee"]}, function(int) HudSound("YES") settings.Weapons["AimBone"] = int end)
 
@@ -8475,7 +8977,7 @@ do
 				local camcoord = features.gameplay_cam_pos()
 				local target_pos = camcoord + dir * distance
 				ENTITY.SET_ENTITY_COORDS_NO_OFFSET(entity, target_pos.x, target_pos.y, target_pos.z, false, false, false)
-				if PAD.IS_CONTROL_JUST_PRESSED(0, enum.input.ATTACK2) == 1 then
+				if PAD.IS_DISABLED_CONTROL_JUST_PRESSED(0, enum.input.ATTACK2) == 1 then
 					if ENTITY.IS_ENTITY_A_PED(entity) == 1 then
 						PED.SET_PED_TO_RAGDOLL(entity, 5000, 5000, 0, true, true, false)
 					end
@@ -8534,7 +9036,7 @@ do
 				ENTITY.FREEZE_ENTITY_POSITION(entity, false)
 				features.request_control_once(entity)
 				features.set_entity_velocity(entity, force_to.x, force_to.y, force_to.z)
-				if PAD.IS_CONTROL_JUST_PRESSED(0, enum.input.ATTACK2) == 1 then
+				if PAD.IS_DISABLED_CONTROL_JUST_PRESSED(0, enum.input.ATTACK2) == 1 then
 					if ENTITY.IS_ENTITY_A_PED(entity) == 1 then
 						PED.SET_PED_TO_RAGDOLL(entity, 5000, 5000, 0, true, true, false)
 					end
@@ -8743,22 +9245,78 @@ do
 end
 
 do
-	local vehs = {
-		TRANSLATION['None']
+	local types = {TRANSLATION["None"], HUD._GET_LABEL_TEXT("WT_SNIP_HVY2"), HUD._GET_LABEL_TEXT("WT_RPG"), HUD._GET_LABEL_TEXT("WT_MOLOTOV"), HUD._GET_LABEL_TEXT("WT_SNWBALL"), HUD._GET_LABEL_TEXT("WT_RAYPISTOL"), HUD._GET_LABEL_TEXT("WT_FIREWRK"), HUD._GET_LABEL_TEXT("WT_EMPL"), HUD._GET_LABEL_TEXT("WT_V_KHA_CA"), HUD._GET_LABEL_TEXT("LAZER")}
+	local type = settings.Weapons["BulletChanger"]
+	local hases = {
+		177293209,
+		-1312131151,
+		615608432,
+		126349499,
+		-1355376991,
+		2138347493,
+		3676729658,
+		1945616459,
+		3800181289,
 	}
+	local wait = 0
+	local ammo
+	local selected
+	__options.choose["BulletChanger"] = ui.add_choose(TRANSLATION["Bullet changer"], __submenus["Weapons"], false, types, function(int) HudSound("YES")
+		settings.Weapons["BulletChanger"] = int
+	end)
+
+	local function GetTime()
+		local handle = memory.handle_to_pointer(features.player_ped())
+		local addr = s_memory.get_memory_address(handle, {0x10D8, 0x20, 0x013C})
+		return addr == 0 and .1 or memory.read_float(addr)
+	end
+
+	CreateRemoveThread(true, 'bullet_changer', function()
+		if settings.Weapons["BulletChanger"] == 0 then
+			if ammo then
+				WEAPON.REMOVE_WEAPON_ASSET(ammo)
+				ammo = nil
+			end
+			return
+		end
+		if selected ~= settings.Weapons["BulletChanger"] and ammo then
+			WEAPON.REMOVE_WEAPON_ASSET(ammo)
+		end
+		selected = settings.Weapons["BulletChanger"]
+		ammo = hases[settings.Weapons["BulletChanger"]]
+		if WEAPON.HAS_WEAPON_ASSET_LOADED(ammo) == 0 then
+			WEAPON.REQUEST_WEAPON_ASSET(ammo, 31, 0)
+			return
+		end
+		PLAYER.DISABLE_PLAYER_FIRING(PLAYER.PLAYER_ID(), true)
+		if PAD.IS_DISABLED_CONTROL_PRESSED(0, enum.input.ATTACK2) == 1 and PLAYER.IS_PLAYER_FREE_AIMING(PLAYER.PLAYER_ID()) == 1 and time < os.clock() then
+			local ped = features.player_ped()
+			local weapo = WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(ped, 1)
+			local cam_dir = features.gameplay_cam_rot():rot_to_direction()
+			local cam_pos = features.gameplay_cam_pos()
+			local pos1 = cam_pos + (cam_dir * (cam_pos:len(features.get_entity_coords(weapo)) + 0.4))
+			local pos2 = cam_pos + (cam_dir * 200)
+			MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, 5, true, ammo, ped, true, true, 24000)
+			time = os.clock() + GetTime()
+		end
+
+	end)
+end
+
+do
+	local vehs = {}
 	for i, v in ipairs(vehicles.models) do
 		insert(vehs, v[3])
 	end
 
 	local curr_model
 	local spawned_vehs = {}
-	__options.choose["VehicleGun"] = ui.add_choose(TRANSLATION["Vehicle gun"], __submenus["Weapons"], false, vehs, function(int) HudSound("YES") settings.Weapons["VehicleGun"] = int end)
-
-	ui.add_click_option(TRANSLATION["Disable vehicle gun"], __submenus["Weapons"], function() HudSound("SELECT") dont_play_tog = true ui.set_value(__options.choose["VehicleGun"], 0, false) end)
+	__options.choose["VehicleGun"] = ui.add_choose(TRANSLATION["Vehicle gun"], __submenus["Weapons"], true, vehs, function(int) HudSound("YES") settings.Weapons["VehicleGun"] = int end)
+	__options.bool["VehicleGunEnabled"] = ui.add_bool_option(TRANSLATION["Enable vehicle gun"], __submenus["Weapons"], function(bool) HudSound("TOGGLE_ON") settings.Weapons["VehicleGunEnabled"] = bool end)
 
 	CreateRemoveThread(true, 'weapons_vehicle_gun', function()
-		if settings.Weapons["VehicleGun"] == 0 then return end
-		local model = settings.Weapons["VehicleGun"]
+		if not settings.Weapons["VehicleGunEnabled"]then return end
+		local model = settings.Weapons["VehicleGun"] + 1
 		if not curr_model then
 			if features.request_model(vehicles.models[model][2]) == 0 then return end
 			curr_model = model
@@ -8852,7 +9410,23 @@ do
 	end
 	function guns.revive(ent)
 		if ENTITY.IS_ENTITY_A_PED(ent) == 1 and ENTITY.IS_ENTITY_DEAD(ent, false) == 1 then
-			RevivePed(ent)
+			peds.revive(ent)
+		end
+	end
+	function guns.soul_switch(ent)
+		if ENTITY.IS_ENTITY_A_PED(ent) == 1 and PED.IS_PED_A_PLAYER(ent) == 0 then
+			local weapon = peds.get_weapons()
+			ENTITY.SET_ENTITY_HEALTH(ent, 200, 0)
+            ENTITY.SET_ENTITY_MAX_HEALTH(ent, 400)
+            PED.RESURRECT_PED(ent)
+            PED.REVIVE_INJURED_PED(ent)
+            ENTITY.SET_ENTITY_HEALTH(ent, 200, 0)
+            PED.SET_PED_GENERATES_DEAD_BODY_EVENTS(ent, false)
+            if PED.IS_PED_IN_ANY_VEHICLE(ent, false) == 0 then
+            	TASK.CLEAR_PED_TASKS_IMMEDIATELY(ent)
+            end
+			PLAYER.CHANGE_PLAYER_PED(PLAYER.PLAYER_ID(), ent, true, true)
+			peds.set_weapons(weapon)
 		end
 	end
 	-- function guns.teleport()
@@ -8884,6 +9458,7 @@ do
 	__options.choose["ExplodeGun"] = ui.add_choose(TRANSLATION["Explode gun"], __submenus["Weapons"], true, action, function(int) HudSound("YES") settings.Weapons["ExplodeGun"] = int end)
 	__options.choose["PaintGun"] = ui.add_choose(TRANSLATION["Paint gun"], __submenus["Weapons"], true, action, function(int) HudSound("YES") settings.Weapons["PaintGun"] = int end)
 	__options.choose["ReviveGun"] = ui.add_choose(TRANSLATION["Revive gun"], __submenus["Weapons"], true, action, function(int) HudSound("YES") settings.Weapons["ReviveGun"] = int end)
+	__options.choose["SoulSwitchGun"] = ui.add_choose(TRANSLATION["Soul switch gun"], __submenus["Weapons"], true, action, function(int) HudSound("YES") settings.Weapons["SoulSwitchGun"] = int end)
 	__options.choose["TeleportGun"] = ui.add_choose(TRANSLATION["Teleport gun"], __submenus["Weapons"], true, action, function(int) HudSound("YES") settings.Weapons["TeleportGun"] = int end)
 	__options.choose["AirstrikeGun"] = ui.add_choose(TRANSLATION["Airstrike gun"], __submenus["Weapons"], true, action, function(int) HudSound("YES") settings.Weapons["AirstrikeGun"] = int end)
 
@@ -8908,13 +9483,17 @@ do
 
 		local ent = features.get_aimed_entity()
 		if ent == 0 then return end
+		local ped = ent
+		local cam_dir = features.gameplay_cam_rot():rot_to_direction()
 		if ENTITY.IS_ENTITY_A_PED(ent) == 1 and PED.IS_PED_IN_ANY_VEHICLE(ent, true) == 1 then
 			ent = PED.GET_VEHICLE_PED_IS_IN(ent, false)
 		end
-		local cam_dir = features.gameplay_cam_rot():rot_to_direction()
 
 		if settings.Weapons["ReviveGun"] == 1 then
-			guns.revive(ent)
+			guns.revive(ped)
+		end
+		if settings.Weapons["SoulSwitchGun"] == 1 then
+			guns.soul_switch(ped)
 		end
 		if settings.Weapons["PaintGun"] == 1 then
 			guns.paint(ent)
@@ -8932,7 +9511,10 @@ do
 		if PED.IS_PED_SHOOTING(features.player_ped()) == 0 then return end
 
 		if settings.Weapons["ReviveGun"] == 2 then
-			guns.revive(ent)
+			guns.revive(ped)
+		end
+		if settings.Weapons["SoulSwitchGun"] == 2 then
+			guns.soul_switch(ped)
 		end
 		if settings.Weapons["PaintGun"] == 2 then
 			guns.paint(ent)
@@ -9319,6 +9901,9 @@ do
 	__submenus["StatEditor"] = ui.add_submenu(TRANSLATION["Stat editor"])
 	__suboptions["StatEditor"] = ui.add_sub_option(TRANSLATION["Stat editor"], __submenus["Recovery"], __submenus["StatEditor"])
 
+	__submenus["StatEditorManual"] = ui.add_submenu(TRANSLATION["Manual edit"])
+	__suboptions["StatEditorManual"] = ui.add_sub_option(TRANSLATION["Manual edit"], __submenus["StatEditor"], __submenus["StatEditorManual"])
+
 	local stat = 1
 	-- local _bool
 	-- local _int
@@ -9341,15 +9926,15 @@ do
 	-- __options.bool["Bool"] = ui.add_bool_option(TRANSLATION["Bool"], __submenus["StatEditor"], function(bool) _bool = bool end)
 	-- __options.bool["Int"] = ui.add_bool_option(TRANSLATION["Int"], __submenus["StatEditor"], function(bool) _int = bool end)
 	-- __options.bool["Float"] = ui.add_bool_option(TRANSLATION["Float"], __submenus["StatEditor"], function(bool) _float = bool end)
-	__options.num["StatValue"] = ui.add_float_option(TRANSLATION["Value"], __submenus["StatEditor"], -2147483647, 2147483647, 1, 4, function(float) HudSound("YES") value = float end)
+	__options.num["StatValue"] = ui.add_float_option(TRANSLATION["Value"], __submenus["StatEditor"], -999999999, 999999999, 1, 4, function(float) HudSound("YES") value = float end)
 
 	ui.add_click_option(TRANSLATION["Change stat"], __submenus["StatEditor"], function()
 		HudSound("SELECT")
 		local type = enum.stats[stat].type
-		local stat = enum.stats[stat].characterStat
+		local charstat = enum.stats[stat].characterStat
 		local GetHash = switch()
 			:case(true, function()
-				local char = globals.get_int(1574915)
+				local char = features.get_last_char()
 				return utils.joaat('MP'..char..'_'..enum.stats[stat].name)
 			end)
 			:default(function()
@@ -9357,14 +9942,72 @@ do
 			end)
 
 		if type == 'bool' then
-			STATS.STAT_SET_BOOL(GetHash(stat), features.to_bool(value), true)
+			STATS.STAT_SET_BOOL(GetHash(charstat), features.to_bool(value), true)
 			return
 		elseif type == 'float' then
-			STATS.STAT_SET_FLOAT(GetHash(stat), value, true)
+			STATS.STAT_SET_FLOAT(GetHash(charstat), value, true)
 			return
 		elseif features.compare(type, 'int', 'u32', 'u64') then
-			STATS.STAT_SET_INT(GetHash(stat), value, true)
+			STATS.STAT_SET_INT(GetHash(charstat), floor(value), true)
 			return
+		end
+	end)
+
+	local stat_input
+	local prefix
+	local GetStatHash = switch()
+		:case(true, function()
+			local char = features.get_last_char()
+			return utils.joaat('MP'..char..'_'..stat_input)
+		end)
+		:default(function()
+			return utils.joaat(stat_input)
+		end)
+
+	__options.string["StatInput"] = ui.add_input_string(TRANSLATION["Stat name"], __submenus["StatEditorManual"], function(text) stat_input = text end)
+	__options.bool["UseMPPrefix"] = ui.add_bool_option(TRANSLATION["Use \"MP\" prefix"], __submenus["StatEditorManual"], function(bool) HudSound("TOGGLE_ON") prefix = bool end)
+	ui.add_num_option(TRANSLATION["Set int"], __submenus["StatEditorManual"], -999999999, 999999999, 1, function(int)
+		if not stat_input or stat_input:isblank() then return HudSound("ERROR") end
+		local hash = GetStatHash(prefix)
+		if not hash or hash == 0 then return HudSound("ERROR") end
+		if STATS.STAT_SET_INT(hash, int, true) == 1 then
+			HudSound("YES")
+		else
+			system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Something went wrong"], 255, 0, 0, 255)
+			HudSound("ERROR")
+		end
+	end)
+	ui.add_float_option(TRANSLATION["Set float"], __submenus["StatEditorManual"], -999999999, 999999999, .1, 4, function(float)
+		if not stat_input or stat_input:isblank() then return HudSound("ERROR") end
+		local hash = GetStatHash(prefix)
+		if not hash or hash == 0 then return HudSound("ERROR") end
+		if STATS.STAT_SET_FLOAT(hash, float, true) == 1 then
+			HudSound("YES")
+		else
+			system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Something went wrong"], 255, 0, 0, 255)
+			HudSound("ERROR")
+		end
+	end)
+	ui.add_bool_option(TRANSLATION["Set bool"], __submenus["StatEditorManual"], function(bool)
+		if not stat_input or stat_input:isblank() then return HudSound("ERROR") end
+		local hash = GetStatHash(prefix)
+		if not hash or hash == 0 then return HudSound("ERROR") end
+		if STATS.STAT_SET_BOOL(hash, bool, true) == 1 then
+			HudSound("YES")
+		else
+			system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Something went wrong"], 255, 0, 0, 255)
+			HudSound("ERROR")
+		end
+	end)
+	ui.add_input_string(TRANSLATION["Set user ID"], __submenus["StatEditorManual"], function(text)
+		if not stat_input or stat_input:isblank() then return HudSound("ERROR") end
+		local hash = GetStatHash(prefix)
+		if not hash or hash == 0 then return HudSound("ERROR") end
+		if STATS.STAT_SET_USER_ID(hash, text, true) == 1 then
+			HudSound("YES")
+		else
+			system.notify(TRANSLATION["Imagined Menu"], TRANSLATION["Something went wrong"], 255, 0, 0, 255)
+			HudSound("ERROR")
 		end
 	end)
 end
@@ -9409,7 +10052,7 @@ do
 		HudSound("SELECT")
 		for _, v in ipairs(fast_run)
 		do
-			local char = globals.get_int(1574915) 
+			local char = features.get_last_char()
 			STATS.STAT_SET_INT(utils.joaat('MP'..char..'_'..v), -1, true)
 		end
 	end)
@@ -9418,7 +10061,7 @@ do
 		HudSound("SELECT")
 		for _, v in ipairs(snacks)
 		do
-			local char = globals.get_int(1574915)
+			local char = features.get_last_char()
 			STATS.STAT_SET_INT(utils.joaat('MP'..char..'_'..v[1]), v[2], true)
 		end
 	end)
@@ -9427,7 +10070,7 @@ do
 		HudSound("SELECT")
 		for _, v in ipairs(armor)
 		do
-			local char = globals.get_int(1574915)
+			local char = features.get_last_char()
 			STATS.STAT_SET_INT(utils.joaat('MP'..char..'_'..v[1]), v[2], true)
 		end
 	end)
@@ -9483,11 +10126,9 @@ do
 		end)
 
 	for i = 1, #TRANSLATION_FILES do
-		text = TRANSLATION_FILES[i]:gsub('%.json', "")
-		text = text:sub(1,1):upper()..text:sub(2,-1):lower()
-		LANGUAGES[i] = lang(text)
+		text = TRANSLATION_FILES[i]:gsub('.json$', '')
+		LANGUAGES[i] = lang(text:capitalize())
 	end
-
 end
 
 __options.choose["Translation"] = ui.add_choose(TRANSLATION['Default translation'], __submenus["Settings"], true, LANGUAGES, function(i) 
@@ -9622,6 +10263,39 @@ __options.bool["ShowTypingIndicators"] = ui.add_bool_option(TRANSLATION["Show ty
 	end)
 end)
 
+__options.bool["ShowPlayers3DPosition"] = ui.add_bool_option(TRANSLATION["Show 3D markers on players"], __submenus["Settings"], function(bool)
+	HudSound("TOGGLE_ON")
+	settings.General["ShowPlayers3DPosition"] = bool
+	CreateRemoveThread(bool, 'show_players_position', function()
+		if ui.get_value(__options.bool["FreeCam"]) then return end
+		if ui.is_sub_open(__submenus["Session"]) or ui.is_sub_open(__submenus["Commands"]) or ui.is_sub_open(__submenus["VehicleBlacklist"]) or ui.is_sub_open(__submenus["BlacklistedVehicles"]) or ui.is_sub_open(__submenus["AddVehToBl"]) or ui.is_sub_open(__submenus["PlaySound"]) or ui.is_sub_open(__submenus["ChatMocker"]) or ui.is_sub_open(__submenus["SessionTeleport"]) or ui.is_sub_open(__submenus["ExcludedPlayers"]) or ui.is_sub_open(__submenus["SessionCustomExplosion"]) then
+			for i = 0, 31
+			do
+				if i ~= PLAYER.PLAYER_ID() and NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) == 1 then
+					local pos = features.get_player_coords(i)
+					if features.is_friend(i) then
+						GRAPHICS.DRAW_LINE(pos.x, pos.y, -1000, pos.x, pos.y, 6000, 0, 255, 0, 255)
+					else
+						GRAPHICS.DRAW_LINE(pos.x, pos.y, -1000, pos.x, pos.y, 6000, 0, 168, 255, 255)
+					end
+				end
+			end
+		elseif ui.is_sub_open(__submenus["Imagined"]) or ui.is_sub_open(__submenus["PlayerlistVehicle"]) or ui.is_sub_open(__submenus["SpawnVehicle"]) or ui.is_sub_open(__submenus["PlayerlistTeleport"]) or ui.is_sub_open(__submenus["PlayerlistOther"]) or ui.is_sub_open(__submenus["Blame"]) or ui.is_sub_open(__submenus["SendEnemyVehicle"])  or ui.is_sub_open(__submenus["CustomExplosion"]) then
+			local pos = features.get_player_coords2(online.get_selected_player())
+			local my_pos = features.get_player_coords()
+			local color = {r = 0, g = 168, b = 255}
+			if features.is_friend(online.get_selected_player()) then
+				color = {r = 0, g = 255, b = 0}
+			end
+			if ENTITY.IS_ENTITY_ON_SCREEN(features.player_ped(online.get_selected_player())) == 1 then
+				GRAPHICS.DRAW_LINE(pos.x, pos.y, -1000, pos.x, pos.y, 6000, color.r, color.g, color.b, 255)
+			else
+				GRAPHICS.DRAW_LINE(my_pos.x, my_pos.y, my_pos.z, pos.x, pos.y, pos.z, color.r, color.g, color.b, 255)
+			end
+		end
+	end)
+end)
+
 __options.bool["HudSounds"] = ui.add_bool_option(TRANSLATION["Hud sounds"], __submenus["Settings"], function(bool) HudSound("TOGGLE_ON")
 	settings.General["HudSounds"] = bool
 end)
@@ -9660,6 +10334,7 @@ __suboptions["Help"] = ui.add_sub_option(TRANSLATION["Help"], __submenus["Settin
 
 ui.add_click_option('(*) '..TRANSLATION["means recommended"], __submenus["Help"], function() HudSound("Error") end)
 ui.add_click_option('(») '..TRANSLATION["means hyperlink"], __submenus["Help"], function() HudSound("Error") end)
+ui.add_click_option(format(TRANSLATION["Press %s to use free cam"], 'F8'), __submenus["Help"], function() HudSound("Error") end)
 
 if settings.Dev.Enable then
 	ui.add_separator('Dev', __submenus["Settings"])
@@ -9707,7 +10382,7 @@ local click = 0
 ui.add_click_option(format(TRANSLATION['%s for scripting'], 'SATTY'), __submenus["Credits"], function() click = click + 1 if system.is_safe_mode_enabled() then return HudSound("ERROR") end HudSound("SELECT") features.to_clipboard("SATTY", true) end)
 ui.add_click_option(format(TRANSLATION['%s for bug finding'], 'Dr Donger'), __submenus["Credits"], function() if system.is_safe_mode_enabled() then return HudSound("ERROR") end HudSound("SELECT") features.to_clipboard("Dr Donger", true) end)
 ui.add_click_option(format(TRANSLATION['%s for improving lua API'], 'ItsPxel'), __submenus["Credits"], function() if system.is_safe_mode_enabled() then return HudSound("ERROR") end HudSound("SELECT") features.to_clipboard("ItsPxel", true) end)
-if TRANSLATION[1]['Credits'] ~= "" then
+if not TRANSLATION[1]['Credits']:isblank() then
 	ui.add_click_option(format(TRANSLATION['%s for translation'], TRANSLATION[1]['Credits']), __submenus["Credits"], function() if system.is_safe_mode_enabled() then return HudSound("ERROR") end HudSound("SELECT") features.to_clipboard(TRANSLATION[1]['Credits'], true) end)
 end
 ui.add_click_option("DurtyFree »", __submenus["Credits"], function() HudSound("SELECT") filesystem.open("https://github.com/DurtyFree") end)
@@ -9726,6 +10401,7 @@ vehicle_blacklist.load()
 CreateRemoveThread(true, 'debug_menu', function()
 	if click > 20 then
 		local sub = ui.add_submenu("Debug")
+		__options.bool["DebugSELog"] = ui.add_bool_option('Log script events', sub, function() HudSound("TOGGLE_ON") end)
 		ui.add_sub_option("Debug", __submenus["MainSub"], sub)
 		ui.add_num_option("Blip", sub, 0, 1000, 1, function(int)
 			local blip = HUD.GET_FIRST_BLIP_INFO_ID(int)
@@ -9799,6 +10475,16 @@ CreateRemoveThread(true, 'debug_menu', function()
 		end)
 		ui.add_click_option("Print cases", sub, function()
 			system.log('debug', concat(cases, '\n'))
+		end)
+
+		ui.add_click_option("Print empty translation", sub, function()
+			cache:set("TRANSLATION", TRANSLATION)
+			local translation = cache:get("TRANSLATION")
+			for k in pairs(translation)
+			do
+				translation[k] = ""
+			end
+			filesystem.write(json:encode_pretty(translation), paths['Lua']..[[\translation.txt]])
 		end)
 
 		return POP_THREAD
@@ -9881,12 +10567,15 @@ local err = function(e)
 end
 settings.General["TutorialCompleted"] = true
 SaveConfig()
+
 while gRunning
 do
 	time = clock()
 	if dont_play_tog then
 		dont_play_tog = false
 	end
+
+	globals.set_int(4539659, 1) -- bypass for vehicle despawn
 
 	local found
 	for k, v in pairs(__submenus)
@@ -9899,6 +10588,11 @@ do
 				break
 			end
 		end
+	end
+
+	PAD.DISABLE_CONTROL_ACTION(0, enum.input.SELECT_CHARACTER_MULTIPLAYER, true)
+	if PAD.IS_DISABLED_CONTROL_JUST_RELEASED(0, enum.input.SELECT_CHARACTER_MULTIPLAYER) == 1 then
+		ui.set_value(__options.bool["FreeCam"], not ui.get_value(__options.bool["FreeCam"]), false)
 	end
 
 	if is_open and not found then

@@ -83,11 +83,11 @@ end
 function vehicles.door_index()
     return {
         [0] = TRANSLATION["Driver's Front Door"],
-        [1] = TRANSLATION["Passenger's Front Door"],
-        [2] = TRANSLATION["Driver's Rear Door"],
-        [3] = TRANSLATION["Passenger's Rear Door"],
-        [4] = TRANSLATION["Vehicle Hood"],
-        [5] = TRANSLATION["Vehicle Trunk"]
+        TRANSLATION["Passenger's Front Door"],
+        TRANSLATION["Driver's Rear Door"],
+        TRANSLATION["Passenger's Rear Door"],
+        TRANSLATION["Vehicle Hood"],
+        TRANSLATION["Vehicle Trunk"]
     }
 end
 -- vehicles.paint_classic = {}
@@ -244,6 +244,125 @@ end
 
 --     return enum.vehicle_mod_slot_names[modtype] .. ' ' .. modvalue + 1
 -- end
+
+local GetDlc = switch()
+    :case("TitleUpdate", function()
+        return 23
+    end)
+    :case("mpbeach", function()
+        return 24
+    end)
+    :case("mpvalentines", function()
+        return 25
+    end)
+    :case("mpbusiness", function()
+        return 26
+    end)
+    :case("mpbusiness2", function()
+        return 27
+    end)
+    :case("mphipster", function()
+        return 28
+    end)
+    :case("mpindependence", function()
+        return 29
+    end)
+    :case("mppilot", function()
+        return 30
+    end)
+    :case("mplts", function()
+        return 31
+    end)
+    :case("spupgrade", function()
+        return 32
+    end)
+    :case("mpchristmas2", function()
+        return 33
+    end)
+    :case("mpheist", function()
+        return 34
+    end)
+    :case("mpluxe", function()
+        return 35
+    end)
+    :case("mpluxe2", function()
+        return 36
+    end)
+    :case("mplowrider", function()
+        return 37
+    end)
+    :case("mphalloween", function()
+        return 38
+    end)
+    :case("mpapartment", function()
+        return 39
+    end)
+    :case("mpxmas_604490", function()
+        return 40
+    end)
+    :case("mpjanuary2016", function()
+        return 41
+    end)
+    :case("mpvalentines2", function()
+        return 42
+    end)
+    :case("mplowrider2", function()
+        return 43
+    end)
+    :case("mpexecutive", function()
+        return 44
+    end)
+    :case("mpstunt", function()
+        return 45
+    end)
+    :case("mpbiker", function()
+        return 46
+    end)
+    :case("mpimportexport", function()
+        return 47
+    end)
+    :case("mpspecialraces", function()
+        return 48
+    end)
+    :case("mpgunrunning", function()
+        return 49
+    end)
+    :case("mpsmuggler", function()
+        return 50
+    end)
+    :case("mpchristmas2017", function()
+        return 51
+    end)
+    :case("mpassault", function()
+        return 52
+    end)
+    :case("mpbattle", function()
+        return 53
+    end)
+    :case("mpchristmas2018", function()
+        return 54
+    end)
+    :case("mpvinewood", function()
+        return 55
+    end)
+    :case("mpheist3", function()
+        return 56
+    end)
+    :case("mpsum", function()
+        return 57
+    end)
+    :case("mpheist4", function()
+        return 58
+    end)
+    :case("mptuner", function()
+        return 59
+    end)
+    :case("mpsecurity", function()
+        return 60
+    end)
+    :case("mpsum2", function()
+        return 61
+    end)
 
 function vehicles.tuning_menu(veh, sub, parent, no_sub)
     if not no_sub then
@@ -1013,7 +1132,7 @@ function vehicles.get_ped_seat(ped)
 end
 
 function vehicles.get_personal_vehicle()
-    return globals.get_int(2810701 + 298)
+    return globals.get_int(2815059 + 298)
 end
 
 function vehicles.get_player_personal_veh(player)
@@ -1047,15 +1166,26 @@ do
     if v.DimensionsMin and v.DimensionsMax then
         insert(vehicles.models, {v.Name, v.Hash, vehicles.get_label_name(v.Name), VEHICLE.GET_VEHICLE_CLASS_FROM_NAME(v.Hash)})
         local c = VEHICLE.GET_VEHICLE_CLASS_FROM_NAME(v.Hash)
+        local dlc = GetDlc(v.DlcName)
         if not vehicles.class[c] then
             vehicles.class[c] = {}
             vehicles.class_manufacturer[c] = {}
             vehicles.class_hash[c] = {}
         end
+        if dlc and not vehicles.class[dlc] then
+            vehicles.class[dlc] = {}
+            vehicles.class_manufacturer[dlc] = {}
+            vehicles.class_hash[dlc] = {}
+        end
         local name = vehicles.get_label_name(v.Name)
         insert(vehicles.class_manufacturer[c], HUD._GET_LABEL_TEXT(v.Manufacturer) ~= 'NULL' and HUD._GET_LABEL_TEXT(v.Manufacturer)..' '..name or name)
         insert(vehicles.class[c], name)
         insert(vehicles.class_hash[c], v.Hash)
+        if dlc then
+            insert(vehicles.class_manufacturer[dlc], HUD._GET_LABEL_TEXT(v.Manufacturer) ~= 'NULL' and HUD._GET_LABEL_TEXT(v.Manufacturer)..' '..name or name)
+            insert(vehicles.class[dlc], name)
+            insert(vehicles.class_hash[dlc], v.Hash)
+        end
     end
 end
 
